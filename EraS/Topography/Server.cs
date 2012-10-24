@@ -38,8 +38,9 @@ namespace EraS.Topography
         public ServerConnection Connection { get; set; }
 
         /// <summary>
-        /// Creates a new server representation
+        /// Creates a new server representation instance
         /// </summary>
+        /// <param name="identifier">The unique identifier (hash)</param>
         public Server(String identifier)
         {
             Services = new List<Service>();
