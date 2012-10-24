@@ -14,25 +14,28 @@ namespace EraS.Topography
         /// <summary>
         /// The list of services connected to this server
         /// </summary>
-        List<Service> Services { get; protected set; }
+        public List<Service> Services { get; protected set; }
 
         /// <summary>
         /// Wether the server is fenced (no active services, won't relay messages)
         /// </summary>
-        Boolean IsFenced { get; set; }
+        public Boolean IsFenced { get; set; }
 
         /// <summary>
         /// The unique identifier of the server
         /// This should be a hash
         /// </summary>
-        String Identifier { get; protected set; }
+        public String Identifier { get; protected set; }
 
         /// <summary>
         /// A printable version of the name
         /// </summary>
-        String DisplayName { get; set; }
+        public String DisplayName { get; set; }
 
-        ServerConnection Connection { get; set; }
+        /// <summary>
+        /// The connection to that server
+        /// </summary>
+        public ServerConnection Connection { get; set; }
 
         /// <summary>
         /// Creates a new server representation
