@@ -10,6 +10,9 @@ namespace EraS.Topography
     /// </summary>
     class Network
     {
+        /// <summary>
+        /// My representation
+        /// </summary>
         public Server Me { get; protected set; }
 
         /// <summary>
