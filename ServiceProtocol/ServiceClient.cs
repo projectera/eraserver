@@ -5,27 +5,72 @@ using System.Text;
 using Lidgren.Network;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceProtocol
 {
+    /// <summary>
+    /// Handles the connection to the EraServer
+    /// </summary>
     class ServiceClient
     {
         public const UInt16 ServicePort = 45246;
         public const byte Version = 0;
 
+        /// <summary>
+        /// The socket used to connect to the server
+        /// </summary>
         public NetClient Client { get; protected set; }
+        /// <summary>
+        /// The name of this service
+        /// </summary>
         public String ServiceName { get; protected set; }
+        /// <summary>
+        /// The identifier received from the server
+        /// </summary>
         public String Identifier { get; protected set; }
-        public Boolean IsRunning { get; set; }
+        /// <summary>
+        /// Whether the client is still connected
+        /// </summary>
+        public Boolean IsConnected { get; set; }
 
-        public Action<Message> OnMessageArrived { get; set; }
-        public Action OnConnectionClosed { get; set; }
+        /// <summary>
+        /// Gets called when an internal (sent by this service) message arrives
+        /// </summary>
+        public Action<Message> OnInternalMessageArrived { get; set; }
+        /// <summary>
+        /// Gets called when an external (sent by another server) message arrives
+        /// </summary>
+        public Action<Message> OnServiceMessageArrived { get; set; }
+        /// <summary>
+        /// Gets called when the connection closes, should clean up stuff
+        /// </summary>
+        public event Action OnConnectionClosed;
 
+        /// <summary>
+        /// The thread the socket is running on
+        /// </summary>
         protected Thread Thread { get; set; }
 
+        /// <summary>
+        /// The current question counter
+        /// </summary>
+        protected Int32 QuestionCounter { get; set; }
+        /// <summary>
+        /// The list of outstanding questions
+        /// </summary>
+        protected Dictionary<Int32, TaskCompletionSource<Message>> Questions { get; set; }
+
+        /// <summary>
+        /// Creates a new ServiceClient, connects automatically to the server
+        /// </summary>
+        /// <param name="serviceName"></param>
         public ServiceClient(string serviceName)
         {
             ServiceName = serviceName;
+
+            QuestionCounter = 1;
+            Questions = new Dictionary<Int32, TaskCompletionSource<Message>>();
 
             var c = new NetPeerConfiguration("EraService");
             Client = new NetClient(c);
@@ -44,10 +89,10 @@ namespace ServiceProtocol
                 return;
             Identifier = greet.ReadString();
 
-            IsRunning = true;
+            IsConnected = true;
             Thread = new Thread(() =>
             {
-                while (IsRunning)
+                while (IsConnected)
                 {
                     Client.MessageReceivedEvent.WaitOne(100);
                     var m = Client.ReadMessage();
@@ -64,22 +109,123 @@ namespace ServiceProtocol
                             break;
                         case NetIncomingMessageType.Data:
                             var msg = new Message(m);
-                            OnMessageArrived(msg);
+                            if (msg.Thread != 0)
+                            {
+                                lock (Questions)
+                                {
+                                    if (!Questions.ContainsKey(msg.Thread))
+                                        continue;
+                                    Questions[msg.Thread].SetResult(msg);
+                                    Questions.Remove(msg.Thread);
+                                }
+                            }
+
                             break;
                     }
                 }
                 // Notify closed
-                OnConnectionClosed();
+                if(OnConnectionClosed != null)
+                    OnConnectionClosed();
             });
             Thread.Start();
         }
 
-        public Message CreateMessage(MessageType type, String destination)
+        /// <summary>
+        /// Creates a new raw message
+        /// </summary>
+        /// <param name="type">The message type</param>
+        /// <param name="destination">The destination</param>
+        /// <param name="thread">The question id</param>
+        /// <returns>A new message</returns>
+        public Message CreateMessage(MessageType type, String destination, int thread)
         {
-            if(!IsRunning)
+            if(!IsConnected)
                 throw new ObjectDisposedException("ServiceClient");
 
-            return new Message(Client.CreateMessage(), type, destination);
+            return new Message(Client.CreateMessage(), type, Identifier, destination, thread);
+        }
+
+        /// <summary>
+        /// Creates a new raw message
+        /// </summary>
+        /// <param name="type">The message type</param>
+        /// <param name="destination">The destination</param>
+        /// <returns>A new message</returns>
+        public Message CreateMessage(MessageType type, String destination)
+        {
+            return CreateMessage(type, destination, 0);
+        }
+
+        /// <summary>
+        /// Creates a new question message
+        /// </summary>
+        /// <param name="type">The message type</param>
+        /// <param name="destination">The destination</param>
+        /// <returns>A new message with the thread set to an unique number</returns>
+        public Message CreateQuestion(MessageType type, String destination)
+        {
+            QuestionCounter++;
+            if(QuestionCounter == Int32.MaxValue)
+                QuestionCounter = 0;
+            return CreateMessage(type, destination, QuestionCounter);
+        }
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="msg">The message to send</param>
+        public void SendMessage(Message msg)
+        {
+            Client.SendMessage((NetOutgoingMessage)msg.Packet, NetDeliveryMethod.ReliableUnordered);
+        }
+
+        /// <summary>
+        /// Sends a question
+        /// </summary>
+        /// <param name="msg">The message to send</param>
+        /// <returns>The task with the anser</returns>
+        public Task<Message> SendQuestion(Message msg)
+        {
+            var t = new TaskCompletionSource<Message>(msg.Thread);
+            lock(Questions)
+                Questions.Add(msg.Thread, t);
+            SendMessage(msg);
+            return t.Task;
+        }
+
+        /// <summary>
+        /// Cancels an outstanding question
+        /// </summary>
+        /// <param name="t"></param>
+        public void CancelQuestion(Task<Message> t)
+        {
+            Int32 questionid = (Int32)t.AsyncState;
+            lock (Questions)
+            {
+                if (!Questions.ContainsKey(questionid))
+                    return;
+
+                Questions[questionid].SetCanceled();
+                Questions.Remove(questionid);
+            }
+        }
+
+        /// <summary>
+        /// Sends a message and waits for the answer
+        /// </summary>
+        /// <param name="msg">The message to send</param>
+        /// <returns>The answer message</returns>
+        public Message AskQuestion(Message msg)
+        {
+            var t = SendQuestion(msg);
+            t.Wait(10000);
+            if(!t.IsCompleted)
+            {
+                CancelQuestion(t);
+                throw new TimeoutException("The question was not answered within 10 seconds.");
+            }
+
+            return t.Result;
         }
     }
 }
