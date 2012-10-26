@@ -29,13 +29,9 @@ namespace ServiceProtocol
         /// </summary>
         public String Identifier { get; protected set; }
         /// <summary>
-        /// Gets called when an internal (sent by this service) message arrives
+        /// The message handlers
         /// </summary>
-        public Action<Message> OnInternalMessageArrived { get; set; }
-        /// <summary>
-        /// Gets called when an external (sent by another server) message arrives
-        /// </summary>
-        public Action<Message> OnServiceMessageArrived { get; set; }
+        public Dictionary<MessageType, Action<Message>> MessageHandlers { get; protected set; }
         /// <summary>
         /// Gets called when the connection closes, should clean up stuff
         /// </summary>
@@ -93,30 +89,27 @@ namespace ServiceProtocol
         /// <param name="msg">The message to process</param>
         protected void HandleMessage(Message msg)
         {
-            if (msg.Type == MessageType.Control)
+            switch (msg.Type)
             {
-                // Control packet
-                ControlType t = (ControlType)msg.Packet.ReadByte();
-                switch (t)
-                {
-                    case ControlType.Kill:
-                        IsConnected = false;
-                        break;
-                    case ControlType.IdentifierNotFound:
-                        lock (Questions)
-                        {
-                            if (!Questions.ContainsKey(msg.Thread))
-                                return;
-                            Questions[msg.Thread].SetException(new KeyNotFoundException("Identifier not found while sending message"));
-                        }
-                        break;
-                }
-            }
-            else
-            {
-                // Normal message
-                if (msg.Thread != 0)
-                {
+                case MessageType.Control:
+                    // Control packet
+                    ControlType t = (ControlType)msg.Packet.ReadByte();
+                    switch (t)
+                    {
+                        case ControlType.Kill:
+                            IsConnected = false;
+                            break;
+                        case ControlType.IdentifierNotFound:
+                            lock (Questions)
+                            {
+                                if (!Questions.ContainsKey(msg.Thread))
+                                    return;
+                                Questions[msg.Thread].SetException(new KeyNotFoundException("Identifier not found while sending message"));
+                            }
+                            break;
+                    }
+                    break;
+                case MessageType.Answer:
                     lock (Questions)
                     {
                         if (!Questions.ContainsKey(msg.Thread))
@@ -124,7 +117,14 @@ namespace ServiceProtocol
                         Questions[msg.Thread].SetResult(msg);
                         Questions.Remove(msg.Thread);
                     }
-                }
+                    break;
+                default:
+                    lock (MessageHandlers)
+                    {
+                        if(MessageHandlers.ContainsKey(msg.Type))
+                            MessageHandlers[msg.Type](msg);
+                    }
+                    break;
             }
         }
 

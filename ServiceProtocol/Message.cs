@@ -72,7 +72,7 @@ namespace ServiceProtocol
         /// <returns>An answer message</returns>
         public Message Answer(ServiceClient client)
         {
-            return client.CreateMessage(Type, Origin, Thread);
+            return client.CreateMessage(MessageType.Answer, Origin, Thread);
         }
     }
 }

@@ -11,5 +11,6 @@ namespace ServiceProtocol
         Internal = 1,
         Service = 2,
         Control = 3,
+        Answer = 4,
     }
 }

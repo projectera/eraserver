@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using EraS.Topography;
 using ServiceProtocol;
+using Lidgren.Network;
 
 namespace EraS.Connections
 {
-    class ServiceConnection : ServiceClient
+    class ServiceConnection : MessageClient
     {
-        public Service Service { get; protected set; }
+        public String RemoteIdentifier { get; protected set; }
 
-        public ServiceConnection(Service service) : base(null, "")
+        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier) : base(connection.Peer, connection, identifier)
         {
-            Service = service;
+            RemoteIdentifier = remoteIdentifier;
         }
 
         public void SendMessage()
