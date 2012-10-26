@@ -197,7 +197,7 @@ namespace ServiceProtocol
         {
             QuestionCounter++;
             if(QuestionCounter == Int32.MaxValue)
-                QuestionCounter = 0;
+                QuestionCounter = 1;
             return CreateMessage(type, destination, QuestionCounter);
         }
 
