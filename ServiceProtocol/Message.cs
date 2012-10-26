@@ -9,7 +9,7 @@ namespace ServiceProtocol
     /// <summary>
     /// Represents a message packet
     /// </summary>
-    class Message
+    public class Message
     {
         /// <summary>
         /// The network package

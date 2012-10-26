@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ServiceProtocol
 {
-    enum ControlType : byte
+    public enum ControlType : byte
     {
         Initialize = 0,
         Kill = 1,

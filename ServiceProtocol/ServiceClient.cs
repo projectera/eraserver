@@ -12,7 +12,7 @@ namespace ServiceProtocol
     /// <summary>
     /// Handles the connection to the EraServer
     /// </summary>
-    class ServiceClient
+    public class ServiceClient
     {
         public const UInt16 ServicePort = 45246;
         public const byte Version = 0;

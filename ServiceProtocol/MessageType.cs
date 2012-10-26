@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ServiceProtocol
 {
-    enum MessageType : byte
+    public enum MessageType : byte
     {
         EraS = 0,
         Internal = 1,

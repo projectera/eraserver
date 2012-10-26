@@ -8,7 +8,7 @@ namespace ServiceProtocol
     /// <summary>
     /// Gets info from the connected server
     /// </summary>
-    class NetworkInfo
+    public class NetworkInfo
     {
         /// <summary>
         /// The socket used to connect to the server
