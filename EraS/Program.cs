@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ServiceProtocol;
 
 namespace EraS
 {
@@ -14,6 +15,9 @@ namespace EraS
         static void Main(string[] args)
         {
             HeartBeatService.Defibrillate();
+
+            
+
             System.Threading.Thread.Sleep(1000 * 65);
         }
     }

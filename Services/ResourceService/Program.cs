@@ -8,10 +8,15 @@ namespace ResourceService
 {
     class Program
     {
-        ServiceClient sc;
+        static ServiceClient _eras;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
+            _eras = ServiceClient.Connect("EraS");
         }
     }
 }

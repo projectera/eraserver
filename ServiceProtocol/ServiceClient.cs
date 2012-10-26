@@ -30,6 +30,7 @@ namespace ServiceProtocol
         {
             var conf = new NetPeerConfiguration("EraService");
             var client = new NetClient(conf);
+            client.Start();
 
             // Send version and service name
             var hail = client.CreateMessage();
