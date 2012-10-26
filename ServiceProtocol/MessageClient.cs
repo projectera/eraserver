@@ -140,7 +140,7 @@ namespace ServiceProtocol
             if (!IsConnected)
                 throw new ObjectDisposedException("ServiceClient");
 
-            return new Message(Peer.CreateMessage(), type, Identifier, destination, thread);
+            return new Message(Peer.CreateMessage(32), type, Identifier, destination, thread);
         }
 
         /// <summary>
