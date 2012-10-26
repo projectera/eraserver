@@ -17,6 +17,7 @@ namespace ResourceService
         static void Main(string[] args)
         {
             _eras = ServiceClient.Connect("EraS");
+            
         }
     }
 }
