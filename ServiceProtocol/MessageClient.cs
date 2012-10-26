@@ -54,7 +54,7 @@ namespace ServiceProtocol
         /// </summary>
         protected Dictionary<Int32, TaskCompletionSource<Message>> Questions { get; set; }
 
-        public MessageClient(NetPeer peer, NetConnection connection)
+        public MessageClient(NetPeer peer, NetConnection connection, String Identifier)
         {
             QuestionCounter = 1;
             Questions = new Dictionary<Int32, TaskCompletionSource<Message>>();

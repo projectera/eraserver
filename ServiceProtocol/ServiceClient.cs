@@ -43,8 +43,7 @@ namespace ServiceProtocol
             var greet = client.ReadMessage();
             if (greet == null)
                 throw new TimeoutException("Server did not respond with needed info");
-            var serviceClient = new ServiceClient(client, serviceName);
-            serviceClient.Identifier = greet.ReadString();
+            var serviceClient = new ServiceClient(client, serviceName, greet.ReadString());
 
             return serviceClient;
         }
@@ -53,7 +52,7 @@ namespace ServiceProtocol
         /// Creates a new ServiceClient, connects automatically to the server
         /// </summary>
         /// <param name="serviceName"></param>
-        public ServiceClient(NetClient client, string serviceName) : base(client, client.ServerConnection)
+        public ServiceClient(NetClient client, String identifier, String serviceName) : base(client, client.ServerConnection, identifier)
         {
             ServiceName = serviceName;
         }
