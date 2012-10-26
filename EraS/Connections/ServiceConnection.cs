@@ -11,7 +11,7 @@ namespace EraS.Connections
     {
         public Service Service { get; protected set; }
 
-        public ServiceConnection(Service service) : base("")
+        public ServiceConnection(Service service) : base(null, "")
         {
             Service = service;
         }

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="ControlType.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="MessageClient.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="NetworkInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
