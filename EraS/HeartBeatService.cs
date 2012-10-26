@@ -115,21 +115,28 @@ namespace EraS
         protected static void Beat(Object state)
         {
             HeartBeatTime = DateTime.Now.ToUniversalTime();
-            
-            var upsert = GetCollection().FindAndModify(
-                Query.EQ("_id", Identifier), 
-                SortBy.Null, 
-                Update.Replace(Document), 
-                false, 
-                true
-            );
 
-            if (upsert.Ok)
+            try
             {
-                _beatTime = NetTime.Now;
-                OnBeat.Invoke(Identifier);
+                var upsert = GetCollection().FindAndModify(
+                    Query.EQ("_id", Identifier),
+                    SortBy.Null,
+                    Update.Replace(Document),
+                    false,
+                    true
+                );
+
+                if (upsert.Ok)
+                {
+                    _beatTime = NetTime.Now;
+                    OnBeat.Invoke(Identifier);
+                }
+                else
+                {
+                    throw new Exception(upsert.ErrorMessage);
+                }
             }
-            else
+            catch (Exception)
             {
                 if (NetTime.Now - _beatTime > FlatlineTime)
                     Flatline(state);
