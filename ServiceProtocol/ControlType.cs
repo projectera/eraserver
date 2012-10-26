@@ -5,11 +5,12 @@ using System.Text;
 
 namespace ServiceProtocol
 {
-    enum MessageType : byte
+    enum ControlType : byte
     {
-        EraS = 0,
-        Internal = 1,
-        Service = 2,
-        Control = 3,
+        Initialize = 0,
+        Kill = 1,
+        IdentifierNotFound = 2,
+
+        Reserved = 255,
     }
 }

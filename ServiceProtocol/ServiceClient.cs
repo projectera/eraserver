@@ -108,26 +108,57 @@ namespace ServiceProtocol
                             Console.WriteLine(m.ReadString());
                             break;
                         case NetIncomingMessageType.Data:
-                            var msg = new Message(m);
-                            if (msg.Thread != 0)
-                            {
-                                lock (Questions)
-                                {
-                                    if (!Questions.ContainsKey(msg.Thread))
-                                        continue;
-                                    Questions[msg.Thread].SetResult(msg);
-                                    Questions.Remove(msg.Thread);
-                                }
-                            }
-
+                            HandleMessage(new Message(m));
                             break;
                     }
                 }
+                Client.Disconnect("");
                 // Notify closed
                 if(OnConnectionClosed != null)
                     OnConnectionClosed();
             });
             Thread.Start();
+        }
+
+        /// <summary>
+        /// Handles the processing of messages
+        /// </summary>
+        /// <param name="msg">The message to process</param>
+        protected void HandleMessage(Message msg)
+        {
+            if (msg.Type == MessageType.Control)
+            {
+                // Control packet
+                ControlType t = (ControlType)msg.Packet.ReadByte();
+                switch (t)
+                {
+                    case ControlType.Kill:
+                        IsConnected = false;
+                        break;
+                    case ControlType.IdentifierNotFound:
+                        lock (Questions)
+                        {
+                            if (!Questions.ContainsKey(msg.Thread))
+                                return;
+                            Questions[msg.Thread].SetException(new KeyNotFoundException("Identifier not found while sending message"));
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                // Normal message
+                if (msg.Thread != 0)
+                {
+                    lock (Questions)
+                    {
+                        if (!Questions.ContainsKey(msg.Thread))
+                            return;
+                        Questions[msg.Thread].SetResult(msg);
+                        Questions.Remove(msg.Thread);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -226,6 +257,20 @@ namespace ServiceProtocol
             }
 
             return t.Result;
+        }
+
+        public Message AskReliableQuestion(Message msg)
+        {
+            Message res = null;
+            while (res == null)
+            {
+                try
+                {
+                    res = AskQuestion(msg);
+                }
+                catch (TimeoutException) { }
+            }
+            return res;
         }
     }
 }
