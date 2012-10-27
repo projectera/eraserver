@@ -11,10 +11,13 @@ using System.Security.Cryptography;
 
 namespace ResourceService
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Asset
     {
         /// <summary>
-        /// 
+        /// File Id
         /// </summary>
         public ObjectId Id
         {
@@ -23,7 +26,7 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// File Name
         /// </summary>
         public String FileName
         {
@@ -32,7 +35,7 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Server MD5
         /// </summary>
         public String ServerMD5
         {
@@ -41,16 +44,15 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Gets an asset by id
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="assetId"></param>
-        /// <param name="result"></param>
+        /// <param name="assetId">Asset ID</param>
         /// <returns></returns>
-        internal static Asset GetFile(ObjectId assetId, out Asset result)
+        internal static Asset GetFileById(ObjectId assetId)
         {
-            result = new Asset();
+            Asset result = new Asset();
 
+            // Access Grid FS and find the file
             MongoGridFS gridFs = new MongoGridFS(Program.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             MongoGridFSFileInfo file = gridFs.FindOneById(assetId);
@@ -66,18 +68,19 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Gets chunks (give id)
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="assetId"></param>
-        /// <param name="result"></param>
+        /// <param name="chunkSize"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
-        internal static ObjectId[] GetChunks(ObjectId assetId, out Int32 chunkSize, out Int32 length)
+        internal static ObjectId[] GetChunksById(ObjectId assetId, out Int32 chunkSize, out Int32 length)
         {
             ObjectId[] result = null;
             chunkSize = 0;
             length = 0;
 
+            // Access Grid FS and get the file
             MongoGridFS gridFs = new MongoGridFS(Program.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             MongoGridFSFileInfo file = gridFs.FindOneById(assetId);
@@ -90,6 +93,8 @@ namespace ResourceService
 
             var numberOfChunks = (length + chunkSize - 1) / chunkSize;
             result = new ObjectId[numberOfChunks];
+
+            // Get those chunks
             for (int n = 0; n < numberOfChunks; n++)
             {
                 var query = Query.And(
@@ -98,13 +103,10 @@ namespace ResourceService
                 );
 
                 var chunk = gridFs.Chunks.FindOne(query);
-
                 if (chunk == null)
                 {
-                    //String errorMessage = String.Format("Chunk {0} missing for GridFS file '{1}'.", n, file.Name);
-                    //throw new MongoGridFSException(errorMessage);
-
-                    return null;
+                    String errorMessage = String.Format("Chunk {0} missing for GridFS file '{1}'.", n, file.Name);
+                    throw new MongoGridFSException(errorMessage);
                 }
 
                 result[n] = chunk["_id"].AsObjectId;
@@ -114,12 +116,11 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Gets a chunk (give chunk id)
         /// </summary>
         /// <param name="chunkId"></param>
-        /// <param name="result"></param>
         /// <returns></returns>
-        internal static BsonBinaryData GetChunk(ObjectId chunkId)
+        internal static BsonBinaryData GetChunkById(ObjectId chunkId)
         {
             MongoGridFS gridFs = new MongoGridFS(Program.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
@@ -132,9 +133,8 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// Get file
+        /// Get file by filename
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
         internal static Asset GetFile(String fileName)
@@ -158,24 +158,27 @@ namespace ResourceService
         /// <summary>
         /// Save file
         /// </summary>
-        /// <param name="LocalImage">local file path</param>
+        /// <param name="fileName">local file path</param>
+        /// <param name="previousName">previous generated name</param>
         internal void SaveFile(String fileName, String previousName)
         {
             MongoGridFS gridFs = new MongoGridFS(Program.Database,
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
 
-            //String name = FileName.EndsWith(".png") ? FileName.Remove(FileName.LastIndexOf('.')) : FileName;
-
-            // Get MD5
-            String md5Local = String.Empty;
+            String md5Local = String.Empty, sha1 = String.Empty;
 
             try
             {
+                // Generates the filename
                 using (FileStream file = new FileStream(fileName, FileMode.Open))
                 {
                     md5Local = FileMD5(gridFs.Settings, file);
+                    file.Position = 0;
+                    sha1 = FileSha1(gridFs.Settings, file);
                 }
+
                 this.ServerMD5 = md5Local;
+                this.FileName = String.Format("{0}.{1}", md5Local, sha1);
             }
             catch (IOException)
             {
@@ -190,12 +193,18 @@ namespace ResourceService
             if (updateFile == null) // Loaded file!
             {
                 // Filename exists
-                MongoGridFSFileInfo matchedFile = gridFs.FindOne(Query.And(Query.EQ("filename", FileName), Query.NE("md5", md5Local)));
+                MongoGridFSFileInfo matchedFile = gridFs.FindOne(
+                    Query.And(
+                        Query.EQ("filename", FileName), 
+                        Query.NE("md5", md5Local)
+                    )
+                );
+
+                // Impossible collision occured. There is a file with the same filename
+                // but a different md5 value, which is impossible, because the filename
+                // has both md5 and sha1.
                 if (matchedFile != null)
-                {
-                    //MessageBox.Show("There already exists a file with that name but different graphic. Please edit <" + matchedFile.Name + "> instead!", "Name already exists", MessageBoxButtons.OK);
                     return;
-                }
 
                 // Create new file
                 ObjectId id = gridFs.Upload(fileName, FileName).Id.AsObjectId;
@@ -204,49 +213,59 @@ namespace ResourceService
                 return;
             }
 
+            // Already exists in the database, no need to change
             if (updateFile.Name == FileName && updateFile.MD5 == md5Local)
-            {
                 return;
-            }
 
+            // We changed the name of the file, like with a different filename format. So 
+            // we need to update that name now.
             if (updateFile.MD5 == md5Local)
             {
                 // only name changed
-                MongoGridFSFileInfo matchedFile = gridFs.FindOne(Query.And(Query.EQ("filename", FileName), Query.NE("md5", md5Local)));
-                if (matchedFile != null)
-                {
-                    //MessageBox.Show("There already exists a file with that name but different graphic. Please edit <" + matchedFile.Name + "> instead!", "Name already exists", MessageBoxButtons.OK);
-                    return;
-                }
+                MongoGridFSFileInfo matchedFile = gridFs.FindOne(
+                    Query.And(
+                        Query.EQ("filename", FileName), 
+                        Query.NE("md5", md5Local))
+                    );
 
+                // Impossible collision occured
+                if (matchedFile != null)
+                    return;
+
+                // Save file under new name
                 gridFs.MoveTo(previousName, FileName);
                 return;
             }
 
+            // The names match, but the MD5 does not
             if (updateFile.Name == FileName)
             {
                 // Delete previous version
                 gridFs.Delete(FileName);
-
                 MongoGridFSFileInfo newFile = gridFs.Upload(fileName, FileName);
                 return;
             }
 
-            MongoGridFSFileInfo updatedPeekFile = gridFs.FindOne(Query.Or(Query.EQ("filename", FileName), Query.EQ("md5", md5Local)));
+            // Find this file in the database
+            MongoGridFSFileInfo updatedPeekFile = gridFs.FindOne(
+                Query.Or(
+                    Query.EQ("filename", FileName), 
+                    Query.EQ("md5", md5Local)
+                    )
+            );
+
+            // Already exists in the database
             if (updatedPeekFile != null)
-            {
-                //MessageBox.Show("There already exists a file with that name or that graphic. Please edit <" + updatedPeekFile.Name + "> instead!", "Graphic already exists", MessageBoxButtons.OK);
                 return;
-            }
 
+            // Delete previous version
             gridFs.Delete(updateFile.Name);
-
             MongoGridFSFileInfo newPeekFile = gridFs.Upload(fileName, FileName);
             return;
         }
 
         /// <summary>
-        /// Downloads a file
+        /// Downloads the current asset
         /// </summary>
         /// <param name="fileName">destination</param>
         public void Download(String fileName)
@@ -264,20 +283,16 @@ namespace ResourceService
                     String md5Local;
                     using (FileStream file = new FileStream(fileName, FileMode.Open))
                     {
-                        md5Local = FileMD5(MongoGridFSSettings.Defaults, file);
+                        md5Local = FileHash(MongoGridFSSettings.Defaults, file);
                     }
 
                     Asset remoteCopy = GetFile(this.FileName);
 
                     if (remoteCopy == null)
-                    {
                         return; // inner error
-                    }
 
                     if (md5Local == remoteCopy.ServerMD5)
-                    {
                         return;
-                    }
                 }
 
                 MongoGridFS gridFs = new MongoGridFS(Program.Database, 
@@ -294,7 +309,7 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Equality comparision
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
@@ -305,7 +320,7 @@ namespace ResourceService
                 Asset otherAsset = (Asset)other;
 
                 if (otherAsset.Id != ObjectId.Empty && this.Id != ObjectId.Empty &&
-                    otherAsset.ServerMD5 != String.Empty && this.ServerMD5 != String.Empty)
+                    otherAsset.FileName != String.Empty && this.FileName != String.Empty)
                     return otherAsset.Id.Equals(this.Id);
             }
             else if (other is String)
@@ -325,37 +340,72 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Gets the hashcode
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return (this.Id.GetHashCode() * 63) ^ this.ServerMD5.GetHashCode();
+            return (this.Id.GetHashCode() * 63) ^ this.FileName.GetHashCode();
         }
 
         /// <summary>
-        /// 
+        /// Gets MD5 value from stream
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
         public static String FileMD5(Stream stream)
         {
-            return FileMD5(MongoGridFSSettings.Defaults, stream);
+            return FileHash(MongoGridFSSettings.Defaults, stream);
         }
 
         /// <summary>
-        /// Calculates the md5 value
+        /// Gets SHA1 value from stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static String FileSha1(Stream stream)
+        {
+            return FileHash(MongoGridFSSettings.Defaults, stream, SHA1.Create());
+        }
+
+        /// <summary>
+        /// Gets MD5 value from stream
+        /// </summary>
+        /// <param name="gridFSSettings"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static String FileMD5(MongoGridFSSettings gridFSSettings, Stream stream)
+        {
+            return FileHash(gridFSSettings, stream);
+        }
+
+        /// <summary>
+        ///  Gets SHA1 value from stream
+        /// </summary>
+        /// <param name="gridFSSettings"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static String FileSha1(MongoGridFSSettings gridFSSettings, Stream stream)
+        {
+            return FileHash(gridFSSettings, stream, SHA1.Create());
+        }
+
+        /// <summary>
+        /// Calculates the md5/sha1 value
         /// </summary>
         /// <param name="gridFs">Settings</param>
         /// <param name="stream">File Stream</param>
         /// <returns></returns>
-        public static String FileMD5(MongoGridFSSettings gridFSSettings, Stream stream)
+        public static String FileHash(MongoGridFSSettings gridFSSettings, Stream stream, HashAlgorithm algorithm = null)
         {
             var chunkSize = gridFSSettings.ChunkSize;
             var buffer = new Byte[chunkSize];
             var length = 0;
 
-            using (var md5Algorithm = MD5.Create())
+            if (algorithm == null)
+                algorithm = MD5.Create();
+
+            using (var md5Algorithm = algorithm)
             {
                 for (int n = 0; true; n++)
                 {
@@ -399,7 +449,7 @@ namespace ResourceService
         }
 
         /// <summary>
-        /// 
+        /// Gets server MD5 value
         /// </summary>
         /// <returns></returns>
         public String GetServerMD5()
