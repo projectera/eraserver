@@ -64,7 +64,7 @@ namespace ServiceProtocol
         /// <summary>
         /// Tries to read a message from the internal client and adds itself to the task again
         /// </summary>
-        protected void ReadMessages()
+        protected virtual void ReadMessages()
         {
             if (!IsConnected)
             {
