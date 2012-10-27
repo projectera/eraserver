@@ -160,7 +160,7 @@ namespace ResourceService
         /// </summary>
         /// <param name="fileName">local file path</param>
         /// <param name="previousName">previous generated name</param>
-        internal void SaveFile(String fileName, String previousName)
+        internal void SaveFile(String fileName, String previousName = null)
         {
             MongoGridFS gridFs = new MongoGridFS(Program.Database,
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
@@ -188,9 +188,9 @@ namespace ResourceService
             }
 
             // Find old file
-            MongoGridFSFileInfo updateFile = gridFs.FindOne(previousName);
+            MongoGridFSFileInfo updateFile = gridFs.FindOne(previousName ?? String.Empty);
 
-            if (updateFile == null) // Loaded file!
+            if (updateFile == null) // New file!
             {
                 // Filename exists
                 MongoGridFSFileInfo matchedFile = gridFs.FindOne(
