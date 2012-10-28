@@ -20,7 +20,8 @@ namespace EraS
 
             Services = new ServiceListener(HeartBeatService.Identifier.ToString());
 
-            System.Threading.Thread.Sleep(1000 * 65);
+            while(Services.IsConnected)
+                System.Threading.Thread.Sleep(1000);
         }
     }
 }
