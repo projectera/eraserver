@@ -17,6 +17,16 @@ namespace EraS.Connections
             RemoteIdentifier = remoteIdentifier;
         }
 
+        protected override void ReadMessages()
+        {
+            // Ignore reading of messages, is handled by server
+        }
+
+        public void HandleData(NetIncomingMessage m)
+        {
+            HandleMessage(new Message(m));
+        }
+
         public void SendMessage()
         {
             throw new NotImplementedException();
