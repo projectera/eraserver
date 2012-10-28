@@ -81,7 +81,19 @@ namespace ServiceProtocol
 
             LastTask = LastTask.
                 ContinueWith((_) => { Peer.MessageReceivedEvent.WaitOne(100); }).
-                ContinueWith((_) => ReadMessages());
+                ContinueWith((_) => {
+                    try
+                    {
+                        ReadMessages();
+                    }
+                    catch (Exception)
+                    {
+                        IsConnected = false;
+                        //Cleanup
+                        ReadMessages();
+                    }
+
+                });
         }
 
         /// <summary>

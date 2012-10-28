@@ -35,11 +35,11 @@ namespace EraS.Topography
         /// </summary>
         public Network(String identifier)
         {
-            Me = new Server(identifier);
-            AddServer(Me);
-
             ServiceInstances = new Dictionary<String, Service>();
             Servers = new List<Server>();
+
+            Me = new Server(identifier);
+            AddServer(Me);
         }
 
         public void AddServer(Server s)

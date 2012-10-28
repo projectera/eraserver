@@ -21,20 +21,23 @@ namespace ResourceService
         /// </summary>
         public static MongoDatabase Database { get; protected set; }
 
+        public static NetworkInfo NetworkInfo { get; protected set; }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            System.Threading.Thread.Sleep(4000);
+
             _erasClient = ServiceClient.Connect("resource");
             Console.WriteLine("my id is:" + _erasClient.ServiceName);
 
+            NetworkInfo = new ServiceProtocol.NetworkInfo(_erasClient);
+
             // Example question
-            var q = _erasClient.CreateQuestion(MessageType.Service, "resource");
-            q.Packet.Write("hi there!");
-            var ans = _erasClient.AskQuestion(q);
-            Console.WriteLine(ans.Packet.ReadString());
+            Console.WriteLine(NetworkInfo.GetServerIdentifier());
 
             // TODO: get mongo url from EraS
             Server = MongoServer.Create("mongodb://pegu.maxmaton.nl");
