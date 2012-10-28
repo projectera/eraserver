@@ -31,7 +31,7 @@ namespace ResourceService
         {
             System.Threading.Thread.Sleep(4000);
 
-            _erasClient = ServiceClient.Connect("resource");
+            _erasClient = ServiceClient.Connect("Resource");
             Console.WriteLine("my id is:" + _erasClient.ServiceName);
 
             NetworkInfo = new ServiceProtocol.NetworkInfo(_erasClient);

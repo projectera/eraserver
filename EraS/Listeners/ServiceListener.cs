@@ -6,26 +6,29 @@ using ServiceProtocol;
 using Lidgren.Network;
 using System.Threading.Tasks;
 using EraS.Connections;
+using System.Threading;
 
 namespace EraS.Listeners
 {
     class ServiceListener
     {
         public NetServer Server { get; protected set; }
-        public Boolean IsConnected { get; set; }
-        public Task LastTask { get; protected set; }
+        protected Thread Thread { get; set; }
         public String Identifier { get; protected set; }
         protected Int32 _serviceCounter { get; set; }
         public Dictionary<String, ServiceConnection> Connections { get; protected set; }
         public Dictionary<MessageType, Action<ServiceConnection, Message>> MessageHandlers { get; protected set; }
 
-        public event Action OnShutdown;
+        public Action<ServiceConnection, String> OnConnect { get; set; }
+        public Action<ServiceConnection> OnDisconnect { get; set; }
 
         public ServiceListener(String identifier)
         {
             Identifier = identifier;
             Connections = new Dictionary<string, ServiceConnection>();
             MessageHandlers = new Dictionary<MessageType, Action<ServiceConnection, Message>>();
+            OnConnect = (_, name) => { };
+            OnDisconnect = (_) => { };
 
             var conf = new NetPeerConfiguration("EraService")
             {
@@ -35,41 +38,31 @@ namespace EraS.Listeners
             Server = new NetServer(conf);
             Server.Start();
 
-            IsConnected = true;
-
-            LastTask = Task.Factory.StartNew(ReadMessages, TaskCreationOptions.LongRunning);
+            Thread = new Thread(Run);
+            Thread.Start();
         }
 
-        /// <summary>
-        /// Tries to read a message from the internal client and adds itself to the task again
-        /// </summary>
-        protected void ReadMessages()
+        protected void Run()
         {
-            if (!IsConnected)
+            while (true)
             {
-                if (OnShutdown != null)
-                    OnShutdown();
-                Server.Shutdown("");
-                return;
-            }
+                var m = Server.ReadMessage();
+                if (m == null)
+                    continue;
 
-            LastTask = LastTask.
-                ContinueWith((_) => { Server.MessageReceivedEvent.WaitOne(100); });
-            LastTask = LastTask.
-                ContinueWith((_) => ReadMessages());
-
-            var m = Server.ReadMessage();
-            if (m == null)
-                return;
-
-            switch (m.MessageType)
-            {
-                case NetIncomingMessageType.ConnectionApproval:
-                    ApproveConnection(m);
-                    break;
-                case NetIncomingMessageType.Data:
-                    ((ServiceConnection)m.SenderConnection.Tag).HandleData(m);
-                    break;
+                switch (m.MessageType)
+                {
+                    case NetIncomingMessageType.ConnectionApproval:
+                        ApproveConnection(m);
+                        break;
+                    case NetIncomingMessageType.StatusChanged:
+                        if (m.SenderConnection.Status == NetConnectionStatus.Disconnected)
+                            ((ServiceConnection)m.SenderConnection.Tag).Stop();
+                        break;
+                    case NetIncomingMessageType.Data:
+                        ((ServiceConnection)m.SenderConnection.Tag).HandleMessage(new Message(m));
+                        break;
+                }
             }
         }
 
@@ -85,6 +78,8 @@ namespace EraS.Listeners
             string remoteid = Identifier + "-" + (_serviceCounter++).ToString();
             outmsg.Write(remoteid);
             var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid);
+            handler.OnConnectionClosed += () => OnDisconnect(handler);
+            OnConnect(handler, servicename);
 
             foreach(var type in MessageHandlers.Keys)
             {

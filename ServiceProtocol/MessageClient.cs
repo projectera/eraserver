@@ -12,18 +12,10 @@ namespace ServiceProtocol
         public const byte Version = 0;
 
         /// <summary>
-        /// The socket used to connect to the server
-        /// </summary>
-        public NetPeer Peer { get; protected set; }
-        /// <summary>
         /// The connection
         /// </summary>
         public NetConnection Connection { get; protected set; }
 
-        /// <summary>
-        /// Whether the client is still connected
-        /// </summary>
-        public Boolean IsConnected { get; set; }
         /// <summary>
         /// The identifier received from the server
         /// </summary>
@@ -38,10 +30,6 @@ namespace ServiceProtocol
         public event Action OnConnectionClosed;
 
         /// <summary>
-        /// The last queued task
-        /// </summary>
-        protected Task LastTask { get; set; }
-        /// <summary>
         /// The current question counter
         /// </summary>
         protected Int32 QuestionCounter { get; set; }
@@ -50,57 +38,25 @@ namespace ServiceProtocol
         /// </summary>
         protected Dictionary<Int32, TaskCompletionSource<Message>> Questions { get; set; }
 
-        public MessageClient(NetPeer peer, NetConnection connection, String Identifier)
+        public MessageClient(NetConnection connection, String Identifier)
         {
             QuestionCounter = 1;
             Questions = new Dictionary<Int32, TaskCompletionSource<Message>>();
             MessageHandlers = new Dictionary<MessageType, Action<Message>>();
-            Peer = peer;
             Connection = connection;
-
-            IsConnected = true;
-            LastTask = Task.Factory.StartNew(ReadMessages, TaskCreationOptions.LongRunning);
         }
 
-        /// <summary>
-        /// Tries to read a message from the internal client and adds itself to the task again
-        /// </summary>
-        protected virtual void ReadMessages()
+        protected void RaiseOnConnectionClosed()
         {
-            if (!IsConnected)
-            {
-                if (OnConnectionClosed != null)
-                    OnConnectionClosed();
-                Peer.Shutdown("");
-                return;
-            }
-
-            var m = Peer.ReadMessage();
-            if (m != null && m.MessageType == NetIncomingMessageType.Data)
-                HandleMessage(new Message(m));
-
-            LastTask = LastTask.
-                ContinueWith((_) => { Peer.MessageReceivedEvent.WaitOne(100); }).
-                ContinueWith((_) => {
-                    try
-                    {
-                        ReadMessages();
-                    }
-                    catch (Exception)
-                    {
-                        IsConnected = false;
-                        //Cleanup
-                        ReadMessages();
-                    }
-
-                });
+            if (OnConnectionClosed != null)
+                OnConnectionClosed();
         }
 
         /// <summary>
         /// Handles the processing of messages
         /// </summary>
         /// <param name="msg">The message to process</param>
-        protected void HandleMessage(Message msg)
+        public void HandleMessage(Message msg)
         {
             switch (msg.Type)
             {
@@ -110,7 +66,8 @@ namespace ServiceProtocol
                     switch (t)
                     {
                         case ControlType.Kill:
-                            IsConnected = false;
+                            Connection.Disconnect("kill");
+                            RaiseOnConnectionClosed();
                             break;
                         case ControlType.IdentifierNotFound:
                             lock (Questions)
@@ -150,10 +107,7 @@ namespace ServiceProtocol
         /// <returns>A new message</returns>
         public Message CreateMessage(MessageType type, String destination, int thread)
         {
-            if (!IsConnected)
-                throw new ObjectDisposedException("ServiceClient");
-
-            return new Message(Peer.CreateMessage(32), type, Identifier, destination, thread);
+            return new Message(Connection.Peer.CreateMessage(32), type, Identifier, destination, thread);
         }
 
         /// <summary>
@@ -187,7 +141,7 @@ namespace ServiceProtocol
         /// <param name="msg">The message to send</param>
         public void SendMessage(Message msg)
         {
-            Peer.SendMessage((NetOutgoingMessage)msg.Packet, Connection, NetDeliveryMethod.ReliableUnordered);
+            Connection.SendMessage((NetOutgoingMessage)msg.Packet, NetDeliveryMethod.ReliableUnordered, 0);
         }
 
         /// <summary>
@@ -239,18 +193,22 @@ namespace ServiceProtocol
             return t.Result;
         }
 
+        /// <summary>
+        /// Tries to send the message for 100 seconds
+        /// </summary>
+        /// <param name="msg">The question to send</param>
+        /// <returns>The answer message</returns>
         public Message AskReliableQuestion(Message msg)
         {
-            Message res = null;
-            while (res == null)
+            for(int i = 0; i < 10; i++)
             {
                 try
                 {
-                    res = AskQuestion(msg);
+                    return AskQuestion(msg);
                 }
                 catch (TimeoutException) { }
             }
-            return res;
+            throw new TimeoutException("Server did not answer within 100 seconds, invalid assumption");
         }
     }
 }

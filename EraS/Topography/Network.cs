@@ -37,6 +37,7 @@ namespace EraS.Topography
         {
             ServiceInstances = new Dictionary<String, Service>();
             Servers = new Dictionary<String,Server>();
+            ServiceGroupInstances = new Dictionary<String, List<Service>>();
 
             Me = new Server(identifier);
             AddServer(Me);
@@ -72,6 +73,16 @@ namespace EraS.Topography
             if (!ServiceGroupInstances.ContainsKey(s.Name))
                 ServiceGroupInstances.Add(s.Name, new List<Service>());
             ServiceGroupInstances[s.Name].Add(s);
+        }
+
+        public void RemoveService(Service s)
+        {
+            s.Server.Services.Remove(s.Identifier);
+            ServiceInstances.Remove(s.Identifier);
+
+            ServiceGroupInstances[s.Name].Remove(s);
+            if (ServiceGroupInstances[s.Name].Count == 0)
+                ServiceGroupInstances.Remove(s.Name);
         }
     }
 }

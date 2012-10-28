@@ -38,7 +38,7 @@ namespace ServiceProtocol
         /// <param name="message">The network packet</param>
         /// <param name="type">The message type</param>
         /// <param name="destination">The destination</param>
-        public Message(NetOutgoingMessage message, MessageType type, String origin, String destination, int thread)
+        public Message(NetOutgoingMessage message, MessageType type, String origin, String destination, Int32 thread)
         {
             Packet = message;
             Type = type;

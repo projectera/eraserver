@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceService", "Services\ResourceService\ResourceService.csproj", "{592C8ACA-45DA-4E37-99A9-E371C799F487}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkMapper", "Tools\NetworkMapper\NetworkMapper.csproj", "{30695B69-314E-4DF3-A093-2F7420E187F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,11 +53,22 @@ Global
 		{592C8ACA-45DA-4E37-99A9-E371C799F487}.Release|Mixed Platforms.Build.0 = Release|x86
 		{592C8ACA-45DA-4E37-99A9-E371C799F487}.Release|x86.ActiveCfg = Release|x86
 		{592C8ACA-45DA-4E37-99A9-E371C799F487}.Release|x86.Build.0 = Release|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Debug|x86.ActiveCfg = Debug|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Debug|x86.Build.0 = Debug|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Release|Any CPU.ActiveCfg = Release|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Release|Mixed Platforms.Build.0 = Release|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Release|x86.ActiveCfg = Release|x86
+		{30695B69-314E-4DF3-A093-2F7420E187F4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{592C8ACA-45DA-4E37-99A9-E371C799F487} = {AA3EDA0B-02A5-4D89-ABBB-682D4ADF8573}
+		{30695B69-314E-4DF3-A093-2F7420E187F4} = {8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}
 	EndGlobalSection
 EndGlobal
