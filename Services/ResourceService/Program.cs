@@ -9,7 +9,7 @@ namespace ResourceService
 {
     class Program
     {
-        static ServiceClient _eras;
+        static ServiceClient _erasClient;
 
         /// <summary>
         /// Server reference
@@ -27,10 +27,14 @@ namespace ResourceService
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            _eras = ServiceClient.Connect("EraS");
+            _erasClient = ServiceClient.Connect("Resource");
+            Console.WriteLine("my id is:" + _erasClient.ServiceName);
 
+            // TODO: get mongo url from EraS
             Server = MongoServer.Create("mongodb://localhost");
             Database = Server.GetDatabase("era");
+
+            System.Threading.Thread.Sleep(1000 * 10);
         }
     }
 }
