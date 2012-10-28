@@ -64,7 +64,7 @@ namespace EraS.Listeners
                 case NetIncomingMessageType.ConnectionApproval:
                     byte clientversion = m.ReadByte();
                     if (clientversion > MessageClient.Version)
-                        m.SenderConnection.Deny("Max version: " + MessageClient.Version.ToString());
+                        m.SenderConnection.Deny("Max. version: " + MessageClient.Version.ToString());
 
                     string servicename = m.ReadString();
                     var outmsg = Server.CreateMessage(32);
@@ -78,6 +78,8 @@ namespace EraS.Listeners
                     m.SenderConnection.Tag = handler;
                     Connections.Add(remoteid, handler);
                     m.SenderConnection.Approve(outmsg);
+
+                    Console.WriteLine("hello " + servicename);
                     break;
                 case NetIncomingMessageType.Data:
                     ((ServiceConnection)m.SenderConnection.Tag).HandleData(m);

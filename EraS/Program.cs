@@ -10,6 +10,7 @@ namespace EraS
     class Program
     {
         public static ServiceListener Services { get; protected set; }
+
         /// <summary>
         /// 
         /// </summary>
