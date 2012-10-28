@@ -70,7 +70,7 @@ namespace ServiceProtocol
         /// </summary>
         /// <param name="client">The client to send it with</param>
         /// <returns>An answer message</returns>
-        public Message Answer(ServiceClient client)
+        public Message Answer(MessageClient client)
         {
             return client.CreateMessage(MessageType.Answer, Origin, Thread);
         }

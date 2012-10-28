@@ -17,6 +17,7 @@ namespace EraS.Listeners
         public String Identifier { get; protected set; }
         protected Int32 _serviceCounter { get; set; }
         public Dictionary<String, ServiceConnection> Connections { get; protected set; }
+        public Dictionary<MessageType, Action<ServiceConnection, Message>> MessageHandlers { get; protected set; }
 
         public event Action OnShutdown;
 
@@ -24,6 +25,7 @@ namespace EraS.Listeners
         {
             Identifier = identifier;
             Connections = new Dictionary<string, ServiceConnection>();
+            MessageHandlers = new Dictionary<MessageType, Action<ServiceConnection, Message>>();
 
             var conf = new NetPeerConfiguration("EraService")
             {
@@ -52,7 +54,8 @@ namespace EraS.Listeners
             }
 
             LastTask = LastTask.
-                ContinueWith((_) => { Server.MessageReceivedEvent.WaitOne(100); }).
+                ContinueWith((_) => { Server.MessageReceivedEvent.WaitOne(100); });
+            LastTask = LastTask.
                 ContinueWith((_) => ReadMessages());
 
             var m = Server.ReadMessage();
@@ -62,29 +65,36 @@ namespace EraS.Listeners
             switch (m.MessageType)
             {
                 case NetIncomingMessageType.ConnectionApproval:
-                    byte clientversion = m.ReadByte();
-                    if (clientversion > MessageClient.Version)
-                        m.SenderConnection.Deny("Max. version: " + MessageClient.Version.ToString());
-
-                    string servicename = m.ReadString();
-                    var outmsg = Server.CreateMessage(32);
-
-                    string remoteid = Identifier + "-" + (_serviceCounter++).ToString();
-                    outmsg.Write(remoteid);
-                    var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid)
-                    {
-                        
-                    };
-                    m.SenderConnection.Tag = handler;
-                    Connections.Add(remoteid, handler);
-                    m.SenderConnection.Approve(outmsg);
-
-                    Console.WriteLine("hello " + servicename);
+                    ApproveConnection(m);
                     break;
                 case NetIncomingMessageType.Data:
                     ((ServiceConnection)m.SenderConnection.Tag).HandleData(m);
                     break;
             }
+        }
+
+        protected void ApproveConnection(NetIncomingMessage m)
+        {
+            byte clientversion = m.ReadByte();
+            if (clientversion > MessageClient.Version)
+                m.SenderConnection.Deny("Max. version: " + MessageClient.Version.ToString());
+
+            string servicename = m.ReadString();
+            var outmsg = Server.CreateMessage(32);
+
+            string remoteid = Identifier + "-" + (_serviceCounter++).ToString();
+            outmsg.Write(remoteid);
+            var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid);
+
+            foreach(var type in MessageHandlers.Keys)
+            {
+                var func = MessageHandlers[type];
+                handler.MessageHandlers.Add(type, (msg) => func(handler, msg));
+            }
+
+            m.SenderConnection.Tag = handler;
+            Connections.Add(remoteid, handler);
+            m.SenderConnection.Approve(outmsg);
         }
     }
 }

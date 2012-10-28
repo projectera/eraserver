@@ -27,11 +27,17 @@ namespace ResourceService
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            _erasClient = ServiceClient.Connect("Resource");
+            _erasClient = ServiceClient.Connect("resource");
             Console.WriteLine("my id is:" + _erasClient.ServiceName);
 
+            // Example question
+            var q = _erasClient.CreateQuestion(MessageType.Service, "resource");
+            q.Packet.Write("hi there!");
+            var ans = _erasClient.AskQuestion(q);
+            Console.WriteLine(ans.Packet.ReadString());
+
             // TODO: get mongo url from EraS
-            Server = MongoServer.Create("mongodb://localhost");
+            Server = MongoServer.Create("mongodb://pegu.maxmaton.nl");
             Database = Server.GetDatabase("era");
 
             System.Threading.Thread.Sleep(1000 * 10);

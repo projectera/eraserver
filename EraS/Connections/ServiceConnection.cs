@@ -25,12 +25,7 @@ namespace EraS.Connections
         public void HandleData(NetIncomingMessage m)
         {
             HandleMessage(new Message(m));
-        }
-
-        public void SendMessage()
-        {
-            throw new NotImplementedException();
-        }
+        }        
 
         public void Kill()
         {

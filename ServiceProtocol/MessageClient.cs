@@ -54,6 +54,7 @@ namespace ServiceProtocol
         {
             QuestionCounter = 1;
             Questions = new Dictionary<Int32, TaskCompletionSource<Message>>();
+            MessageHandlers = new Dictionary<MessageType, Action<Message>>();
             Peer = peer;
             Connection = connection;
 

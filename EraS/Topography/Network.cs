@@ -21,6 +21,11 @@ namespace EraS.Topography
         public Dictionary<String, Service> ServiceInstances { get; protected set; }
 
         /// <summary>
+        /// The list of running services by service name
+        /// </summary>
+        public Dictionary<String, List<Service>> ServiceGroupInstances { get; protected set; }
+
+        /// <summary>
         /// The list of servers
         /// </summary>
         public List<Server> Servers { get; protected set; }
@@ -28,10 +33,45 @@ namespace EraS.Topography
         /// <summary>
         /// Creates a new network representation
         /// </summary>
-        public Network()
+        public Network(String identifier)
         {
+            Me = new Server(identifier);
+            AddServer(Me);
+
             ServiceInstances = new Dictionary<String, Service>();
             Servers = new List<Server>();
+        }
+
+        public void AddServer(Server s)
+        {
+            Servers.Add(s);
+            foreach (var service in s.Services)
+            {
+                ServiceInstances.Add(service.Identifier, service);
+                ServiceGroupInstances[service.Name].Remove(service);
+            }
+        }
+
+        public void RemoveServer(Server s)
+        {
+            Servers.Remove(s);
+            foreach (var service in s.Services)
+            {
+                ServiceInstances.Remove(service.Identifier);
+                if (!ServiceGroupInstances.ContainsKey(service.Name))
+                    ServiceGroupInstances.Add(service.Name, new List<Service>());
+                ServiceGroupInstances[service.Name].Add(service);
+            }
+        }
+
+        public void AddService(Service s)
+        {
+            s.Server.Services.Add(s);
+            ServiceInstances.Add(s.Identifier, s);
+
+            if (!ServiceGroupInstances.ContainsKey(s.Name))
+                ServiceGroupInstances.Add(s.Name, new List<Service>());
+            ServiceGroupInstances[s.Name].Add(s);
         }
     }
 }
