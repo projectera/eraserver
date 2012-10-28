@@ -28,7 +28,7 @@ namespace EraS.Topography
         /// <summary>
         /// The list of servers
         /// </summary>
-        public List<Server> Servers { get; protected set; }
+        public Dictionary<String, Server> Servers { get; protected set; }
 
         /// <summary>
         /// Creates a new network representation
@@ -36,7 +36,7 @@ namespace EraS.Topography
         public Network(String identifier)
         {
             ServiceInstances = new Dictionary<String, Service>();
-            Servers = new List<Server>();
+            Servers = new Dictionary<String,Server>();
 
             Me = new Server(identifier);
             AddServer(Me);
@@ -44,8 +44,8 @@ namespace EraS.Topography
 
         public void AddServer(Server s)
         {
-            Servers.Add(s);
-            foreach (var service in s.Services)
+            Servers.Add(s.Identifier, s);
+            foreach (var service in s.Services.Values)
             {
                 ServiceInstances.Add(service.Identifier, service);
                 ServiceGroupInstances[service.Name].Remove(service);
@@ -54,8 +54,8 @@ namespace EraS.Topography
 
         public void RemoveServer(Server s)
         {
-            Servers.Remove(s);
-            foreach (var service in s.Services)
+            Servers.Remove(s.Identifier);
+            foreach (var service in s.Services.Values)
             {
                 ServiceInstances.Remove(service.Identifier);
                 if (!ServiceGroupInstances.ContainsKey(service.Name))
@@ -66,7 +66,7 @@ namespace EraS.Topography
 
         public void AddService(Service s)
         {
-            s.Server.Services.Add(s);
+            s.Server.Services.Add(s.Identifier, s);
             ServiceInstances.Add(s.Identifier, s);
 
             if (!ServiceGroupInstances.ContainsKey(s.Name))

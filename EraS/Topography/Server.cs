@@ -14,7 +14,7 @@ namespace EraS.Topography
         /// <summary>
         /// The list of services connected to this server
         /// </summary>
-        public List<Service> Services { get; protected set; }
+        public Dictionary<String, Service> Services { get; protected set; }
 
         /// <summary>
         /// Wether the server is fenced (no active services, won't relay messages)
@@ -43,7 +43,7 @@ namespace EraS.Topography
         /// <param name="identifier">The unique identifier (hash)</param>
         public Server(String identifier)
         {
-            Services = new List<Service>();
+            Services = new Dictionary<String, Service>();
             Identifier = identifier;
         }
     }

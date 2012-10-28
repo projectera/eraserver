@@ -44,5 +44,32 @@ namespace EraS.MessageHandlers
             ans.Packet.Write(Network.Me.Identifier);
             c.SendMessage(ans);
         }
+
+        protected void GetConnectedServers(ServiceConnection c, Message m)
+        {
+            var ans = m.Answer(c);
+            lock (Network)
+            {
+                m.Packet.Write(Network.Servers.Count);
+                foreach (var s in Network.Servers.Values)
+                    m.Packet.Write(s.Identifier);
+            }
+            c.SendMessage(ans);
+        }
+
+        protected void GetServerServices(ServiceConnection c, Message m)
+        {
+            var id = m.Packet.ReadString();
+            lock (Network)
+            {
+                if(!Network.Servers.ContainsKey(id))
+                    return;
+
+                Server s = Network.Servers[id];
+                var ans = m.Answer(c);
+                ans.Packet.Write(s.Services.Count);
+
+            }
+        }
     }
 }
