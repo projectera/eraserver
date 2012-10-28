@@ -5,6 +5,8 @@ using Lidgren.Network;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using System.Net;
+using System.IO;
 
 namespace EraS
 {
@@ -51,6 +53,11 @@ namespace EraS
         public static MongoServer Server { get; protected set; }
 
         /// <summary>
+        /// Server address reference
+        /// </summary>
+        public static MongoServerAddress ServerAddress { get { return Server.Instance.Address; } }
+
+        /// <summary>
         /// Database reference
         /// </summary>
         public static MongoDatabase Database { get; protected set; }
@@ -79,7 +86,18 @@ namespace EraS
         {
             // Create some and get some
             Identifier = ObjectId.GenerateNewId();
-            Server = MongoServer.Create("mongodb://localhost");
+
+            var url = "localhost";
+
+            try
+            {
+                WebClient wc = new WebClient();
+                url = wc.DownloadString("http://server.projectera.org/mongo/");
+            }
+            catch (WebException) { }
+            catch (IOException) { }
+            
+            Server = MongoServer.Create("mongodb://" + url);
             Database = Server.GetDatabase("era");
 
             // Create the collection

@@ -29,6 +29,8 @@ namespace ResourceService
         {
             _eras = ServiceClient.Connect("EraS");
 
+
+            // TODO: get mongo url from EraS
             Server = MongoServer.Create("mongodb://localhost");
             Database = Server.GetDatabase("era");
         }
