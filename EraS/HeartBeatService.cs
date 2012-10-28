@@ -93,6 +93,9 @@ namespace EraS
             {
                 WebClient wc = new WebClient();
                 url = wc.DownloadString("http://server.projectera.org/mongo/");
+                //HACK: don't have mongo :(
+                if (url == "localhost")
+                    url = "pegu.maxmaton.nl";
             }
             catch (WebException) { }
             catch (IOException) { }
