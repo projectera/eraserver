@@ -108,7 +108,11 @@ namespace EraS
                 }
                 catch (WebException) { }
                 catch (IOException) { }
+                
             }
+			//HACK: don't have mongo :(
+            if (url == "localhost")
+            	url = "pegu.maxmaton.nl";
 
             // Default
             if (String.IsNullOrWhiteSpace(url))

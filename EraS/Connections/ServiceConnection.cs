@@ -12,24 +12,14 @@ namespace EraS.Connections
     {
         public String RemoteIdentifier { get; protected set; }
 
-        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier) : base(connection.Peer, connection, identifier)
+        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier) : base(connection, identifier)
         {
             RemoteIdentifier = remoteIdentifier;
         }
 
-        protected override void ReadMessages()
+        public void Stop()
         {
-            // Ignore reading of messages, is handled by server
-        }
-
-        public void HandleData(NetIncomingMessage m)
-        {
-            HandleMessage(new Message(m));
-        }
-
-        public void SendMessage()
-        {
-            throw new NotImplementedException();
+            RaiseOnConnectionClosed();
         }
 
         public void Kill()
