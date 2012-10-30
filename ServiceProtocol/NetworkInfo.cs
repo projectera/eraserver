@@ -33,21 +33,40 @@ namespace ServiceProtocol
             return GetString("GetServerIdentifier");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<String> GetServices()
         {
             return GetStringList("GetServices");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public List<String> GetServiceInstances(String name)
         {
             return GetStringList("GetServiceInstances", name);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
         public String GetServiceServer(String identifier)
         {
             return GetString("GetServiceServer", identifier);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="function"></param>
+        /// <returns></returns>
         protected String GetString(String function)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
@@ -56,6 +75,12 @@ namespace ServiceProtocol
             return res.Packet.ReadString();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="argument"></param>
+        /// <returns></returns>
         protected String GetString(String function, String argument)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
@@ -74,6 +99,11 @@ namespace ServiceProtocol
             return GetStringList("GetConnectedServers");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="function"></param>
+        /// <returns></returns>
         protected List<String> GetStringList(String function)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
@@ -88,6 +118,12 @@ namespace ServiceProtocol
             return l;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="function"></param>
+        /// <param name="argument"></param>
+        /// <returns></returns>
         protected List<String> GetStringList(String function, String argument)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
@@ -121,11 +157,21 @@ namespace ServiceProtocol
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
         public String GetServerDisplayName(String identifier)
         {
             return GetString("GetServerDisplayName", identifier);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
         public String GetServiceName(String identifier)
         {
             return GetString("GetServiceName", identifier);
