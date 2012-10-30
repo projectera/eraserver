@@ -12,16 +12,52 @@ namespace EraS.Listeners
 {
     class ServiceListener
     {
+        /// <summary>
+        /// Lidgren NetServer for the listener
+        /// </summary>
         public NetServer Server { get; protected set; }
+
+        /// <summary>
+        /// Internal listening thread
+        /// </summary>
         protected Thread Thread { get; set; }
+
+        /// <summary>
+        /// Gets the status of the service listener
+        /// </summary>
+        public Boolean IsRunning { get { return Thread.IsAlive; } }
+
+        /// <summary>
+        /// Server (instance) Identifier
+        /// </summary>
         public String Identifier { get; protected set; }
         protected Int32 _serviceCounter { get; set; }
+
+        /// <summary>
+        /// All the service connections by service name
+        /// </summary>
         public Dictionary<String, ServiceConnection> Connections { get; protected set; }
+
+        /// <summary>
+        /// Message handlers handle all the messages not handled in ServiceConnection.
+        /// They are assigned when the a new service connection is approved.
+        /// </summary>
         public Dictionary<MessageType, Action<ServiceConnection, Message>> MessageHandlers { get; protected set; }
 
+        /// <summary>
+        /// Runs when a connection is made
+        /// </summary>
         public Action<ServiceConnection, String> OnConnect { get; set; }
+
+        /// <summary>
+        /// Runs when a connection is broken
+        /// </summary>
         public Action<ServiceConnection> OnDisconnect { get; set; }
 
+        /// <summary>
+        /// Creates the servicelistener
+        /// </summary>
+        /// <param name="identifier">The instance identifier</param>
         public ServiceListener(String identifier)
         {
             Identifier = identifier;
@@ -37,14 +73,17 @@ namespace EraS.Listeners
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             Server = new NetServer(conf);
             Server.Start();
-
+  
             Thread = new Thread(Run);
             Thread.Start();
         }
 
+        /// <summary>
+        /// Runs the thread
+        /// </summary>
         protected void Run()
         {
-            while (true)
+            while (IsRunning)
             {
                 var m = Server.ReadMessage();
                 if (m == null)
@@ -64,29 +103,39 @@ namespace EraS.Listeners
                         break;
                 }
             }
+
         }
 
+        /// <summary>
+        /// Approves a new connection
+        /// </summary>
+        /// <param name="m">Incomming hail</param>
         protected void ApproveConnection(NetIncomingMessage m)
         {
-            byte clientversion = m.ReadByte();
+            // Deny wrong versions
+            Byte clientversion = m.ReadByte();
             if (clientversion > MessageClient.Version)
                 m.SenderConnection.Deny("Max. version: " + MessageClient.Version.ToString());
+            
+            String servicename = m.ReadString();
 
-            string servicename = m.ReadString();
+            // Remote hail message with internal id
             var outmsg = Server.CreateMessage(32);
-
-            string remoteid = Identifier + "-" + (_serviceCounter++).ToString();
+            String remoteid = Identifier + "-" + (_serviceCounter++).ToString();
             outmsg.Write(remoteid);
+            
+            // Create the service handler
             var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid);
             handler.OnConnectionClosed += () => OnDisconnect(handler);
             OnConnect(handler, servicename);
 
+            // Assign message handlers
             foreach(var type in MessageHandlers.Keys)
             {
                 var func = MessageHandlers[type];
                 handler.MessageHandlers.Add(type, (msg) => func(handler, msg));
             }
-
+            
             m.SenderConnection.Tag = handler;
             Connections.Add(remoteid, handler);
             m.SenderConnection.Approve(outmsg);
