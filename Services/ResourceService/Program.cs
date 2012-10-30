@@ -29,6 +29,11 @@ namespace ResourceService
         {
             _erasClient = ServiceClient.Connect("Resource");
             Console.WriteLine("my id is:" + _erasClient.ServiceName);
+            
+            // use message handlers to register what should be done with different msgtypes
+            var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
+            q.Packet.Write("mongo");
+            var a = _erasClient.AskReliableQuestion(q); 
 
             // TODO: get mongo url from EraS
             Server = MongoServer.Create("mongodb://localhost");
