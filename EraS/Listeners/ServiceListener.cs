@@ -87,7 +87,10 @@ namespace EraS.Listeners
             {
                 var m = Server.ReadMessage();
                 if (m == null)
+                {
+                    System.Threading.Thread.Sleep(10);
                     continue;
+                }
 
                 switch (m.MessageType)
                 {
