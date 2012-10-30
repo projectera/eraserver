@@ -59,6 +59,7 @@ namespace ServiceProtocol
 
             IsConnected = true;
             LastTask = Task.Factory.StartNew(ReadMessages, TaskCreationOptions.LongRunning);
+            MessageHandlers = new Dictionary<MessageType, Action<Message>>();
         }
 
         /// <summary>
