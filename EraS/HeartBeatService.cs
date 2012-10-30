@@ -87,16 +87,33 @@ namespace EraS
             // Create some and get some
             Identifier = ObjectId.GenerateNewId();
 
-            var url = "localhost";
+            var url = String.Empty;
 
-            try
+            // Urls to test
+            var addresses = new List<String> { 
+                "http://server.projectera.org/mongo/",
+                "http://era.derk-jan.org/mongo/",
+                "http://amazon.derk-jan.org/era/mongo/",
+            };
+
+            // Test network url's
+            while (String.IsNullOrWhiteSpace(url) && addresses.Count > 0)
             {
-                WebClient wc = new WebClient();
-                url = wc.DownloadString("http://server.projectera.org/mongo/");
+                var address = addresses[0];
+                addresses.Remove(address);
+                try
+                {
+                    WebClient wc = new WebClient();
+                    url = wc.DownloadString(address);
+                }
+                catch (WebException) { }
+                catch (IOException) { }
             }
-            catch (WebException) { }
-            catch (IOException) { }
-            
+
+            // Default
+            if (String.IsNullOrWhiteSpace(url))
+                url = "localhost";
+
             Server = MongoServer.Create("mongodb://" + url);
             Database = Server.GetDatabase("era");
 
