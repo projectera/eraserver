@@ -7,7 +7,7 @@ using MongoDB.Driver;
 
 namespace ResourceService
 {
-    class Program
+    partial class Program
     {
         static ServiceClient _erasClient;
 
@@ -67,15 +67,6 @@ namespace ResourceService
                 System.Threading.Thread.Sleep(1000);
 
             Console.WriteLine("Service terminated.");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="m"></param>
-        public static void HandleMessages(Message m) 
-        {
-            
         }
     }
 }
