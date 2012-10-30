@@ -68,6 +68,17 @@ namespace EraS
         public static DateTime HeartBeatTime { get; protected set; }
 
         /// <summary>
+        /// Has flatlined boolean
+        /// </summary>
+        public static Boolean HasFlatlined
+        {
+            get
+            {
+                return NetTime.Now - _beatTime > 60 * FlatlineTime;
+            }
+        }
+
+        /// <summary>
         /// Gets the heartbeat document
         /// </summary>
         public static BsonDocument Document { get
@@ -82,7 +93,7 @@ namespace EraS
         /// <summary>
         /// Starts the service
         /// </summary>
-        public static void Defibrillate()
+        public static Boolean Defibrillate()
         {
             // Create some and get some
             Identifier = ObjectId.GenerateNewId();
@@ -110,16 +121,23 @@ namespace EraS
                 catch (IOException) { }
                 
             }
-			//HACK: don't have mongo :(
-            if (url == "localhost")
-            	url = "pegu.maxmaton.nl";
 
             // Default
             if (String.IsNullOrWhiteSpace(url))
                 url = "localhost";
 
-            Server = MongoServer.Create("mongodb://" + url);
-            Database = Server.GetDatabase("era");
+			// HACK: don't have mongo :(
+            if (url == "localhost")
+            	url = "pegu.maxmaton.nl";
+
+            // Connect to mongo
+            try
+            {
+                Console.WriteLine("Heartbeatservice connecting to mongodb://{0}", url);
+                Server = MongoServer.Create("mongodb://" + url);
+                Database = Server.GetDatabase("era");
+            }
+            catch (Exception) { return false; }
 
             // Create the collection
             if (!Database.CollectionExists("Servers"))
@@ -129,7 +147,7 @@ namespace EraS
             GetCollection().EnsureIndex(
                 IndexKeys.Ascending("HeartBeatTime"), 
                 IndexOptions.SetTimeToLive(
-                    TimeSpan.FromMinutes(FlatlineTime * 2)
+                    TimeSpan.FromMinutes(FlatlineTime * 60 * 2)
                 )
             );
 
@@ -142,6 +160,8 @@ namespace EraS
                 TimeSpan.FromMinutes(0),
                 TimeSpan.FromMinutes(HeartBeatInterval)
             );
+
+            return true;
         }
 
         /// <summary>
@@ -174,7 +194,7 @@ namespace EraS
             }
             catch (Exception)
             {
-                if (NetTime.Now - _beatTime > FlatlineTime)
+                if (HasFlatlined)
                     Flatline(state);
             }
         }
@@ -196,6 +216,8 @@ namespace EraS
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             OnFlatline.Invoke(Identifier);
+
+            Console.WriteLine("Heartbeatservice [local: {0}] has flatlined.", state);
         }
 
         /// <summary>
@@ -220,10 +242,12 @@ namespace EraS
                 // Server is flatlinening
                 if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime).Minutes > FlatlineTime)
                 {
+                    Console.WriteLine("Heartbeatservice [{0}] has flatlined.", server["_id"]);
                     OnRemoteFlatline.Invoke(server["_id"].AsObjectId);
                 }
                 else
                 {
+                    Console.WriteLine("Heartbeatservice found heart [{0}].", server["_id"]);
                     identifiers.Add(server["_id"].AsObjectId);
                 }
             }
