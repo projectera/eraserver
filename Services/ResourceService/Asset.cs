@@ -12,7 +12,10 @@ using System.Security.Cryptography;
 namespace ResourceService
 {
     /// <summary>
-    /// 
+    /// Assets are stored files in the GridFs section of the Database. They can be retrieved by quering for
+    /// the unique filename, which is composed of an MD5 and SHA1 hash based on the contents of the file.
+    /// Once you get the asset object with the file information, the chunks can be retrieved individually
+    /// to compose the binary file on the remote location. Files are automatically replaced if updated.
     /// </summary>
     public class Asset
     {
@@ -407,8 +410,7 @@ namespace ResourceService
 
             using (var md5Algorithm = algorithm)
             {
-                for (int n = 0; true; n++)
-                {
+                while(true) { // for (int n = 0; true; n++)
                     // might have to call Stream.Read several times to get a whole chunk
                     var bytesNeeded = chunkSize;
                     var bytesRead = 0;
