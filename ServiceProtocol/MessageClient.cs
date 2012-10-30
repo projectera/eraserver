@@ -122,6 +122,19 @@ namespace ServiceProtocol
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public Message CloneMessage(Message message)
+        {
+            var result = new Message(Connection.Peer.CreateMessage(32), message.Type, message.Origin, message.Destination, message.Thread);
+            var leftover = message.Packet.Data.Skip(result.Packet.PositionInBytes);
+            result.Packet.Write(leftover.ToArray());
+            return result;
+        }
+
+        /// <summary>
         /// Creates a new question message
         /// </summary>
         /// <param name="type">The message type</param>
@@ -207,6 +220,9 @@ namespace ServiceProtocol
                     return AskQuestion(msg);
                 }
                 catch (TimeoutException) { }
+
+                // Can not send same message twice
+                msg = CloneMessage(msg);
             }
             throw new TimeoutException("Server did not answer within 100 seconds, invalid assumption");
         }
