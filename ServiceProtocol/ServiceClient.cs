@@ -21,8 +21,26 @@ namespace ServiceProtocol
         /// </summary>
         public String ServiceName { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public NetClient Client { get; protected set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         protected Thread Thread { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Boolean IsConnected
+        {
+            get
+            {
+                return Client != null && Client.ConnectionStatus == Lidgren.Network.NetConnectionStatus.Connected;
+            }
+        }
 
         /// <summary>
         /// Connect to the server
@@ -65,16 +83,22 @@ namespace ServiceProtocol
             Thread.Start();
         }
 
-        public void Stop()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Stop(String reason = null)
         {
             Thread.Abort();
-            Client.Disconnect("");
+            Client.Disconnect(reason ?? "Stopping the service.");
             base.RaiseOnConnectionClosed();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected virtual void Run()
         {
-            while (true)
+            while (IsConnected)
             {
                 Client.MessageReceivedEvent.WaitOne(100);
                 var msg = Client.ReadMessage();
