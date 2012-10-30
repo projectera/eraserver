@@ -13,6 +13,7 @@ namespace EraS
     {
         public static ServiceListener Services { get; protected set; }
         public static Network Network { get; protected set; }
+        public static Boolean IsRunning { get; set; }
 
         /// <summary>
         /// 
@@ -20,13 +21,15 @@ namespace EraS
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            HeartBeatService.Defibrillate();
-            Network = new Network(HeartBeatService.Identifier.ToString());
+            if (HeartBeatService.Defibrillate())
+                IsRunning = true;
 
+            Network = new Network(HeartBeatService.Identifier.ToString());
             Services = new ServiceListener(HeartBeatService.Identifier.ToString())
             {
                 OnConnect = (con, name) =>
                 {
+                    // Builds the network
                     var s = new Service(Network.Me, con.RemoteIdentifier)
                     {
                         Name = name,
@@ -47,13 +50,16 @@ namespace EraS
                     }
                 },
             };
+
             Console.WriteLine("Service listener started");
 
             ErasHandler h = new ErasHandler(Network);
             Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
 
-            while(true)
+            while(!HeartBeatService.HasFlatlined && IsRunning)
                 System.Threading.Thread.Sleep(1000);
+
+            Console.WriteLine("Service listener stopped");
         }
     }
 }
