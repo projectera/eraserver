@@ -75,7 +75,8 @@ namespace EraS
                 return new BsonDocument()
                     .Add("_id", HeartBeatService.Identifier)
                     .Add("HeartBeatTime", HeartBeatService.HeartBeatTime)
-                    .Add("AliveTime", _beatTime);
+                    .Add("AliveTime", _beatTime)
+                    .Add("IP", Utils.NetUtils.GetIPAddress().ToString());
             }
         }
         
@@ -86,19 +87,19 @@ namespace EraS
         {
             // Create some and get some
             Identifier = ObjectId.GenerateNewId();
-
+            
             var url = "localhost";
 
             try
             {
                 WebClient wc = new WebClient();
                 url = wc.DownloadString("http://server.projectera.org/mongo/");
-                //HACK: don't have mongo :(
-                if (url == "localhost")
-                    url = "pegu.maxmaton.nl";
             }
             catch (WebException) { }
             catch (IOException) { }
+
+            // HACK: fix for dev
+            url = "pegu.maxmaton.nl";
             
             Server = MongoServer.Create("mongodb://" + url);
             Database = Server.GetDatabase("era");
@@ -193,10 +194,10 @@ namespace EraS
         /// Gets servers
         /// </summary>
         /// <returns>List of identifiers</returns>
-        protected static List<ObjectId> GetServers()
+        public static Dictionary<ObjectId, BsonDocument> GetServers()
         {
             var servers = GetCollection().FindAllAs<BsonDocument>();
-            var identifiers = new List<ObjectId>();
+            var identifiers = new Dictionary<ObjectId, BsonDocument>();
             foreach (var server in servers)
             {
                 // Server is flatlinening
@@ -206,7 +207,7 @@ namespace EraS
                 }
                 else
                 {
-                    identifiers.Add(server["_id"].AsObjectId);
+                    identifiers.Add(server["_id"].AsObjectId, server);
                 }
             }
 
