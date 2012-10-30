@@ -21,6 +21,9 @@ namespace ResourceService
         /// </summary>
         public static MongoDatabase Database { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static NetworkInfo NetworkInfo { get; protected set; }
 
         /// <summary>
@@ -34,15 +37,15 @@ namespace ResourceService
             _erasClient = ServiceClient.Connect("Resource");
             Console.WriteLine("my id is:" + _erasClient.ServiceName);
 
-            NetworkInfo = new ServiceProtocol.NetworkInfo(_erasClient);
-
-            // Example question
-            Console.WriteLine(NetworkInfo.GetServerIdentifier());
-
-            // TODO: get mongo url from EraS
-            Server = MongoServer.Create("mongodb://pegu.maxmaton.nl");
+            var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
+            q.Packet.Write("GetMongo");
+            var a = _erasClient.AskReliableQuestion(q); 
+            var host = a.Packet.ReadString();
+            var port = a.Packet.ReadInt32();
+            Server = MongoServer.Create("mongodb://" + new MongoServerAddress(host, port).ToString());
             Database = Server.GetDatabase("era");
 
+            NetworkInfo = new ServiceProtocol.NetworkInfo(_erasClient);
             System.Threading.Thread.Sleep(1000 * 10);
         }
     }

@@ -50,7 +50,7 @@ namespace NetworkMapper
                 foreach (var instance in instances)
                 {
                     var server = n.GetServiceServer(instance);
-                    Console.WriteLine("    - " + instance + " [" + server + " - " + n.GetServerDisplayName(server) + "]");
+                    Console.WriteLine("    - " + instance + " [" + server + "@" + n.GetServerDisplayName(server) + "]");
                 }
             }
 

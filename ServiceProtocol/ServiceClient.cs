@@ -47,7 +47,7 @@ namespace ServiceProtocol
             var greet = client.ReadMessage();
             if (greet == null)
                 throw new TimeoutException("Server did not respond with needed info");
-            var serviceClient = new ServiceClient(client, serviceName, Encoding.UTF8.GetString(client.ServerConnection.RemoteHailMessage.Data));
+            var serviceClient = new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
 
             return serviceClient;
         }
