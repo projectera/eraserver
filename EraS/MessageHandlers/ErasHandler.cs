@@ -23,7 +23,7 @@ namespace EraS.MessageHandlers
             Functions = new Dictionary<String, Action<ServiceConnection, Message>>();
 
             #region Register Functions
-            Functions.Add("GetIdentifier", GetIdentifier);
+            Functions.Add("GetServerIdentifier", GetServerIdentifier);
             Functions.Add("GetConnectedServers", GetConnectedServers);
             Functions.Add("GetServerServices", GetServerServices);
             Functions.Add("GetServerDisplayName", GetServerDisplayName);
@@ -31,6 +31,7 @@ namespace EraS.MessageHandlers
             Functions.Add("GetServiceServer", GetServiceServer);
             Functions.Add("GetServiceInstances", GetServiceInstances);
             Functions.Add("GetServices", GetServices);
+            Functions.Add("GetMongo", GetMongo);
             #endregion
         }
 
@@ -50,6 +51,11 @@ namespace EraS.MessageHandlers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
         public void GetServices(ServiceConnection c, Message m)
         {
             var ans = m.Answer(c);
@@ -63,6 +69,11 @@ namespace EraS.MessageHandlers
             c.SendMessage(ans);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
         public void GetServiceInstances(ServiceConnection c, Message m)
         {
             var argument = m.Packet.ReadString();
@@ -83,6 +94,11 @@ namespace EraS.MessageHandlers
             c.SendMessage(ans);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
         public void GetServiceServer(ServiceConnection c, Message m)
         {
             var argument = m.Packet.ReadString();
@@ -104,7 +120,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c">The connection this message came from</param>
         /// <param name="m">The message</param>
-        protected void GetIdentifier(ServiceConnection c, Message m)
+        protected void GetServerIdentifier(ServiceConnection c, Message m)
         {
             var ans = m.Answer(c);
             ans.Packet.Write(Network.Me.Identifier);
@@ -137,18 +153,18 @@ namespace EraS.MessageHandlers
         protected void GetServerServices(ServiceConnection c, Message m)
         {
             var id = m.Packet.ReadString();
+            var ans = m.Answer(c);
             lock (Network)
             {
                 if(!Network.Servers.ContainsKey(id))
                     return;
 
                 Server s = Network.Servers[id];
-                var ans = m.Answer(c);
                 ans.Packet.Write(s.Services.Count);
                 foreach (var service in s.Services.Keys)
                     ans.Packet.Write(service);
-                c.SendMessage(ans);
             }
+            c.SendMessage(ans);
         }
 
         /// <summary>
@@ -159,14 +175,14 @@ namespace EraS.MessageHandlers
         protected void GetServerDisplayName(ServiceConnection c, Message m)
         {
             var id = m.Packet.ReadString();
+            var ans = m.Answer(c);
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(id))
                     return;
-                var ans = m.Answer(c);
                 ans.Packet.Write(Network.Servers[id].DisplayName);
-                c.SendMessage(ans);
             }
+            c.SendMessage(ans);
         }
 
         /// <summary>
@@ -177,14 +193,27 @@ namespace EraS.MessageHandlers
         protected void GetServiceName(ServiceConnection c, Message m)
         {
             var id = m.Packet.ReadString();
+            var ans = m.Answer(c);
             lock (Network)
             {
                 if (!Network.ServiceInstances.ContainsKey(id))
                     return;
-                var ans = m.Answer(c);
                 ans.Packet.Write(Network.ServiceInstances[id].Name);
-                c.SendMessage(ans);
             }
+            c.SendMessage(ans);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        protected void GetMongo(ServiceConnection c, Message m)
+        {
+            var ans = m.Answer(c);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
+            c.SendMessage(ans);
         }
     }
 }
