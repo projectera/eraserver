@@ -147,7 +147,7 @@ namespace EraS
             GetCollection().EnsureIndex(
                 IndexKeys.Ascending("HeartBeatTime"), 
                 IndexOptions.SetTimeToLive(
-                    TimeSpan.FromMinutes(FlatlineTime * 60 * 2)
+                    TimeSpan.FromMinutes(FlatlineTime * 2)
                 )
             );
 
