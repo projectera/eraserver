@@ -14,6 +14,9 @@ using ServiceProtocol;
 
 namespace EraS.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class StatisticsService
     {
         public const String SERVICE_VERSION = "1.0.0";
@@ -246,11 +249,11 @@ namespace EraS.Services
         /// <summary>
         /// Functions provided by this service
         /// </summary>
-        public static Dictionary<String, Action<ServiceConnection, Message>> Functions
+        public static Dictionary<String, Action<MessageClient, Message>> Functions
         {
             get
             {
-                return new Dictionary<String, Action<ServiceConnection, Message>>() {
+                return new Dictionary<String, Action<MessageClient, Message>>() {
                     { "GetStatisticsVersion", GetStatisticsVersion },
                     { "GetStatistics" , GetStatistics }, 
                     { "GetStatisticsTotal", GetStatisticsTotal },
@@ -264,7 +267,7 @@ namespace EraS.Services
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        private static void GetStatisticsVersion(ServiceConnection c, Message m)
+        private static void GetStatisticsVersion(MessageClient c, Message m)
         {
             var answer = m.Answer(c);
             answer.Packet.Write(SERVICE_VERSION);
@@ -276,7 +279,7 @@ namespace EraS.Services
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        private static void GetStatistics(ServiceConnection c, Message m)
+        private static void GetStatistics(MessageClient c, Message m)
         {
             var answer = m.Answer(c);
             var results = new Stack<Dictionary<String, StatsDocument>>();
@@ -384,7 +387,7 @@ namespace EraS.Services
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        private static void GetStatisticsTotal(ServiceConnection c, Message m)
+        private static void GetStatisticsTotal(MessageClient c, Message m)
         {
             var answer = m.Answer(c);
             lock (_history)
@@ -408,7 +411,7 @@ namespace EraS.Services
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        private static void GetStatisticsSlice(ServiceConnection c, Message m)
+        private static void GetStatisticsSlice(MessageClient c, Message m)
         {
             //var stime = m.Packet.ReadInt64();
             //var etime = m.Packet.ReadInt64();

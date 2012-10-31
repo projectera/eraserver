@@ -291,31 +291,5 @@ namespace EraS.Services
 
             return identifiers;
         }
-
-        /// <summary>
-        /// Functions provided by this service
-        /// </summary>
-        public static Dictionary<String, Action<ServiceConnection, Message>> Functions
-        {
-            get
-            {
-                return new Dictionary<string, Action<ServiceConnection, Message>>() {
-                    { "GetMongo" , GetMongo },
-                };
-            }
-        }
-
-        /// <summary>
-        /// Get Mongo address
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetMongo(ServiceConnection c, Message m)
-        {
-            var ans = m.Answer(c);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
-            c.SendMessage(ans);
-        }
     }
 }

@@ -6,6 +6,7 @@ using ServiceProtocol;
 using EraS.Listeners;
 using EraS.Topography;
 using EraS.MessageHandlers;
+using EraS.MessageHandlers.ErasComponents;
 using EraS.Services;
 
 namespace EraS
@@ -71,7 +72,10 @@ namespace EraS
             StatisticsService.Start();
             Console.WriteLine("Service listener started.");
 
-            ErasHandler h = new ErasHandler(Network);
+            MessageHandler h = new MessageHandler();
+            h.Add(new NetworkComponent(Network));
+            h.Add(new SettingsComponent());
+
             Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
 
             while (!HeartBeatService.HasFlatlined && IsRunning)
