@@ -13,15 +13,16 @@ namespace EraS.Listeners
     {
         public const UInt16 ServerPort = 38237;
         public NetPeer Peer { get; protected set; }
-        public Network Network { get; protected set; }
         public Thread Thread { get; protected set; }
         public Boolean IsActive { get; protected set; }
 
         public List<String> UnconnectedServers { get; protected set; }
 
-        public ServerListener(Network network)
+        public Action<ServerConnection> OnConnect { get; set; }
+        public Action<ServerConnection> OnDisconnect { get; set; }
+
+        public ServerListener()
         {
-            Network = network;
             UnconnectedServers = new List<String>();
 
             var conf = new NetPeerConfiguration("EraServer")
@@ -42,7 +43,6 @@ namespace EraS.Listeners
                 con.Connection.Tag = con;
                 
                 UnconnectedServers.Add(server.ToString());
-                Network.AddServer(nets);
             }
 
             Thread = new Thread(Run);
@@ -62,13 +62,23 @@ namespace EraS.Listeners
                 switch (msg.MessageType)
                 {
                     case NetIncomingMessageType.StatusChanged:
-                        switch(msg.SenderConnection.Status)
+                        switch (msg.SenderConnection.Status)
                         {
                             case NetConnectionStatus.Connected:
-                                OnConnect(con, msg);
+                                if (OnConnect != null)
+                                    OnConnect(con);
+
+                                if (IsActive)
+                                    break;
+                                if (UnconnectedServers.Contains(con.Identifier))
+                                    UnconnectedServers.Remove(con.Identifier);
+
+                                if (UnconnectedServers.Count == 0)
+                                    Activate();
                                 break;
                             case NetConnectionStatus.Disconnected:
-                                OnDisconnect(con, msg);
+                                if(OnDisconnect != null)
+                                    OnDisconnect(con);
                                 break;
                         }
                         break;
@@ -80,22 +90,6 @@ namespace EraS.Listeners
                         break;
                 }
             }
-        }
-
-        protected virtual void OnConnect(ServerConnection con, NetIncomingMessage msg)
-        {
-            if (IsActive)
-                return;
-            if (UnconnectedServers.Contains(con.Identifier))
-                UnconnectedServers.Remove(con.Identifier);
-
-            if (UnconnectedServers.Count == 0)
-                Activate();
-        }
-
-        protected virtual void OnDisconnect(ServerConnection con, NetIncomingMessage msg)
-        {
-
         }
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)

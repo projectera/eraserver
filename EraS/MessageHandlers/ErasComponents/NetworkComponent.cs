@@ -2,27 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EraS.Topography;
-using ServiceProtocol;
 using EraS.Connections;
-using System.Threading.Tasks;
+using ServiceProtocol;
+using EraS.Topography;
 
-namespace EraS.MessageHandlers
+namespace EraS.MessageHandlers.ErasComponents
 {
-    /// <summary>
-    /// Handles EraS Messages
-    /// </summary>
-    class ErasHandler
+    class NetworkComponent : DefaultComponent
     {
-        public Network Network { get; set; }
-        public Dictionary<String, Action<ServiceConnection, Message>> Functions { get; protected set; }
+        public Network Network { get; protected set; }
 
-        public ErasHandler(Network network)
+        public NetworkComponent(Network network) : base("Network")
         {
             Network = network;
-            Functions = new Dictionary<String, Action<ServiceConnection, Message>>();
 
-            #region Register Functions
             Functions.Add("GetServerIdentifier", GetServerIdentifier);
             Functions.Add("GetConnectedServers", GetConnectedServers);
             Functions.Add("GetServerServices", GetServerServices);
@@ -31,24 +24,6 @@ namespace EraS.MessageHandlers
             Functions.Add("GetServiceServer", GetServiceServer);
             Functions.Add("GetServiceInstances", GetServiceInstances);
             Functions.Add("GetServices", GetServices);
-            Functions.Add("GetMongo", GetMongo);
-            #endregion
-        }
-
-        /// <summary>
-        /// Processes a message
-        /// </summary>
-        /// <param name="c">The connection the message came from</param>
-        /// <param name="m">The message</param>
-        public void HandleMessage(ServiceConnection c, Message m)
-        {
-            var function = m.Packet.ReadString();
-            lock (Functions)
-            {
-                if (!Functions.ContainsKey(function))
-                    return;
-                Functions[function](c, m);
-            }
         }
 
         /// <summary>
@@ -56,7 +31,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        public void GetServices(ServiceConnection c, Message m)
+        public void GetServices(MessageClient c, Message m)
         {
             var ans = m.Answer(c);
 
@@ -74,7 +49,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        public void GetServiceInstances(ServiceConnection c, Message m)
+        public void GetServiceInstances(MessageClient c, Message m)
         {
             var argument = m.Packet.ReadString();
             Message ans;
@@ -99,7 +74,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        public void GetServiceServer(ServiceConnection c, Message m)
+        public void GetServiceServer(MessageClient c, Message m)
         {
             var argument = m.Packet.ReadString();
             Message ans;
@@ -120,7 +95,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c">The connection this message came from</param>
         /// <param name="m">The message</param>
-        protected void GetServerIdentifier(ServiceConnection c, Message m)
+        protected void GetServerIdentifier(MessageClient c, Message m)
         {
             var ans = m.Answer(c);
             ans.Packet.Write(Network.Me.Identifier);
@@ -132,7 +107,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        protected void GetConnectedServers(ServiceConnection c, Message m)
+        protected void GetConnectedServers(MessageClient c, Message m)
         {
             var ans = m.Answer(c);
             lock (Network)
@@ -150,13 +125,13 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        protected void GetServerServices(ServiceConnection c, Message m)
+        protected void GetServerServices(MessageClient c, Message m)
         {
             var id = m.Packet.ReadString();
             var ans = m.Answer(c);
             lock (Network)
             {
-                if(!Network.Servers.ContainsKey(id))
+                if (!Network.Servers.ContainsKey(id))
                     return;
 
                 Server s = Network.Servers[id];
@@ -172,7 +147,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        protected void GetServerDisplayName(ServiceConnection c, Message m)
+        protected void GetServerDisplayName(MessageClient c, Message m)
         {
             var id = m.Packet.ReadString();
             var ans = m.Answer(c);
@@ -190,7 +165,7 @@ namespace EraS.MessageHandlers
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        protected void GetServiceName(ServiceConnection c, Message m)
+        protected void GetServiceName(MessageClient c, Message m)
         {
             var id = m.Packet.ReadString();
             var ans = m.Answer(c);
@@ -200,19 +175,6 @@ namespace EraS.MessageHandlers
                     return;
                 ans.Packet.Write(Network.ServiceInstances[id].Name);
             }
-            c.SendMessage(ans);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        protected void GetMongo(ServiceConnection c, Message m)
-        {
-            var ans = m.Answer(c);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
             c.SendMessage(ans);
         }
     }
