@@ -56,13 +56,13 @@
   <ItemGroup>
     <Compile Include="Connections\ServerConnection.cs" />
     <Compile Include="Connections\ServiceConnection.cs" />
-    <Compile Include="HeartBeatService.cs" />
+    <Compile Include="Services\HeartBeatService.cs" />
     <Compile Include="Listeners\ServerListener.cs" />
     <Compile Include="Listeners\ServiceListener.cs" />
     <Compile Include="MessageHandlers\ErasHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StatisticsService.cs" />
+    <Compile Include="Services\StatisticsService.cs" />
     <Compile Include="Topography\Network.cs" />
     <Compile Include="Topography\Server.cs" />
     <Compile Include="Topography\Service.cs" />

@@ -8,7 +8,7 @@ using Lidgren.Network;
 
 namespace EraS.Connections
 {
-    class ServiceConnection : MessageClient
+    public class ServiceConnection : MessageClient
     {
         public String RemoteIdentifier { get; protected set; }
 

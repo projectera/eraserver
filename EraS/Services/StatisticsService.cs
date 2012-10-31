@@ -16,6 +16,8 @@ namespace EraS.Services
 {
     public static class StatisticsService
     {
+        public const String SERVICE_VERSION = "1.0.0";
+
         /// <summary>
         /// Interval to get the statistics
         /// </summary>
@@ -131,6 +133,8 @@ namespace EraS.Services
                         if (!lasts.TryGetValue(stat.Key, out last))
                             last = new StatsDocument() { Name = stat.Key };
 
+
+                        // TODO: fix this. Off course this doesn't work xD - incrementing with the difference?
                         results.Add(stat.Key, new StatsDocument()
                         {
                             Name = stat.Key,
@@ -213,10 +217,23 @@ namespace EraS.Services
             get
             {
                 return new Dictionary<String, Action<ServiceConnection, Message>>() {
+                    { "GetStatisticsVersion", GetStatisticsVersion },
                     { "GetStatistics" , GetStatistics }, 
                     { "GetStatisticsFrame", GetStatisticsFrame },                    
                 };
             }
+        }
+
+        /// <summary>
+        /// Gets tatistics version
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void GetStatisticsVersion(ServiceConnection c, Message m)
+        {
+            var answer = m.Answer(c);
+            answer.Packet.Write(SERVICE_VERSION);
+            c.SendMessage(answer);
         }
 
         /// <summary>
@@ -367,7 +384,11 @@ namespace EraS.Services
             {
                 buffer.Write(Id.ToByteArray());
                 buffer.Write(Name);
-                buffer.Write(0);
+                buffer.Write(ReceivedBytes);
+                buffer.Write(ReceivedPackets);
+                buffer.Write(SentBytes);
+                buffer.Write(SentPackets);
+                buffer.Write(ResentMessages);
             }
         }
     }
