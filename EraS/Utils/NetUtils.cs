@@ -10,9 +10,20 @@ namespace EraS.Utils
     {
         public static IPAddress GetIPAddress()
         {
-            var web = new WebClient();
-            var ip = web.DownloadString("http://ifconfig.me/ip").Trim();
-            return IPAddress.Parse(ip);
+            try
+            {
+                var web = new WebClient();
+                var ip = web.DownloadString("http://ifconfig.me/ip").Trim();
+                return IPAddress.Parse(ip);
+            }
+            catch (FormatException)
+            {
+                return IPAddress.None;
+            }
+            catch (WebException)
+            {
+                return IPAddress.None;
+            }
         }
     }
 }

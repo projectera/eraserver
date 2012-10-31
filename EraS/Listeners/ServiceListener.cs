@@ -47,12 +47,12 @@ namespace EraS.Listeners
         /// <summary>
         /// Runs when a connection is made
         /// </summary>
-        public Action<ServiceConnection, String> OnConnect { get; set; }
+        public event Action<ServiceConnection, String> OnConnect;
 
         /// <summary>
         /// Runs when a connection is broken
         /// </summary>
-        public Action<ServiceConnection> OnDisconnect { get; set; }
+        public event Action<ServiceConnection> OnDisconnect;
 
         /// <summary>
         /// Creates the servicelistener
@@ -63,8 +63,8 @@ namespace EraS.Listeners
             Identifier = identifier;
             Connections = new Dictionary<string, ServiceConnection>();
             MessageHandlers = new Dictionary<MessageType, Action<ServiceConnection, Message>>();
-            OnConnect = (_, name) => { };
-            OnDisconnect = (_) => { };
+            OnConnect = delegate { };
+            OnDisconnect = delegate { };
 
             var conf = new NetPeerConfiguration("EraService")
             {
@@ -87,7 +87,10 @@ namespace EraS.Listeners
             {
                 var m = Server.ReadMessage();
                 if (m == null)
+                {
+                    System.Threading.Thread.Sleep(10);
                     continue;
+                }
 
                 switch (m.MessageType)
                 {
@@ -103,7 +106,6 @@ namespace EraS.Listeners
                         break;
                 }
             }
-
         }
 
         /// <summary>
@@ -125,9 +127,9 @@ namespace EraS.Listeners
             outmsg.Write(remoteid);
             
             // Create the service handler
-            var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid);
+            var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid, servicename);
             handler.OnConnectionClosed += () => OnDisconnect(handler);
-            OnConnect(handler, servicename);
+            OnConnect.Invoke(handler, servicename);
 
             // Assign message handlers
             foreach(var type in MessageHandlers.Keys)

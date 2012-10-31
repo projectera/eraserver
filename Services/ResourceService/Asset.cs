@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using System.IO;
 using System.Security.Cryptography;
+using Lidgren.Network;
 
 namespace ResourceService
 {
@@ -467,7 +468,7 @@ namespace ResourceService
         /// 
         /// </summary>
         /// <param name="getMessage"></param>
-        internal void Pack(Lidgren.Network.NetOutgoingMessage msg)
+        internal void Pack(NetBuffer msg)
         {
             msg.Write(this.Id.ToByteArray());
             msg.Write(this.FileName);

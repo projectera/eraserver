@@ -8,13 +8,15 @@ using Lidgren.Network;
 
 namespace EraS.Connections
 {
-    class ServiceConnection : MessageClient
+    public class ServiceConnection : MessageClient
     {
         public String RemoteIdentifier { get; protected set; }
+        public String Name { get; protected set; }
 
-        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier) : base(connection, identifier)
+        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier, String name) : base(connection, identifier)
         {
             RemoteIdentifier = remoteIdentifier;
+            Name = name;
         }
 
         public void Stop()

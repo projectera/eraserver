@@ -21,8 +21,26 @@ namespace ServiceProtocol
         /// </summary>
         public String ServiceName { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public NetClient Client { get; protected set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         protected Thread Thread { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Boolean IsConnected
+        {
+            get
+            {
+                return Client != null && Client.ConnectionStatus == Lidgren.Network.NetConnectionStatus.Connected;
+            }
+        }
 
         /// <summary>
         /// Connect to the server
@@ -43,13 +61,24 @@ namespace ServiceProtocol
             client.Connect(new IPEndPoint(IPAddress.Loopback, ServicePort), hail);
 
             // Wait for greeting and read identifier
-            client.MessageReceivedEvent.WaitOne(10000);
-            var greet = client.ReadMessage();
-            if (greet == null)
-                throw new TimeoutException("Server did not respond with needed info");
-            var serviceClient = new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
+            while (true)
+            {
+                client.MessageReceivedEvent.WaitOne(10 * 1000);
+                var greet = client.ReadMessage();
+               
+                if (greet == null)
+                    throw new TimeoutException("Server did not respond with needed info.");
 
-            return serviceClient;
+                if (greet.MessageType != NetIncomingMessageType.StatusChanged)
+                    continue;
+
+                break;
+            }
+
+            if (client.ServerConnection == null || client.ServerConnection.Status != NetConnectionStatus.Connected)
+                throw new InvalidOperationException("Server did not connect to this client.");
+
+            return new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
         }
 
         /// <summary>
@@ -65,16 +94,22 @@ namespace ServiceProtocol
             Thread.Start();
         }
 
-        public void Stop()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Stop(String reason = null)
         {
             Thread.Abort();
-            Client.Disconnect("");
+            Client.Disconnect(reason ?? "Stopping the service.");
             base.RaiseOnConnectionClosed();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected virtual void Run()
         {
-            while (true)
+            while (IsConnected)
             {
                 Client.MessageReceivedEvent.WaitOne(100);
                 var msg = Client.ReadMessage();

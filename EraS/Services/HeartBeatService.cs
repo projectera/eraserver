@@ -7,8 +7,10 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using System.Net;
 using System.IO;
+using EraS.Connections;
+using ServiceProtocol;
 
-namespace EraS
+namespace EraS.Services
 {
     /// <summary>
     /// Heartbeat delegate
@@ -19,13 +21,13 @@ namespace EraS
     /// <summary>
     /// 
     /// </summary>
-    public class HeartBeatService
+    public static class HeartBeatService
     {
-        public const Double FlatlineTime = 5;
-        public const Double HeartBeatInterval = 1;
+        public static readonly TimeSpan FlatlineTime = TimeSpan.FromMinutes(5);
+        public static readonly TimeSpan HeartBeatInterval = TimeSpan.FromMinutes(1);
 
-        protected static Timer _timer;
-        protected static Double _beatTime;
+        private static Timer _timer;
+        private static Double _beatTime;
 
         /// <summary>
         /// Event is called when the heart beats
@@ -45,12 +47,12 @@ namespace EraS
         /// <summary>
         /// Identifier for this instance
         /// </summary>
-        public static ObjectId Identifier { get; protected set; }
+        public static ObjectId Identifier { get; private set; }
         
         /// <summary>
         /// Server reference
         /// </summary>
-        public static MongoServer Server { get; protected set; }
+        public static MongoServer Server { get; private set; }
 
         /// <summary>
         /// Server address reference
@@ -60,12 +62,12 @@ namespace EraS
         /// <summary>
         /// Database reference
         /// </summary>
-        public static MongoDatabase Database { get; protected set; }
+        public static MongoDatabase Database { get; private set; }
 
         /// <summary>
         /// Time of last HeartBeat
         /// </summary>
-        public static DateTime HeartBeatTime { get; protected set; }
+        public static DateTime HeartBeatTime { get; private set; }
 
         /// <summary>
         /// Has flatlined boolean
@@ -74,7 +76,7 @@ namespace EraS
         {
             get
             {
-                return NetTime.Now - _beatTime > 60 * FlatlineTime;
+                return TimeSpan.FromSeconds(NetTime.Now - _beatTime) > FlatlineTime;
             }
         }
 
@@ -117,24 +119,24 @@ namespace EraS
                 {
                     WebClient wc = new WebClient();
                     url = wc.DownloadString(address);
+                    if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
+                    {
+                        url = String.Empty;
+                        throw new WebException("The Uri retrieved is malformed.");
+                    }
                 }
                 catch (WebException) { }
-                catch (IOException) { }
-                
+                catch (IOException) { }                
             }
 
-            // Default
+            // Default fallback
             if (String.IsNullOrWhiteSpace(url))
                 url = "localhost";
-
-			// HACK: don't have mongo :(
-            if (url == "localhost")
-            	url = "pegu.maxmaton.nl";
 
             // Connect to mongo
             try
             {
-                Console.WriteLine("Heartbeatservice connecting to mongodb://{0}", url);
+                Console.WriteLine("Heartbeatservice connecting to mongodb://{0}.", url);
                 Server = MongoServer.Create("mongodb://" + url);
                 Database = Server.GetDatabase("era");
             }
@@ -148,7 +150,7 @@ namespace EraS
             GetCollection().EnsureIndex(
                 IndexKeys.Ascending("HeartBeatTime"), 
                 IndexOptions.SetTimeToLive(
-                    TimeSpan.FromMinutes(FlatlineTime * 2)
+                    FlatlineTime.Add(FlatlineTime)
                 )
             );
 
@@ -158,8 +160,8 @@ namespace EraS
             _timer = new Timer(
                 HeartBeatService.Beat,
                 HeartBeatService.Identifier,
-                TimeSpan.FromMinutes(0),
-                TimeSpan.FromMinutes(HeartBeatInterval)
+                TimeSpan.Zero,
+                HeartBeatInterval
             );
 
             return true;
@@ -169,7 +171,7 @@ namespace EraS
         /// Beats the heart
         /// </summary>
         /// <param name="state"></param>
-        protected static void Beat(Object state)
+        private static void Beat(Object state)
         {
             HeartBeatTime = DateTime.Now.ToUniversalTime();
 
@@ -204,16 +206,23 @@ namespace EraS
         /// Runs when heartbeat succeeded
         /// </summary>
         /// <param name="state"></param>
-        protected static void HeartBeatService_OnBeat(ObjectId state)
+        private static void HeartBeatService_OnBeat(ObjectId state)
         {
-            GetServers();
+            try
+            {
+                GetServers();
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
 
         /// <summary>
         /// Stops beating the heart
         /// </summary>
-        protected static void Flatline(Object state)
+        private static void Flatline(Object state)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             OnFlatline.Invoke(Identifier);
@@ -225,10 +234,14 @@ namespace EraS
         /// Gets the heartbeat service server collection
         /// </summary>
         /// <returns></returns>
-        protected static MongoCollection GetCollection()
+        private static MongoCollection GetCollection()
         {
             return Database.GetCollection("Servers");
         }
+
+
+        private static List<ObjectId> _flatlined = new List<ObjectId>(), 
+            _known = new List<ObjectId>();
 
         /// <summary>
         /// Gets servers
@@ -236,24 +249,73 @@ namespace EraS
         /// <returns>List of identifiers</returns>
         public static Dictionary<ObjectId, BsonDocument> GetServers()
         {
+            var previousflat = new List<ObjectId>();
+            foreach (var flatline in _flatlined)
+                previousflat.Add(flatline);
+
             var servers = GetCollection().FindAllAs<BsonDocument>();
             var identifiers = new Dictionary<ObjectId, BsonDocument>();
+
             foreach (var server in servers)
             {
+                var identifier = server["_id"].AsObjectId;
                 // Server is flatlinening
-                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime).Minutes > FlatlineTime)
+                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
                 {
-                    Console.WriteLine("Heartbeatservice [{0}] has flatlined.", server["_id"]);
-                    OnRemoteFlatline.Invoke(server["_id"].AsObjectId);
+                    if (!_flatlined.Contains(identifier))
+                    {
+                        Console.WriteLine("Heartbeatservice [{0}] has flatlined.", identifier);
+                        OnRemoteFlatline.Invoke(identifier);
+
+                        _flatlined.Add(identifier);
+                        _known.Remove(identifier);
+                    }
+                    else
+                    {
+                        previousflat.Remove(identifier);
+                    }
                 }
                 else
                 {
-                    identifiers.Add(server["_id"].AsObjectId, server);
-                    Console.WriteLine("Heartbeatservice found heart [{0}].", server["_id"]);
+                    identifiers.Add(identifier, server);
+                    if (!_known.Contains(identifier))
+                    {
+                        Console.WriteLine("Heartbeatservice found heart [{0}].", identifier);
+                        _known.Add(identifier);
+                    }
                 }
             }
 
+            foreach (var dead in previousflat)
+                _flatlined.Remove(dead);
+
             return identifiers;
+        }
+
+        /// <summary>
+        /// Functions provided by this service
+        /// </summary>
+        public static Dictionary<String, Action<ServiceConnection, Message>> Functions
+        {
+            get
+            {
+                return new Dictionary<string, Action<ServiceConnection, Message>>() {
+                    { "GetMongo" , GetMongo },
+                };
+            }
+        }
+
+        /// <summary>
+        /// Get Mongo address
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void GetMongo(ServiceConnection c, Message m)
+        {
+            var ans = m.Answer(c);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
+            c.SendMessage(ans);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace ServiceProtocol
         /// <summary>
         /// Gets called when the connection closes, should clean up stuff
         /// </summary>
-        public event Action OnConnectionClosed;
+        public event Action OnConnectionClosed = delegate { };
 
         /// <summary>
         /// The current question counter
@@ -38,6 +38,11 @@ namespace ServiceProtocol
         /// </summary>
         protected Dictionary<Int32, TaskCompletionSource<Message>> Questions { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="Identifier"></param>
         public MessageClient(NetConnection connection, String Identifier)
         {
             QuestionCounter = 1;
@@ -46,10 +51,12 @@ namespace ServiceProtocol
             Connection = connection;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected void RaiseOnConnectionClosed()
         {
-            if (OnConnectionClosed != null)
-                OnConnectionClosed();
+            OnConnectionClosed.Invoke();
         }
 
         /// <summary>
