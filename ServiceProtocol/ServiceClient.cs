@@ -61,10 +61,18 @@ namespace ServiceProtocol
             client.Connect(new IPEndPoint(IPAddress.Loopback, ServicePort), hail);
 
             // Wait for greeting and read identifier
-            client.MessageReceivedEvent.WaitOne(10000);
-            var greet = client.ReadMessage();
-            if (greet == null)
-                throw new TimeoutException("Server did not respond with needed info");
+            while (true)
+            {
+                client.MessageReceivedEvent.WaitOne(10000);
+                var greet = client.ReadMessage();
+               
+                if (greet == null)
+                    throw new TimeoutException("Server did not respond with needed info");
+                if (greet.MessageType != NetIncomingMessageType.StatusChanged)
+                    continue;
+
+                break;
+            }
             var serviceClient = new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
 
             return serviceClient;
