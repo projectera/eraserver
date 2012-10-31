@@ -7,8 +7,10 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using System.Net;
 using System.IO;
+using EraS.Connections;
+using ServiceProtocol;
 
-namespace EraS
+namespace EraS.Services
 {
     /// <summary>
     /// Heartbeat delegate
@@ -117,19 +119,19 @@ namespace EraS
                 {
                     WebClient wc = new WebClient();
                     url = wc.DownloadString(address);
+                    if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
+                    {
+                        url = String.Empty;
+                        throw new WebException("The Uri retrieved is malformed.");
+                    }
                 }
                 catch (WebException) { }
-                catch (IOException) { }
-                
+                catch (IOException) { }                
             }
 
-            // Default
+            // Default fallback
             if (String.IsNullOrWhiteSpace(url))
                 url = "localhost";
-
-			// HACK: don't have mongo :(
-            if (url == "localhost")
-            	url = "pegu.maxmaton.nl";
 
             // Connect to mongo
             try
@@ -158,7 +160,7 @@ namespace EraS
             _timer = new Timer(
                 HeartBeatService.Beat,
                 HeartBeatService.Identifier,
-                TimeSpan.FromMinutes(0),
+                TimeSpan.Zero,
                 HeartBeatInterval
             );
 
@@ -206,7 +208,14 @@ namespace EraS
         /// <param name="state"></param>
         private static void HeartBeatService_OnBeat(ObjectId state)
         {
-            GetServers();
+            try
+            {
+                GetServers();
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
 
@@ -230,30 +239,83 @@ namespace EraS
             return Database.GetCollection("Servers");
         }
 
+
+        private static List<ObjectId> _flatlined = new List<ObjectId>(), 
+            _known = new List<ObjectId>();
+
         /// <summary>
         /// Gets servers
         /// </summary>
         /// <returns>List of identifiers</returns>
         public static Dictionary<ObjectId, BsonDocument> GetServers()
         {
+            var previousflat = new List<ObjectId>();
+            foreach (var flatline in _flatlined)
+                previousflat.Add(flatline);
+
             var servers = GetCollection().FindAllAs<BsonDocument>();
             var identifiers = new Dictionary<ObjectId, BsonDocument>();
+
             foreach (var server in servers)
             {
+                var identifier = server["_id"].AsObjectId;
                 // Server is flatlinening
                 if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
                 {
-                    Console.WriteLine("Heartbeatservice [{0}] has flatlined.", server["_id"]);
-                    OnRemoteFlatline.Invoke(server["_id"].AsObjectId);
+                    if (!_flatlined.Contains(identifier))
+                    {
+                        Console.WriteLine("Heartbeatservice [{0}] has flatlined.", identifier);
+                        OnRemoteFlatline.Invoke(identifier);
+
+                        _flatlined.Add(identifier);
+                        _known.Remove(identifier);
+                    }
+                    else
+                    {
+                        previousflat.Remove(identifier);
+                    }
                 }
                 else
                 {
-                    identifiers.Add(server["_id"].AsObjectId, server);
-                    Console.WriteLine("Heartbeatservice found heart [{0}].", server["_id"]);
+                    identifiers.Add(identifier, server);
+                    if (!_known.Contains(identifier))
+                    {
+                        Console.WriteLine("Heartbeatservice found heart [{0}].", identifier);
+                        _known.Add(identifier);
+                    }
                 }
             }
 
+            foreach (var dead in previousflat)
+                _flatlined.Remove(dead);
+
             return identifiers;
+        }
+
+        /// <summary>
+        /// Functions provided by this service
+        /// </summary>
+        public static Dictionary<String, Action<ServiceConnection, Message>> Functions
+        {
+            get
+            {
+                return new Dictionary<string, Action<ServiceConnection, Message>>() {
+                    { "GetMongo" , GetMongo },
+                };
+            }
+        }
+
+        /// <summary>
+        /// Get Mongo address
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void GetMongo(ServiceConnection c, Message m)
+        {
+            var ans = m.Answer(c);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
+            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
+            c.SendMessage(ans);
         }
     }
 }
