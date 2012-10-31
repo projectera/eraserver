@@ -127,7 +127,7 @@ namespace EraS.Listeners
             outmsg.Write(remoteid);
             
             // Create the service handler
-            var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid);
+            var handler = new ServiceConnection(m.SenderConnection, Identifier, remoteid, servicename);
             handler.OnConnectionClosed += () => OnDisconnect(handler);
             OnConnect.Invoke(handler, servicename);
 

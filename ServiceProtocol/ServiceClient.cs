@@ -63,19 +63,22 @@ namespace ServiceProtocol
             // Wait for greeting and read identifier
             while (true)
             {
-                client.MessageReceivedEvent.WaitOne(10000);
+                client.MessageReceivedEvent.WaitOne(10 * 1000);
                 var greet = client.ReadMessage();
                
                 if (greet == null)
-                    throw new TimeoutException("Server did not respond with needed info");
+                    throw new TimeoutException("Server did not respond with needed info.");
+
                 if (greet.MessageType != NetIncomingMessageType.StatusChanged)
                     continue;
 
                 break;
             }
-            var serviceClient = new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
 
-            return serviceClient;
+            if (client.ServerConnection == null || client.ServerConnection.Status != NetConnectionStatus.Connected)
+                throw new InvalidOperationException("Server did not connect to this client.");
+
+            return new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
         }
 
         /// <summary>
