@@ -24,9 +24,32 @@ namespace NetworkStatistics
                 // could branch by version
 
                 message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("GetStatistics");
+                message.Packet.Write("GetStatisticsTotal");
                 answer = client.AskReliableQuestion(message);
                 var buffer = answer.Packet;
+
+                var totaltime = DateTime.FromBinary(buffer.ReadInt64());
+                var services = buffer.ReadInt32();
+
+                Console.WriteLine("Total stats retrieval time {0} {1}.", totaltime.ToLongTimeString(), __n(services, "saw {0} service", "seen {0} services"));
+                for (Int32 j = 0; j < services; j++)
+                {
+                    var id = buffer.ReadBytes(12);
+                    var name = buffer.ReadString();
+                    var rbytes = buffer.ReadInt32();
+                    var rpackets = buffer.ReadInt32();
+                    var sbytes = buffer.ReadInt32();
+                    var spackets = buffer.ReadInt32();
+                    var rsmsgs = buffer.ReadInt32();
+                    Console.WriteLine(" - {0}\n    - read {1:###0} in {2:###0} packets\n    - send {3:###0} in {4:###0} packets",
+                        name, ReadableBytes(rbytes), rpackets, ReadableBytes(sbytes), spackets);
+                }
+
+                Console.ReadKey();
+                message = client.CreateQuestion(MessageType.EraS, "Self");
+                message.Packet.Write("GetStatistics");
+                answer = client.AskReliableQuestion(message);
+                buffer = answer.Packet;
 
                 var frames = buffer.ReadInt32();
                 for (Int32 i = 0; i < frames; i++)

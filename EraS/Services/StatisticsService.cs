@@ -34,6 +34,7 @@ namespace EraS.Services
         public static readonly Int64 CappedSize = 24 * 60;
 
         public static List<Dictionary<Tuple<String, String>, StatsDocument>> _history;
+        public static Dictionary<String, Dictionary<String, StatsDocument>> _instanceHistory;
         private static Timer _timer, _writeTimer;
         private static Object _writeLock = new Object();
 
@@ -47,6 +48,7 @@ namespace EraS.Services
                 HeartBeatService.Database.CreateCollection("Stats", CollectionOptions.SetMaxDocuments(CappedSize).SetMaxSize(CappedSize * 2048).SetCapped(true));
 
             _history = new List<Dictionary<Tuple<String, String>, StatsDocument>>() { new Dictionary<Tuple<String, String>, StatsDocument>() };
+            _instanceHistory = new Dictionary<String, Dictionary<String, StatsDocument>>();
             Program.Services.OnDisconnect += new Action<ServiceConnection>(Services_OnDisconnect);
 
             _timer = new Timer(Tick, null, TimeSpan.Zero, TickInterval);
@@ -93,7 +95,7 @@ namespace EraS.Services
                                 service.Value.Connection.Statistics);
                     }
 
-
+                    // Get all the stats
                     var docs = new Dictionary<Tuple<String, String>, StatsDocument>();
                     foreach (var stat in stats)
                     {
@@ -106,6 +108,19 @@ namespace EraS.Services
                             SentPackets = stat.Value.SentPackets,
                             ResentMessages = stat.Value.ResentMessages,
                         });
+                    }
+
+                    // Save the last of each instance
+                    foreach (var doc in docs)
+                    {
+                        var serviceName = doc.Value.Name;
+                        Dictionary<String, StatsDocument> servicedata;
+                        if (!_instanceHistory.TryGetValue(serviceName, out servicedata))
+                            _instanceHistory.Add(serviceName, new Dictionary<string, StatsDocument>());
+                        servicedata = _instanceHistory[serviceName];
+
+                        servicedata.Remove(doc.Key.Item2);
+                        servicedata.Add(doc.Key.Item2, doc.Value);
                     }
 
                     // Add those results
@@ -138,10 +153,11 @@ namespace EraS.Services
                 {
                     // Peek at front queue
                     var first = _history.First();
+
                     var frameServices = new Dictionary<String, StatsDocument>();
                     foreach (var docdict in first)
                     {
-                        // Count per service name too
+                        // Count per service name
                         StatsDocument pushIndividual;
                         if (!frameServices.TryGetValue(docdict.Key.Item1, out pushIndividual))
                         {
@@ -191,6 +207,7 @@ namespace EraS.Services
                 return new Dictionary<String, Action<ServiceConnection, Message>>() {
                     { "GetStatisticsVersion", GetStatisticsVersion },
                     { "GetStatistics" , GetStatistics }, 
+                    { "GetStatisticsTotal", GetStatisticsTotal },
                     { "GetStatisticsFrame", GetStatisticsFrame },                    
                 };
             }
@@ -223,6 +240,30 @@ namespace EraS.Services
                     WriteStatisticsFrame(frame, answer.Packet);
             }
 
+            c.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void GetStatisticsTotal(ServiceConnection c, Message m)
+        {
+            var answer = m.Answer(c);
+            lock (_history)
+            {
+                // Services
+                answer.Packet.Write(DateTime.Now.ToUniversalTime().ToBinary());
+                answer.Packet.Write(_instanceHistory.Count);
+                foreach (var service in _instanceHistory)
+                {
+                    var frame = new StatsDocument();
+                    foreach (var instance in service.Value)
+                        frame = frame.Merge(instance.Value);
+                    frame.Pack(answer.Packet);
+                }
+            }
             c.SendMessage(answer);
         }
 
