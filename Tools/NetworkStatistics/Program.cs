@@ -56,6 +56,10 @@ namespace NetworkStatistics
                 {
                     var timeslice = DateTime.FromBinary(buffer.ReadInt64());
                     var sliceservices = buffer.ReadInt32();
+
+                    if (sliceservices == 0)
+                        continue;
+
                     Console.WriteLine("On {0} there {1}.", timeslice.ToLongTimeString(), __n(sliceservices, "was {0} service", "where {0} services"));
                     for (Int32 j = 0; j < sliceservices; j++)
                     {
@@ -66,6 +70,11 @@ namespace NetworkStatistics
                         var sbytes = buffer.ReadInt32();
                         var spackets = buffer.ReadInt32();
                         var rsmsgs = buffer.ReadInt32();
+                        if (rpackets == 0 && spackets == 0)
+                        {
+                            Console.WriteLine(" - {0}:inactive");
+                            continue;
+                        }
                         Console.WriteLine(" - {0}\n    - read {1:###0} in {2:###0} packets\n    - send {3:###0} in {4:###0} packets",
                             name, ReadableBytes(rbytes), rpackets, ReadableBytes(sbytes), spackets);
                     }
