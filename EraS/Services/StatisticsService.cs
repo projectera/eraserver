@@ -91,8 +91,11 @@ namespace EraS.Services
                     lock (Program.Network)
                     {
                         foreach (var service in Program.Services.Connections)
-                            stats.Add(new Tuple<String, String>(service.Value.Name, service.Key),
-                                service.Value.Connection.Statistics);
+                            // TODO: on disconnect, add to history
+                            // this makes sure only active services (connected) are added
+                            if (Program.Network.ServiceInstances.ContainsKey(service.Key))
+                                stats.Add(new Tuple<String, String>(service.Value.Name, service.Key),
+                                    service.Value.Connection.Statistics);
                     }
 
                     // Get all the stats
@@ -244,8 +247,6 @@ namespace EraS.Services
 
             lock (_history)
             {
-                answer.Packet.Write(_history.Count);
-
                 // In reverse order, call the history. If a service has no delta
                 // it means it was terminated that frame. Store it as delta. Each
                 // frame save the difference between delta and frame value. This is
@@ -317,12 +318,13 @@ namespace EraS.Services
                         deltas[delta.Key] = aggredoc;
 
                         var diff = delta.Value.Difference(aggredoc);
-                        if (diff.SentPackets == 0 && diff.ReceivedPackets == 0)
-                            continue;
+                        //if (diff.SentPackets == 0 && diff.ReceivedPackets == 0)
+                        //    continue;
                         result.Add(delta.Key, diff);
                     }
 
-                    results.Push(result);
+                    if (result.Count > 0)
+                        results.Push(result);
                 }
 
                 // Add the delta's left
@@ -334,6 +336,7 @@ namespace EraS.Services
                 results.Push(finalresult);
             }
 
+            answer.Packet.Write(results.Count);
             while (results.Count > 0)
                 WriteStatisticsFrame(results.Pop(), answer.Packet);
 

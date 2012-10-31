@@ -72,7 +72,7 @@ namespace NetworkStatistics
                         var rsmsgs = buffer.ReadInt32();
                         if (rpackets == 0 && spackets == 0)
                         {
-                            Console.WriteLine(" - {0}:inactive");
+                            Console.WriteLine(" - {0}:inactive", name);
                             continue;
                         }
                         Console.WriteLine(" - {0}\n    - read {1:###0} in {2:###0} packets\n    - send {3:###0} in {4:###0} packets",
