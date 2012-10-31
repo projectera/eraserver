@@ -6,6 +6,7 @@ using EraS.Topography;
 using ServiceProtocol;
 using EraS.Connections;
 using System.Threading.Tasks;
+using EraS.Services;
 
 namespace EraS.MessageHandlers
 {
@@ -31,7 +32,12 @@ namespace EraS.MessageHandlers
             Functions.Add("GetServiceServer", GetServiceServer);
             Functions.Add("GetServiceInstances", GetServiceInstances);
             Functions.Add("GetServices", GetServices);
-            Functions.Add("GetMongo", GetMongo);
+
+            foreach(var function in HeartBeatService.Functions)
+                Functions.Add(function.Key, function.Value);
+
+            foreach (var function in StatisticsService.Functions)
+                Functions.Add(function.Key, function.Value);
             #endregion
         }
 
@@ -42,17 +48,24 @@ namespace EraS.MessageHandlers
         /// <param name="m">The message</param>
         public void HandleMessage(ServiceConnection c, Message m)
         {
-            var function = m.Packet.ReadString();
-            lock (Functions)
+            try
             {
-                if (!Functions.ContainsKey(function))
-                    return;
-                Functions[function](c, m);
+                var function = m.Packet.ReadString();
+                lock (Functions)
+                {
+                    if (!Functions.ContainsKey(function))
+                        return;
+                    Functions[function](c, m);
+                }
+            }
+            catch (Exception)
+            {
+                // TODO exception handling
             }
         }
 
         /// <summary>
-        /// 
+        /// Get services topography
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
@@ -70,7 +83,7 @@ namespace EraS.MessageHandlers
         }
 
         /// <summary>
-        /// 
+        /// Get service instances topograpjhy
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
@@ -95,7 +108,7 @@ namespace EraS.MessageHandlers
         }
 
         /// <summary>
-        /// 
+        /// Get server of service
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
@@ -200,19 +213,6 @@ namespace EraS.MessageHandlers
                     return;
                 ans.Packet.Write(Network.ServiceInstances[id].Name);
             }
-            c.SendMessage(ans);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        protected void GetMongo(ServiceConnection c, Message m)
-        {
-            var ans = m.Answer(c);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
             c.SendMessage(ans);
         }
     }
