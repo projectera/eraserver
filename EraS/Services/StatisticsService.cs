@@ -254,10 +254,10 @@ namespace EraS.Services
             get
             {
                 return new Dictionary<String, Action<MessageClient, Message>>() {
-                    { "GetStatisticsVersion", GetStatisticsVersion },
-                    { "GetStatistics" , GetStatistics }, 
-                    { "GetStatisticsTotal", GetStatisticsTotal },
-                    { "GetStatisticsSlice", GetStatisticsSlice },                    
+                    { "GetVersion", GetStatisticsVersion },
+                    { "Get" , GetStatistics }, 
+                    { "GetTotal", GetStatisticsTotal },
+                    { "GetSlice", GetStatisticsSlice },                    
                 };
             }
         }
@@ -454,19 +454,6 @@ namespace EraS.Services
                 foreach (var service in frame)
                     service.Value.Pack(buffer);
             }
-        }
-
-        /// <summary>
-        /// Get Mongo address
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetMongo(ServiceConnection c, Message m)
-        {
-            var ans = m.Answer(c);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
-            c.SendMessage(ans);
         }
 
         /// <summary>

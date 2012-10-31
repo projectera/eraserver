@@ -17,14 +17,16 @@ namespace NetworkStatistics
             try
             {
                 var message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("GetStatisticsVersion");
+                message.Packet.Write("Statistics");
+                message.Packet.Write("GetVersion");
                 var answer = client.AskReliableQuestion(message);
                 var version = answer.Packet.ReadString();
                 Console.WriteLine("Statistics version {0}.", version);
                 // could branch by version
 
                 message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("GetStatistics");
+                message.Packet.Write("Statistics");
+                message.Packet.Write("Get");
                 answer = client.AskReliableQuestion(message);
                 var buffer = answer.Packet;
 
@@ -64,7 +66,8 @@ namespace NetworkStatistics
                 }
 
                 message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("GetStatisticsTotal");
+                message.Packet.Write("Statistics");
+                message.Packet.Write("GetTotal");
                 answer = client.AskReliableQuestion(message);
                 buffer = answer.Packet;
 
