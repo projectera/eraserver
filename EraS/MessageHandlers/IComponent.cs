@@ -7,7 +7,7 @@ using ServiceProtocol;
 
 namespace EraS.MessageHandlers
 {
-    interface IComponent
+    public interface IComponent
     {
         String Name { get; }
         void HandleMessage(MessageClient con, Message msg);
