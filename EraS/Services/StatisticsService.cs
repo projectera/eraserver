@@ -138,11 +138,11 @@ namespace EraS.Services
                         results.Add(stat.Key, new StatsDocument()
                         {
                             Name = stat.Key,
-                            ReceivedBytes = stat.Value.ReceivedBytes - last.ReceivedBytes,
-                            ReceivedPackets = stat.Value.ReceivedPackets - last.ReceivedPackets,
-                            SentBytes = stat.Value.SentBytes - last.SentBytes,
-                            SentPackets = stat.Value.SentPackets - last.SentPackets,
-                            ResentMessages = stat.Value.ResentMessages - last.ResentMessages,
+                            ReceivedBytes = stat.Value.ReceivedBytes, // - last.ReceivedBytes,
+                            ReceivedPackets = stat.Value.ReceivedPackets, // - last.ReceivedPackets,
+                            SentBytes = stat.Value.SentBytes, // - last.SentBytes,
+                            SentPackets = stat.Value.SentPackets, // - last.SentPackets,
+                            ResentMessages = stat.Value.ResentMessages, // - last.ResentMessages,
                         });
                     }
 
@@ -170,7 +170,9 @@ namespace EraS.Services
             lock (_history)
             {
                 // Keep aggregating over the keeptime
-                while (_history.First().Count == 0 || _history.First().Any(a => a.Value.Time - DateTime.Now > WriteInterval))
+                while (_history.Count > 1 && (
+                    _history.First().Count == 0 ||
+                    _history.First().Any(a => DateTime.Now.ToUniversalTime() - a.Value.Time > WriteInterval)))
                 {
                     // Peek at front queue
                     var first = _history.First();
@@ -190,7 +192,7 @@ namespace EraS.Services
                     }
 
                     // Shift from queue
-                    _history.RemoveAt(0);
+                    _history.Remove(first);
                 }
             }
 

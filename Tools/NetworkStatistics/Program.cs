@@ -16,6 +16,7 @@ namespace NetworkStatistics
             var client = ServiceClient.Connect("NetworkStatistics");
             NetworkInfo n = new NetworkInfo(client);
 
+            Console.WriteLine("Network Statistics tool is connected.");
             try
             {
                 var message = client.CreateQuestion(MessageType.EraS, "Self");
@@ -45,7 +46,7 @@ namespace NetworkStatistics
                         var sbytes = buffer.ReadInt32();
                         var spackets = buffer.ReadInt32();
                         var rsmsgs = buffer.ReadInt32();
-                        Console.WriteLine("{0}\t read {1:###0} in {2:###0} packets   send {3:###0} in {4:###0} packets",
+                        Console.WriteLine(" - {0}\n    - read {1:###0} in {2:###0} packets\n    - send {3:###0} in {4:###0} packets",
                             name, ReadableBytes(rbytes), rpackets, ReadableBytes(sbytes), spackets);
                     }
 
