@@ -7,6 +7,7 @@ using EraS.Topography;
 using System.Threading;
 using EraS.Connections;
 using EraS.Services;
+using ServiceProtocol;
 
 namespace EraS.Listeners
 {
@@ -19,12 +20,15 @@ namespace EraS.Listeners
 
         public List<String> UnconnectedServers { get; protected set; }
 
+        public Dictionary<MessageType, Action<MessageClient, Message>> MessageHandlers { get; protected set; }
+
         public Action<ServerConnection> OnConnect { get; set; }
         public Action<ServerConnection> OnDisconnect { get; set; }
 
         public ServerListener()
         {
             UnconnectedServers = new List<String>();
+            MessageHandlers = new Dictionary<MessageType, Action<MessageClient, Message>>();
 
             var conf = new NetPeerConfiguration("EraServer")
             {
@@ -95,7 +99,13 @@ namespace EraS.Listeners
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)
         {
+            //TODO: Add routing
 
+            Message m = new Message(msg);
+            if (!MessageHandlers.ContainsKey(m.Type))
+                return;
+
+            MessageHandlers[m.Type](con, m);
         }
 
         protected virtual void OnConnectionApprove(ServerConnection con, NetIncomingMessage msg)

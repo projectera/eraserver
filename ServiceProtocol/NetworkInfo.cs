@@ -70,6 +70,7 @@ namespace ServiceProtocol
         protected String GetString(String function)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
+            m.Packet.Write("Network");
             m.Packet.Write(function);
             var res = Client.AskQuestion(m);
             return res.Packet.ReadString();
@@ -84,6 +85,7 @@ namespace ServiceProtocol
         protected String GetString(String function, String argument)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
+            m.Packet.Write("Network");
             m.Packet.Write(function);
             m.Packet.Write(argument);
             var res = Client.AskQuestion(m);
