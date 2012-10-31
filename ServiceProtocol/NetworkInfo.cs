@@ -107,6 +107,7 @@ namespace ServiceProtocol
         protected List<String> GetStringList(String function)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
+            m.Packet.Write("Network");
             m.Packet.Write(function);
             var res = Client.AskQuestion(m);
 
@@ -127,6 +128,7 @@ namespace ServiceProtocol
         protected List<String> GetStringList(String function, String argument)
         {
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
+            m.Packet.Write("Network");
             m.Packet.Write(function);
             m.Packet.Write(argument);
             var res = Client.AskQuestion(m);

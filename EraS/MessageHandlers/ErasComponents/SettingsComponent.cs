@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using EraS.Connections;
 using ServiceProtocol;
+using EraS.Services;
 
 namespace EraS.MessageHandlers.ErasComponents
 {

@@ -72,7 +72,6 @@ namespace EraS
             StatisticsService.Start();
             Console.WriteLine("Service listener started.");
 
-            ErasHandler h = new ErasHandler(Network);
             MessageHandler h = new MessageHandler();
             h.Add(new NetworkComponent(Network));
             h.Add(new SettingsComponent());
