@@ -41,12 +41,16 @@ namespace ResourceService
             var delay = 4000;
             if (args.Contains("-d"))
                 delay = Int32.Parse(args.SkipWhile(a => a != "-d").Skip(1).First());
+            Console.WriteLine("Service starting [{0} ms].", delay);
             System.Threading.Thread.Sleep(delay);
+
+            // Functions
+            RegisterFunctions();
 
             // Connect to the cloud
             _erasClient = ServiceClient.Connect("Resource");
             _erasClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
-            Console.WriteLine("Connected with Id: " + _erasClient.ServiceName);
+            Console.WriteLine("Connected with Id: {0}", _erasClient.ServiceName);
 
             // Get mongo and connect
             var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
@@ -58,6 +62,7 @@ namespace ResourceService
 
             Server = MongoServer.Create("mongodb://" + new MongoServerAddress(host, port).ToString());
             Database = Server.GetDatabase("era");
+            Console.WriteLine("Connected to database: {0}:{1}", host, port);
             IsRunning = true;
 
             // Save the network info

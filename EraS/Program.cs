@@ -21,8 +21,10 @@ namespace EraS
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            Console.WriteLine("EraS starting.");
             if (HeartBeatService.Defibrillate())
                 IsRunning = true;
+                
 
             Network = new Network(HeartBeatService.Identifier.ToString());
             Services = new ServiceListener(HeartBeatService.Identifier.ToString())
@@ -37,7 +39,7 @@ namespace EraS
                     lock (Network)
                         Network.AddService(s);
 
-                    Console.WriteLine("Service [" + name + "] approved");
+                    Console.WriteLine("Service [" + name + "] approved.");
                 },
                 OnDisconnect = (con) =>
                 {
@@ -46,12 +48,13 @@ namespace EraS
                         var s = Network.ServiceInstances[con.RemoteIdentifier];
                         Network.RemoveService(s);
 
-                        Console.WriteLine("Service [" + s.Name + "] disconnected");
+                        Console.WriteLine("Service [" + s.Name + "] disconnected.");
                     }
                 },
             };
 
-            Console.WriteLine("Service listener started");
+            StatisticsService.Start();
+            Console.WriteLine("Service listener started.");
 
             ErasHandler h = new ErasHandler(Network);
             Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
@@ -59,7 +62,8 @@ namespace EraS
             while(!HeartBeatService.HasFlatlined && IsRunning)
                 System.Threading.Thread.Sleep(1000);
 
-            Console.WriteLine("Service listener stopped");
+            Console.WriteLine("Service listener stopped.");
+            Console.WriteLine("EraS stopped.");
         }
     }
 }

@@ -19,13 +19,13 @@ namespace EraS
     /// <summary>
     /// 
     /// </summary>
-    public class HeartBeatService
+    public static class HeartBeatService
     {
-        public const Double FlatlineTime = 5;
-        public const Double HeartBeatInterval = 1;
+        public static readonly TimeSpan FlatlineTime = TimeSpan.FromMinutes(5);
+        public static readonly TimeSpan HeartBeatInterval = TimeSpan.FromMinutes(1);
 
-        protected static Timer _timer;
-        protected static Double _beatTime;
+        private static Timer _timer;
+        private static Double _beatTime;
 
         /// <summary>
         /// Event is called when the heart beats
@@ -45,12 +45,12 @@ namespace EraS
         /// <summary>
         /// Identifier for this instance
         /// </summary>
-        public static ObjectId Identifier { get; protected set; }
+        public static ObjectId Identifier { get; private set; }
         
         /// <summary>
         /// Server reference
         /// </summary>
-        public static MongoServer Server { get; protected set; }
+        public static MongoServer Server { get; private set; }
 
         /// <summary>
         /// Server address reference
@@ -60,12 +60,12 @@ namespace EraS
         /// <summary>
         /// Database reference
         /// </summary>
-        public static MongoDatabase Database { get; protected set; }
+        public static MongoDatabase Database { get; private set; }
 
         /// <summary>
         /// Time of last HeartBeat
         /// </summary>
-        public static DateTime HeartBeatTime { get; protected set; }
+        public static DateTime HeartBeatTime { get; private set; }
 
         /// <summary>
         /// Has flatlined boolean
@@ -74,7 +74,7 @@ namespace EraS
         {
             get
             {
-                return NetTime.Now - _beatTime > 60 * FlatlineTime;
+                return TimeSpan.FromSeconds(NetTime.Now - _beatTime) > FlatlineTime;
             }
         }
 
@@ -134,7 +134,7 @@ namespace EraS
             // Connect to mongo
             try
             {
-                Console.WriteLine("Heartbeatservice connecting to mongodb://{0}", url);
+                Console.WriteLine("Heartbeatservice connecting to mongodb://{0}.", url);
                 Server = MongoServer.Create("mongodb://" + url);
                 Database = Server.GetDatabase("era");
             }
@@ -148,7 +148,7 @@ namespace EraS
             GetCollection().EnsureIndex(
                 IndexKeys.Ascending("HeartBeatTime"), 
                 IndexOptions.SetTimeToLive(
-                    TimeSpan.FromMinutes(FlatlineTime * 2)
+                    FlatlineTime.Add(FlatlineTime)
                 )
             );
 
@@ -159,7 +159,7 @@ namespace EraS
                 HeartBeatService.Beat,
                 HeartBeatService.Identifier,
                 TimeSpan.FromMinutes(0),
-                TimeSpan.FromMinutes(HeartBeatInterval)
+                HeartBeatInterval
             );
 
             return true;
@@ -169,7 +169,7 @@ namespace EraS
         /// Beats the heart
         /// </summary>
         /// <param name="state"></param>
-        protected static void Beat(Object state)
+        private static void Beat(Object state)
         {
             HeartBeatTime = DateTime.Now.ToUniversalTime();
 
@@ -204,7 +204,7 @@ namespace EraS
         /// Runs when heartbeat succeeded
         /// </summary>
         /// <param name="state"></param>
-        protected static void HeartBeatService_OnBeat(ObjectId state)
+        private static void HeartBeatService_OnBeat(ObjectId state)
         {
             GetServers();
         }
@@ -213,7 +213,7 @@ namespace EraS
         /// <summary>
         /// Stops beating the heart
         /// </summary>
-        protected static void Flatline(Object state)
+        private static void Flatline(Object state)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             OnFlatline.Invoke(Identifier);
@@ -225,7 +225,7 @@ namespace EraS
         /// Gets the heartbeat service server collection
         /// </summary>
         /// <returns></returns>
-        protected static MongoCollection GetCollection()
+        private static MongoCollection GetCollection()
         {
             return Database.GetCollection("Servers");
         }
@@ -241,7 +241,7 @@ namespace EraS
             foreach (var server in servers)
             {
                 // Server is flatlinening
-                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime).Minutes > FlatlineTime)
+                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
                 {
                     Console.WriteLine("Heartbeatservice [{0}] has flatlined.", server["_id"]);
                     OnRemoteFlatline.Invoke(server["_id"].AsObjectId);
