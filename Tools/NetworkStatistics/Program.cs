@@ -17,17 +17,11 @@ namespace NetworkStatistics
             try
             {
                 var message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("Statistics");
-                message.Packet.Write("GetVersion");
-                var answer = client.AskReliableQuestion(message);
-                var version = answer.Packet.ReadString();
-                Console.WriteLine("Statistics version {0}.", version);
-                // could branch by version
 
                 message = client.CreateQuestion(MessageType.EraS, "Self");
                 message.Packet.Write("Statistics");
                 message.Packet.Write("Get");
-                answer = client.AskReliableQuestion(message);
+                var answer = client.AskReliableQuestion(message);
                 var buffer = answer.Packet;
 
                 var frames = buffer.ReadInt32();
