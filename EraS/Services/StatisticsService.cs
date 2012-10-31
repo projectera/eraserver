@@ -70,12 +70,48 @@ namespace EraS.Services
                 Thread.MemoryBarrier();
                 Thread.Sleep(100);
             }
-            Monitor.Exit(_writeLock);
-
-       
-            // TODO: write this copy to the history queue because
+                   
+            // Write this copy to the history queue because
             // the tick function will not be able to get it, since
             // the connection no longer exists.
+            lock (_history)
+            {
+                var servicename = obj.Name;
+                var servicekey = new Tuple<String, String>(servicename, obj.RemoteIdentifier);
+
+                // Get or create last frame
+                var last = _history.LastOrDefault();
+                var stats = obj.Connection.Statistics;
+                if (last == null)
+                {
+                    _history.Add(new Dictionary<Tuple<String, String>, StatsDocument>());
+                    last = _history.Last();
+                }
+                last.Remove(servicekey);
+
+                // Create doc
+                var doc = new StatsDocument()
+                {
+                    Name = servicename,
+                    ReceivedBytes = stats.ReceivedBytes,
+                    ReceivedPackets = stats.ReceivedPackets,
+                    SentBytes = stats.SentBytes,
+                    SentPackets = stats.SentPackets,
+                    ResentMessages = stats.ResentMessages,
+                };
+                last.Add(servicekey, doc);
+
+                // Register in instance history
+                Dictionary<String, StatsDocument> servicedata;
+                if (!_instanceHistory.TryGetValue(servicename, out servicedata))
+                    _instanceHistory.Add(servicename, new Dictionary<string, StatsDocument>());
+                servicedata = _instanceHistory[servicename];
+
+                servicedata.Remove(obj.RemoteIdentifier);
+                servicedata.Add(obj.RemoteIdentifier, doc);
+            }
+
+            Monitor.Exit(_writeLock);
         }
 
         /// <summary>
@@ -94,11 +130,16 @@ namespace EraS.Services
                     lock (Program.Network)
                     {
                         foreach (var service in Program.Services.Connections)
+                        {
+                            var servicekey = new Tuple<String, String>(service.Value.Name, service.Key);
                             // TODO: on disconnect, add to history
                             // this makes sure only active services (connected) are added
                             if (Program.Network.ServiceInstances.ContainsKey(service.Key))
-                                stats.Add(new Tuple<String, String>(service.Value.Name, service.Key),
-                                    service.Value.Connection.Statistics);
+                            {
+                                stats.Add(servicekey, service.Value.Connection.Statistics);
+                            }
+                        }
+
                     }
 
                     // Get all the stats
@@ -129,9 +170,6 @@ namespace EraS.Services
                         servicedata.Add(doc.Key.Item2, doc.Value);
                     }
 
-                    //if (docs.Count == 0)
-                    //    docs.Add(new Tuple<String, String>(String.Empty, String.Empty), new StatsDocument());
-
                     // Add those results
                     lock (_history)
                         _history.Add(docs);
@@ -151,8 +189,8 @@ namespace EraS.Services
         /// <param name="state"></param>
         private static void PushHistory(Object state)
         {
-            var pushTotal = new StatsDocument() { Name = "_" };
             var pushServices = new Dictionary<String, StatsDocument>();
+
             lock (_history)
             {
                 // Keep aggregating over the keeptime
@@ -195,8 +233,6 @@ namespace EraS.Services
                 }
             }
 
-            //pushServices.Add("_", pushTotal);
-
             foreach (var push in pushServices.Values)
                 GetCollection().Save(push);
         }
@@ -218,10 +254,10 @@ namespace EraS.Services
             get
             {
                 return new Dictionary<String, Action<MessageClient, Message>>() {
-                    { "GetStatisticsVersion", GetStatisticsVersion },
-                    { "GetStatistics" , GetStatistics }, 
-                    { "GetStatisticsTotal", GetStatisticsTotal },
-                    { "GetStatisticsSlice", GetStatisticsSlice },                    
+                    { "GetVersion", GetStatisticsVersion },
+                    { "Get" , GetStatistics }, 
+                    { "GetTotal", GetStatisticsTotal },
+                    { "GetSlice", GetStatisticsSlice },                    
                 };
             }
         }
@@ -418,19 +454,6 @@ namespace EraS.Services
                 foreach (var service in frame)
                     service.Value.Pack(buffer);
             }
-        }
-
-        /// <summary>
-        /// Get Mongo address
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetMongo(ServiceConnection c, Message m)
-        {
-            var ans = m.Answer(c);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Host);
-            ans.Packet.Write(HeartBeatService.ServerAddress.Port);
-            c.SendMessage(ans);
         }
 
         /// <summary>

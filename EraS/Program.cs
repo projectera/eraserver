@@ -74,6 +74,7 @@ namespace EraS
 
             MessageHandler h = new MessageHandler();
             h.Add(new NetworkComponent(Network));
+            h.Add(new StatisticsComponent());
             h.Add(new SettingsComponent());
 
             Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
