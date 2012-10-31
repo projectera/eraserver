@@ -14,9 +14,6 @@ namespace NetworkStatistics
             var manual = false;
 
             var client = ServiceClient.Connect("NetworkStatistics");
-            NetworkInfo n = new NetworkInfo(client);
-
-            Console.WriteLine("Network Statistics tool is connected.");
             try
             {
                 var message = client.CreateQuestion(MessageType.EraS, "Self");
@@ -24,7 +21,7 @@ namespace NetworkStatistics
                 var answer = client.AskReliableQuestion(message);
                 var version = answer.Packet.ReadString();
                 Console.WriteLine("Statistics version {0}.", version);
-                // branch by version
+                // could branch by version
 
                 message = client.CreateQuestion(MessageType.EraS, "Self");
                 message.Packet.Write("GetStatistics");

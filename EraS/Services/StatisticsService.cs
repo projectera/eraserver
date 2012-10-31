@@ -33,7 +33,7 @@ namespace EraS.Services
         /// </summary>
         public static readonly Int64 CappedSize = 24 * 60;
 
-        public static List<Dictionary<String, StatsDocument>> _history;
+        public static List<Dictionary<Tuple<String, String>, StatsDocument>> _history;
         private static Timer _timer, _writeTimer;
         private static Object _writeLock = new Object();
 
@@ -46,7 +46,7 @@ namespace EraS.Services
             if (!HeartBeatService.Database.CollectionExists("Stats"))
                 HeartBeatService.Database.CreateCollection("Stats", CollectionOptions.SetMaxDocuments(CappedSize).SetMaxSize(CappedSize * 2048).SetCapped(true));
 
-            _history = new List<Dictionary<String, StatsDocument>>() { new Dictionary<String, StatsDocument>() };
+            _history = new List<Dictionary<Tuple<String, String>, StatsDocument>>() { new Dictionary<Tuple<String, String>, StatsDocument>() };
             Program.Services.OnDisconnect += new Action<ServiceConnection>(Services_OnDisconnect);
 
             _timer = new Timer(Tick, null, TimeSpan.Zero, TickInterval);
@@ -84,37 +84,20 @@ namespace EraS.Services
             {
                 try
                 {
-                    Dictionary<String, StatsDocument> lasts = null;
-                    lock (_history)
-                        lasts = _history[_history.Count - 1];
-
-                    // Get all the statistics per service name, unique key
+                    // Get all the statistics per service name and unique key
                     var stats = new Dictionary<Tuple<String, String>, NetConnectionStatistics>();
                     lock (Program.Network)
                     {
                         foreach (var service in Program.Services.Connections)
-                        {
-                            Topography.Service topography;
-                            if (Program.Network.ServiceInstances.TryGetValue(service.Key, out topography))
-                            {
-                                stats.Add(new Tuple<String, String>(topography.Name, service.Key),
-                                    service.Value.Connection.Statistics);
-                            }
-                        }
+                            stats.Add(new Tuple<String, String>(service.Value.Name, service.Key),
+                                service.Value.Connection.Statistics);
                     }
 
-                    // Aggregate per service name
-                    var sums = new Dictionary<String, StatsDocument>();
+
+                    var docs = new Dictionary<Tuple<String, String>, StatsDocument>();
                     foreach (var stat in stats)
                     {
-                        StatsDocument service;
-                        if (!sums.TryGetValue(stat.Key.Item1, out service))
-                        {
-                            service = new StatsDocument() { Name = stat.Key.Item1 };
-                            sums.Add(stat.Key.Item1, service);
-                        }
-
-                        sums[stat.Key.Item1] = service.Merge(new StatsDocument()
+                        docs.Add(stat.Key, new StatsDocument()
                         {
                             Name = stat.Key.Item1,
                             ReceivedBytes = stat.Value.ReceivedBytes,
@@ -125,30 +108,9 @@ namespace EraS.Services
                         });
                     }
 
-                    // Comparision with previous frames
-                    var results = new Dictionary<String, StatsDocument>();
-                    foreach (var stat in sums)
-                    {
-                        StatsDocument last;
-                        if (!lasts.TryGetValue(stat.Key, out last))
-                            last = new StatsDocument() { Name = stat.Key };
-
-
-                        // TODO: fix this. Off course this doesn't work xD - incrementing with the difference?
-                        results.Add(stat.Key, new StatsDocument()
-                        {
-                            Name = stat.Key,
-                            ReceivedBytes = stat.Value.ReceivedBytes, // - last.ReceivedBytes,
-                            ReceivedPackets = stat.Value.ReceivedPackets, // - last.ReceivedPackets,
-                            SentBytes = stat.Value.SentBytes, // - last.SentBytes,
-                            SentPackets = stat.Value.SentPackets, // - last.SentPackets,
-                            ResentMessages = stat.Value.ResentMessages, // - last.ResentMessages,
-                        });
-                    }
-
                     // Add those results
                     lock (_history)
-                        _history.Add(results);
+                        _history.Add(docs);
                 }
                 catch (Exception)
                 {
@@ -166,7 +128,7 @@ namespace EraS.Services
         private static void PushHistory(Object state)
         {
             var pushTotal = new StatsDocument() { Name = "_" };
-            var pushIndividuals = new Dictionary<String, StatsDocument>();
+            var pushServices = new Dictionary<String, StatsDocument>();
             lock (_history)
             {
                 // Keep aggregating over the keeptime
@@ -176,29 +138,37 @@ namespace EraS.Services
                 {
                     // Peek at front queue
                     var first = _history.First();
+                    var frameServices = new Dictionary<String, StatsDocument>();
                     foreach (var docdict in first)
                     {
-                        // Make a total counter
-                        pushTotal = pushTotal.Merge(docdict.Value);
-
                         // Count per service name too
                         StatsDocument pushIndividual;
-                        if (!pushIndividuals.TryGetValue(docdict.Key, out pushIndividual))
+                        if (!frameServices.TryGetValue(docdict.Key.Item1, out pushIndividual))
                         {
-                            pushIndividual = new StatsDocument() { Name = docdict.Key };
-                            pushIndividuals.Add(docdict.Key, pushIndividual);
+                            pushIndividual = new StatsDocument() { Name = docdict.Key.Item1 };
+                            frameServices.Add(docdict.Key.Item1, pushIndividual);
                         }
-                        pushIndividuals[docdict.Key] = pushIndividual.Merge(docdict.Value);
+
+                        frameServices[docdict.Key.Item1] = docdict.Value;
                     }
 
+                    // Update replace by latest frame with this service
+                    foreach (var service in frameServices)
+                    {
+                        StatsDocument serviceTotal;
+                        if (pushServices.TryGetValue(service.Key, out serviceTotal))
+                            pushServices.Remove(service.Key);
+                        pushServices.Add(service.Key, service.Value);
+                    }
+                    
                     // Shift from queue
                     _history.Remove(first);
                 }
             }
 
-            pushIndividuals.Add("_", pushTotal);
+            //pushServices.Add("_", pushTotal);
 
-            foreach (var push in pushIndividuals.Values)
+            foreach (var push in pushServices.Values)
                 GetCollection().Save(push);
         }
 
@@ -265,7 +235,7 @@ namespace EraS.Services
         {
             var answer = m.Answer(c);
             
-            Dictionary<String, StatsDocument> last = null;
+            Dictionary<Tuple<String, String>, StatsDocument> last = null;
             lock (_history)
                 last = _history[_history.Count - 1];
             WriteStatisticsFrame(last, answer.Packet);
@@ -278,7 +248,7 @@ namespace EraS.Services
         /// </summary>
         /// <param name="frame"></param>
         /// <param name="buffer"></param>
-        private static void WriteStatisticsFrame(Dictionary<String, StatsDocument> frame, NetBuffer buffer)
+        private static void WriteStatisticsFrame(Dictionary<Tuple<String,String>, StatsDocument> frame, NetBuffer buffer)
         {
             if (frame.Count == 0)
             {
@@ -289,6 +259,8 @@ namespace EraS.Services
             {
                 buffer.Write(frame.First().Value.Time.ToBinary());
                 buffer.Write(frame.Count);
+
+                // TODO: aggregate per server
                 foreach (var service in frame)
                     service.Value.Pack(buffer);
             }
