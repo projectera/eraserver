@@ -139,7 +139,7 @@ namespace EraS
             }
         }
 
-        protected void BroadcastServers(NetOutgoingMessage msg)
+        protected void BroadcastServers(Message msg)
         {
             List<Server> servers = null;
             lock (Network)
@@ -179,6 +179,12 @@ namespace EraS
 
                 Console.WriteLine("Service [" + s.Name + "] disconnected.");
             }
+
+            Message remove = new Message(Servers.Peer.CreateMessage(32), MessageType.EraS, Identifier, "Self", 0);
+            remove.Packet.Write("ServiceExchange");
+            remove.Packet.Write("RemoveService");
+            remove.Packet.Write(con.RemoteIdentifier);
+            BroadcastServers(remove);
         }
 
         protected void OnActivate()
