@@ -99,6 +99,15 @@ namespace EraS.Listeners
                                     Activate();
                                 break;
                             case NetConnectionStatus.Disconnected:
+                                if (!IsActive && con != null)
+                                {
+                                    if (UnconnectedServers.Contains(con.RemoteIdentifier))
+                                    {
+                                        Console.WriteLine("Unable to become active, connection refused.");
+                                        throw new ApplicationException();
+                                    }
+                                }
+
                                 if(OnDisconnect != null)
                                     OnDisconnect(con);
                                 break;
