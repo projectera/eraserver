@@ -24,7 +24,7 @@ namespace EraS
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Console.WriteLine("EraS starting."  );
+            Console.WriteLine("EraS starting.");
 
             Router router = new Router();
 

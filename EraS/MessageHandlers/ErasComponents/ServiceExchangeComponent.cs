@@ -23,7 +23,6 @@ namespace EraS.MessageHandlers.ErasComponents
             var server = msg.Origin;
             var serviceid = msg.Packet.ReadString();
             var servicename = msg.Packet.ReadString();
-            Console.WriteLine("Received register " + servicename + " from " + server);
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(server))

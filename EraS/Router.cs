@@ -31,6 +31,7 @@ namespace EraS
             if (!HeartBeatService.Defibrillate())
                 throw new ApplicationException("Heartbeat failed");
             Identifier = HeartBeatService.Identifier.ToString();
+            Console.WriteLine("Router identifier: " + Identifier);
 
             Servers = new ServerListener(Identifier);
             Network = new Network(Identifier);
