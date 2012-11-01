@@ -116,7 +116,7 @@ namespace EraS.Listeners
         protected void OnData(NetIncomingMessage msg)
         {
             var m = new Message(msg);
-            if (m.Destination != "self" && m.Destination != Identifier)
+            if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
                 RouteMessage(m);
             else
                 ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
