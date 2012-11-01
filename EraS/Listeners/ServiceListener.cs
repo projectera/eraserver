@@ -67,7 +67,10 @@ namespace EraS.Listeners
             MessageHandlers = new Dictionary<MessageType, Action<ServiceConnection, Message>>();
             OnConnect = delegate { };
             OnDisconnect = delegate { };
+        }
 
+        public void Start()
+        {
             var conf = new NetPeerConfiguration("EraService")
             {
                 Port = ServiceClient.ServicePort,
@@ -75,7 +78,7 @@ namespace EraS.Listeners
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             Server = new NetServer(conf);
             Server.Start();
-  
+
             Thread = new Thread(Run);
             Thread.Start();
         }

@@ -37,7 +37,10 @@ namespace EraS.Listeners
             UnconnectedServers = new List<String>();
             MessageHandlers = new Dictionary<MessageType, Action<MessageClient, Message>>();
             Identifier = identifier;
+        }
 
+        public void Start()
+        {
             var conf = new NetPeerConfiguration("EraServer")
             {
                 Port = ServerPort,
@@ -58,10 +61,10 @@ namespace EraS.Listeners
                 m.Write(Version);
                 m.Write(Identifier);
 
-                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), identifier, server.ToString());
-                Console.WriteLine("Connecting to: " + servers[server]["IP"].AsString);
+                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), Identifier, server.ToString());
+                Console.WriteLine("Connecting to: " + server.ToString());
                 con.Connection.Tag = con;
-                
+
                 UnconnectedServers.Add(server.ToString());
             }
 
@@ -139,8 +142,8 @@ namespace EraS.Listeners
 
             if (!IsActive)
             {
-                if (UnconnectedServers.Contains(con.Identifier))
-                    UnconnectedServers.Remove(con.Identifier);
+                if (UnconnectedServers.Contains(con.RemoteIdentifier))
+                    UnconnectedServers.Remove(con.RemoteIdentifier);
 
                 if (UnconnectedServers.Count == 0)
                     Activate();

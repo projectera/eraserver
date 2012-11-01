@@ -45,6 +45,8 @@ namespace EraS
 
             Servers.RouteMessage = RouteMessage;
             Servers.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
+
+            Servers.Start();
         }
 
         protected void RouteMessage(Message msg)
@@ -117,6 +119,8 @@ namespace EraS
             lock (Network)
                 Network.AddServer(s);
 
+            Console.WriteLine("Connected to " + c.RemoteIdentifier);
+
             Task.Factory.StartNew(() =>
             {
                 // Get service info
@@ -137,6 +141,8 @@ namespace EraS
 
         protected void OnServerDisconnect(ServerConnection c)
         {
+            Console.WriteLine("Disconnected from: " + c.RemoteIdentifier);
+
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(c.RemoteIdentifier))
@@ -176,6 +182,8 @@ namespace EraS
             Services.OnDisconnect += OnServiceDisconnect;
             Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
             Services.RouteMessage = RouteMessage;
+
+            Services.Start();
         }
     }
 }
