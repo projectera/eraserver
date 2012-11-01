@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{592C8ACA-45DA-4E37-99A9-E371C799F487}</ProjectGuid>
+    <ProjectGuid>{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ResourceService</RootNamespace>
-    <AssemblyName>ResourceService</AssemblyName>
+    <RootNamespace>MapService</RootNamespace>
+    <AssemblyName>MapService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -23,7 +23,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ProductName>Resource Service</ProductName>
+    <ProductName>Map Service</ProductName>
     <PublisherName>Derk-Jan Karrenbeld &amp; Max Maton</PublisherName>
     <SuiteName>Project ERA Server Services</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Lidgren.Network, Version=2012.1.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Lidgren.Network">
       <HintPath>..\..\Libraries\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson, Version=1.6.2.35072, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
@@ -72,9 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asset.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
