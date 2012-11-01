@@ -41,12 +41,14 @@ namespace EraS
             };
             Servers.OnDisconnect += (c) =>
             {
+                Console.WriteLine("Disconnected: " + c.RemoteIdentifier);
                 lock (Network)
                 {
+                    if (!Network.Servers.ContainsKey(c.RemoteIdentifier))
+                        return;
                     Server s = Network.Servers[c.RemoteIdentifier];
                     Network.RemoveServer(s);
                 }
-                Console.WriteLine("Disconnected: " + c.RemoteIdentifier);
             };
 
             Services = new ServiceListener(HeartBeatService.Identifier.ToString());
