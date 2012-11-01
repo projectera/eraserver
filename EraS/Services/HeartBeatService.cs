@@ -202,6 +202,23 @@ namespace EraS.Services
             }
         }
 
+        public static void Cleanup()
+        {
+            HeartBeatTime = DateTime.Now.AddMinutes(-5).ToUniversalTime();
+
+            try
+            {
+                var upsert = GetCollection().FindAndModify(
+                    Query.EQ("_id", Identifier),
+                    SortBy.Null,
+                    Update.Replace(Document),
+                    false,
+                    true
+                );
+            }
+            catch (Exception) { }
+        }
+
         /// <summary>
         /// Runs when heartbeat succeeded
         /// </summary>
