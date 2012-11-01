@@ -115,7 +115,10 @@ namespace EraS
 
         protected void OnServerConnect(ServerConnection c)
         {
-            var s = new Server(c.RemoteIdentifier);
+            var s = new Server(c.RemoteIdentifier)
+            {
+                Connection = c,
+            };
             lock (Network)
                 Network.AddServer(s);
 
@@ -169,6 +172,9 @@ namespace EraS
 
                 foreach (var server in servers)
                 {
+                    if (server == Identifier)
+                        continue;
+                    Console.WriteLine("Fetching services of: " + server);
                     try
                     {
                         NetworkInfo n = null;
@@ -179,16 +185,23 @@ namespace EraS
                         if (n == null)
                             continue;
 
-                        var services = n.GetServices();
+                        var services = n.GetServerServices(server);
                         foreach (var service in services)
                         {
+                            Console.WriteLine("Fetching name of: " + service);
                             var name = n.GetServiceName(service);
                             if (name == null)
                                 continue;
 
-                            Service s = new Service(Network.Me, service) { Name = name, };
                             lock (Network)
+                            {
+                                if (!Network.Servers.ContainsKey(server))
+                                    continue;
+                                Server serv = Network.Servers[server];
+                                Service s = new Service(serv, service) { Name = name, };
+
                                 Network.AddService(s);
+                            }
                         }
                     }
                     catch (TimeoutException)
@@ -199,6 +212,9 @@ namespace EraS
                                 Console.WriteLine("Server didn't respond: " + server);
                     }
                 }
+
+            });
+            Task.Factory.StartNew(() => {
 
                 // Start listening for services
                 Services = new ServiceListener(Identifier);
