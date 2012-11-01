@@ -54,7 +54,9 @@ namespace ResourceService
 
             // Get mongo and connect
             var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
+            q.Packet.Write("Settings");
             q.Packet.Write("GetMongo");
+            
             
             var mongo = _erasClient.AskReliableQuestion(q);
             var host = mongo.Packet.ReadString();
