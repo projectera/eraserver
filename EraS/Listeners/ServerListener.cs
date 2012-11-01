@@ -47,14 +47,12 @@ namespace EraS.Listeners
             var servers = HeartBeatService.GetServers();
             foreach (var server in servers.Keys)
             {
-                var nets = new Server(server.ToString());
-
                 NetOutgoingMessage m = Peer.CreateMessage(32);
+                m.Write(Version);
                 m.Write(Identifier);
 
                 var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), identifier, server.ToString());
                 Console.WriteLine("Connecting to: " + servers[server]["IP"].AsString);
-                nets.Connection = con;
                 con.Connection.Tag = con;
                 
                 UnconnectedServers.Add(server.ToString());
@@ -132,14 +130,17 @@ namespace EraS.Listeners
             byte version = msg.ReadByte();
             if(version != Version)
             {
-                con.Connection.Deny("Max version: " + Version.ToString());
+                msg.SenderConnection.Deny("Max version: " + Version.ToString());
                 return;
             }
             var remid = msg.ReadString();
 
             NetOutgoingMessage m = Peer.CreateMessage(32);
             m.Write(Identifier);
-            con.Connection.Approve(m);
+            msg.SenderConnection.Approve(m);
+
+            ServerConnection c = new ServerConnection(msg.SenderConnection, Identifier, remid);
+            msg.SenderConnection.Tag = c;
         }
 
         protected void Activate()
