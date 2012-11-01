@@ -14,6 +14,7 @@ namespace EraS
     class Program
     {
         public static ServiceListener Services { get; protected set; }
+        public static ServerListener Servers { get; protected set; }
         public static Network Network { get; protected set; }
         public static Boolean IsRunning { get; set; }
 
@@ -29,6 +30,15 @@ namespace EraS
 
 
             Network = new Network(HeartBeatService.Identifier.ToString());
+
+            Servers = new ServerListener(HeartBeatService.Identifier.ToString());
+            Servers.OnConnect += (con) =>
+            {
+                var s = new Server(con.RemoteIdentifier);
+                Network.AddServer(s);
+                Console.WriteLine("Connection established: " + con.RemoteIdentifier);
+            };
+
             Services = new ServiceListener(HeartBeatService.Identifier.ToString());
             Services.OnConnect += (con, name) =>
             {

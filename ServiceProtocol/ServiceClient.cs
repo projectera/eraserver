@@ -78,14 +78,17 @@ namespace ServiceProtocol
             if (client.ServerConnection == null || client.ServerConnection.Status != NetConnectionStatus.Connected)
                 throw new InvalidOperationException("Server did not connect to this client.");
 
-            return new ServiceClient(client, serviceName, client.ServerConnection.RemoteHailMessage.ReadString());
+            var remid = client.ServerConnection.RemoteHailMessage.ReadString();
+            var myid = client.ServerConnection.RemoteHailMessage.ReadString();
+
+            return new ServiceClient(client, myid, serviceName, remid);
         }
 
         /// <summary>
         /// Creates a new ServiceClient, connects automatically to the server
         /// </summary>
         /// <param name="serviceName"></param>
-        public ServiceClient(NetClient client, String identifier, String serviceName) : base(client.ServerConnection, identifier)
+        public ServiceClient(NetClient client, String identifier, String serviceName, String remoteIdentifier) : base(client.ServerConnection, identifier, remoteIdentifier)
         {
             Client = client;
             ServiceName = serviceName;

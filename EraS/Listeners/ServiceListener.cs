@@ -118,11 +118,12 @@ namespace EraS.Listeners
             Byte clientversion = m.ReadByte();
             if (clientversion > MessageClient.Version)
                 m.SenderConnection.Deny("Max. version: " + MessageClient.Version.ToString());
-            
+
             String servicename = m.ReadString();
 
-            // Remote hail message with internal id
+            // Remote hail message with our and their internal ids
             var outmsg = Server.CreateMessage(32);
+            outmsg.Write(Identifier);
             String remoteid = Identifier + "-" + (_serviceCounter++).ToString();
             outmsg.Write(remoteid);
             

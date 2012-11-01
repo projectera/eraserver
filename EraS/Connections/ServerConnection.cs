@@ -9,8 +9,8 @@ namespace EraS.Connections
 {
     class ServerConnection : MessageClient
     {
-        public ServerConnection(NetConnection connection, String identifier)
-            : base(connection, identifier)
+        public ServerConnection(NetConnection connection, String identifier, String remoteIdentifier)
+            : base(connection, identifier, remoteIdentifier)
         {
 
         }

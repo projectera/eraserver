@@ -7,6 +7,7 @@ using EraS.Topography;
 using System.Threading;
 using EraS.Connections;
 using EraS.Services;
+using ServiceProtocol;
 
 namespace EraS.Listeners
 {
@@ -16,15 +17,20 @@ namespace EraS.Listeners
         public NetPeer Peer { get; protected set; }
         public Thread Thread { get; protected set; }
         public Boolean IsActive { get; protected set; }
+        public String Identifier { get; protected set; }
 
         public List<String> UnconnectedServers { get; protected set; }
 
-        public Action<ServerConnection> OnConnect { get; set; }
-        public Action<ServerConnection> OnDisconnect { get; set; }
+        public Dictionary<MessageType, Action<MessageClient, Message>> MessageHandlers { get; protected set; }
 
-        public ServerListener()
+        public event Action<ServerConnection> OnConnect;
+        public event Action<ServerConnection> OnDisconnect;
+
+        public ServerListener(String identifier)
         {
             UnconnectedServers = new List<String>();
+            MessageHandlers = new Dictionary<MessageType, Action<MessageClient, Message>>();
+            Identifier = identifier;
 
             var conf = new NetPeerConfiguration("EraServer")
             {
@@ -33,13 +39,15 @@ namespace EraS.Listeners
             };
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
 
+            Peer = new NetPeer(conf);
             Peer.Start();
 
             var servers = HeartBeatService.GetServers();
             foreach (var server in servers.Keys)
             {
                 var nets = new Server(server.ToString());
-                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort), server.ToString());
+                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort), identifier, server.ToString());
+                Console.WriteLine("Connecting to: " + servers[server]["IP"].AsString);
                 nets.Connection = con;
                 con.Connection.Tag = con;
                 
@@ -58,10 +66,19 @@ namespace EraS.Listeners
                 if (msg == null)
                     continue;
 
-                var con = msg.SenderConnection.Tag as ServerConnection;
+
+                ServerConnection con = null;
+                if(msg.SenderConnection != null)
+                     con = msg.SenderConnection.Tag as ServerConnection;
+
+                Console.WriteLine(msg.MessageType.ToString());
 
                 switch (msg.MessageType)
                 {
+                    case NetIncomingMessageType.DebugMessage:
+                    case NetIncomingMessageType.WarningMessage:
+                        Console.WriteLine(msg.ReadString());
+                        break;
                     case NetIncomingMessageType.StatusChanged:
                         switch (msg.SenderConnection.Status)
                         {
@@ -95,7 +112,13 @@ namespace EraS.Listeners
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)
         {
+            //TODO: Add routing
 
+            Message m = new Message(msg);
+            if (!MessageHandlers.ContainsKey(m.Type))
+                return;
+
+            MessageHandlers[m.Type](con, m);
         }
 
         protected virtual void OnConnectionApprove(ServerConnection con, NetIncomingMessage msg)

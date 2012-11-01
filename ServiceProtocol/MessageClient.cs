@@ -20,6 +20,8 @@ namespace ServiceProtocol
         /// The identifier received from the server
         /// </summary>
         public String Identifier { get; protected set; }
+
+        public String RemoteIdentifier { get; protected set; }
         /// <summary>
         /// The message handlers
         /// </summary>
@@ -43,8 +45,10 @@ namespace ServiceProtocol
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="Identifier"></param>
-        public MessageClient(NetConnection connection, String Identifier)
+        public MessageClient(NetConnection connection, String identifier, String remoteIdentifier)
         {
+            Identifier = identifier;
+            RemoteIdentifier = remoteIdentifier;
             QuestionCounter = 1;
             Questions = new Dictionary<Int32, TaskCompletionSource<Message>>();
             MessageHandlers = new Dictionary<MessageType, Action<Message>>();

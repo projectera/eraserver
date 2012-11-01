@@ -10,12 +10,10 @@ namespace EraS.Connections
 {
     public class ServiceConnection : MessageClient
     {
-        public String RemoteIdentifier { get; protected set; }
         public String Name { get; protected set; }
 
-        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier, String name) : base(connection, identifier)
+        public ServiceConnection(NetConnection connection, String identifier, String remoteIdentifier, String name) : base(connection, identifier, remoteIdentifier)
         {
-            RemoteIdentifier = remoteIdentifier;
             Name = name;
         }
 
