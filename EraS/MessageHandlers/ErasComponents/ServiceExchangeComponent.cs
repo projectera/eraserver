@@ -14,6 +14,8 @@ namespace EraS.MessageHandlers.ErasComponents
         public ServiceExchangeComponent(Network network) : base("ServiceExchange")
         {
             Network = network;
+            Functions.Add("RegisterService", RegisterService);
+            Functions.Add("RemoveService", RemoveService);
         }
 
         public void RegisterService(MessageClient con, Message msg)
@@ -21,6 +23,7 @@ namespace EraS.MessageHandlers.ErasComponents
             var server = msg.Origin;
             var serviceid = msg.Packet.ReadString();
             var servicename = msg.Packet.ReadString();
+            Console.WriteLine("Received register " + servicename + " from " + server);
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(server))

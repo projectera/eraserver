@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ServiceProtocol;
 using EraS.MessageHandlers;
 using EraS.MessageHandlers.ErasComponents;
+using Lidgren.Network;
 
 namespace EraS
 {
@@ -38,6 +39,7 @@ namespace EraS
             ErasHandler.Add(new NetworkComponent(Network));
             ErasHandler.Add(new StatisticsComponent());
             ErasHandler.Add(new SettingsComponent());
+            ErasHandler.Add(new ServiceExchangeComponent(Network));
 
             Servers.OnActivate += OnActivate;
             Servers.OnConnect += OnServerConnect;
@@ -137,6 +139,17 @@ namespace EraS
             }
         }
 
+        protected void BroadcastServers(NetOutgoingMessage msg)
+        {
+            List<Server> servers = null;
+            lock (Network)
+                servers = Network.Servers.Values.ToList();
+            
+            foreach (var s in servers)
+                if(s.Identifier != Identifier)
+                    s.Connection.SendMessage(msg);
+        }
+
         protected void OnServiceConnect(ServiceConnection con, String name)
         {
             // Builds the network
@@ -146,6 +159,13 @@ namespace EraS
             };
             lock (Network)
                 Network.AddService(s);
+
+            Message register = new Message(Servers.Peer.CreateMessage(32), MessageType.EraS, Identifier, "Self", 0);
+            register.Packet.Write("ServiceExchange");
+            register.Packet.Write("RegisterService");
+            register.Packet.Write(con.RemoteIdentifier);
+            register.Packet.Write(name);
+            BroadcastServers(register);
 
             Console.WriteLine("Service [" + name + "] approved.");
         }
@@ -174,7 +194,6 @@ namespace EraS
                 {
                     if (server == Identifier)
                         continue;
-                    Console.WriteLine("Fetching services of: " + server);
                     try
                     {
                         NetworkInfo n = null;
@@ -188,7 +207,6 @@ namespace EraS
                         var services = n.GetServerServices(server);
                         foreach (var service in services)
                         {
-                            Console.WriteLine("Fetching name of: " + service);
                             var name = n.GetServiceName(service);
                             if (name == null)
                                 continue;

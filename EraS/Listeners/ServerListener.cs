@@ -64,6 +64,9 @@ namespace EraS.Listeners
                 m.Write(Identifier);
 
                 var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), Identifier, server.ToString());
+                foreach (var key in MessageHandlers.Keys)
+                    con.MessageHandlers.Add(key, (x) => MessageHandlers[key](con, x));
+
                 Console.WriteLine("Connecting to: " + server.ToString());
                 con.Connection.Tag = con;
 
