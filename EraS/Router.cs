@@ -120,23 +120,6 @@ namespace EraS
                 Network.AddServer(s);
 
             Console.WriteLine("Connected to " + c.RemoteIdentifier);
-
-            Task.Factory.StartNew(() =>
-            {
-                // Get service info
-                NetworkInfo n = new NetworkInfo(c);
-
-                var services = n.GetServices();
-                foreach (var service in services)
-                {
-                    var name = n.GetServiceName(service);
-                    if (name == null)
-                        continue;
-
-                    lock (Network)
-                        Network.AddService(new Service(s, service) { Name = name });
-                }
-            });
         }
 
         protected void OnServerDisconnect(ServerConnection c)
@@ -177,13 +160,55 @@ namespace EraS
 
         protected void OnActivate()
         {
-            Services = new ServiceListener(Identifier);
-            Services.OnConnect += OnServiceConnect;
-            Services.OnDisconnect += OnServiceDisconnect;
-            Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
-            Services.RouteMessage = RouteMessage;
+            Task.Factory.StartNew(() =>
+            {
+                // Find connected services on other servers
+                List<String> servers;
+                lock (Network)
+                    servers = Network.Servers.Keys.ToList();
 
-            Services.Start();
+                foreach (var server in servers)
+                {
+                    try
+                    {
+                        NetworkInfo n = null;
+                        lock (Network)
+                            if (Network.Servers.ContainsKey(server))
+                                n = new NetworkInfo(Network.Servers[server].Connection);
+
+                        if (n == null)
+                            continue;
+
+                        var services = n.GetServices();
+                        foreach (var service in services)
+                        {
+                            var name = n.GetServiceName(service);
+                            if (name == null)
+                                continue;
+
+                            Service s = new Service(Network.Me, service) { Name = name, };
+                            lock (Network)
+                                Network.AddService(s);
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        // If server didn't disconnect
+                        lock(Network)
+                            if(Network.Servers.ContainsKey(server))
+                                Console.WriteLine("Server didn't respond: " + server);
+                    }
+                }
+
+                // Start listening for services
+                Services = new ServiceListener(Identifier);
+                Services.OnConnect += OnServiceConnect;
+                Services.OnDisconnect += OnServiceDisconnect;
+                Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
+                Services.RouteMessage = RouteMessage;
+
+                Services.Start();
+            });
         }
     }
 }

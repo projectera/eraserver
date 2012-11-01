@@ -74,7 +74,9 @@
   <ItemGroup>
     <Compile Include="Connections\ServerConnection.cs" />
     <Compile Include="Connections\ServiceConnection.cs" />
+    <Compile Include="MessageHandlers\ErasComponents\ServiceExchangeComponent.cs" />
     <Compile Include="MessageHandlers\ErasComponents\StatisticsComponent.cs" />
+    <Compile Include="MessageHandlers\ServerControlHandler.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="Services\HeartBeatService.cs" />
     <Compile Include="Listeners\ServerListener.cs" />

@@ -80,14 +80,6 @@ namespace ServiceProtocol
                             Connection.Disconnect("kill");
                             RaiseOnConnectionClosed();
                             break;
-                        case ControlType.IdentifierNotFound:
-                            lock (Questions)
-                            {
-                                if (!Questions.ContainsKey(msg.Thread))
-                                    return;
-                                Questions[msg.Thread].SetException(new KeyNotFoundException("Identifier not found while sending message"));
-                            }
-                            break;
                     }
                     break;
                 case MessageType.Answer:

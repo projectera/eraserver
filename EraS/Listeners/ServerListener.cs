@@ -9,6 +9,7 @@ using EraS.Connections;
 using EraS.Services;
 using ServiceProtocol;
 using System.Threading.Tasks;
+using EraS.MessageHandlers;
 
 namespace EraS.Listeners
 {
@@ -25,6 +26,7 @@ namespace EraS.Listeners
         public List<String> UnconnectedServers { get; protected set; }
 
         public Dictionary<MessageType, Action<MessageClient, Message>> MessageHandlers { get; protected set; }
+        public MessageHandler ControlHandler { get; protected set; }
 
         public event Action<ServerConnection> OnConnect;
         public event Action<ServerConnection> OnDisconnect;
