@@ -121,16 +121,21 @@ namespace EraS
             {
                 // Get service info
                 NetworkInfo n = new NetworkInfo(c);
-                var services = n.GetServices();
-                foreach (var service in services)
+                //BUG: packets are being dropped
+                try
                 {
-                    var name = n.GetServiceName(service);
-                    if (name == null)
-                        continue;
+                    var services = n.GetServices();
+                    foreach (var service in services)
+                    {
+                        var name = n.GetServiceName(service);
+                        if (name == null)
+                            continue;
 
-                    lock (Network)
-                        Network.AddService(new Service(s, service) { Name = name });
+                        lock (Network)
+                            Network.AddService(new Service(s, service) { Name = name });
+                    }
                 }
+                catch (Exception) { }
             });
         }
 

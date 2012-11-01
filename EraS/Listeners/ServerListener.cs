@@ -126,7 +126,7 @@ namespace EraS.Listeners
         {
             Message m = new Message(msg);
 
-            if (m.Destination != "self" && m.Destination != Identifier)
+            if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
                 RouteMessage(m);
             else
                 ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
@@ -163,6 +163,9 @@ namespace EraS.Listeners
 
             ServerConnection c = new ServerConnection(msg.SenderConnection, Identifier, remid);
             msg.SenderConnection.Tag = c;
+
+            foreach (var key in MessageHandlers.Keys)
+                c.MessageHandlers.Add(key, (x) => MessageHandlers[key](c, x));
         }
 
         protected void Activate()

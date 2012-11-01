@@ -28,20 +28,6 @@ namespace EraS
 
             Router router = new Router();
 
-            Services = new ServiceListener(HeartBeatService.Identifier.ToString());
-            
-
-
-            StatisticsService.Start();
-            Console.WriteLine("Service listener started.");
-
-            MessageHandler h = new MessageHandler();
-            h.Add(new NetworkComponent(Network));
-            h.Add(new StatisticsComponent());
-            h.Add(new SettingsComponent());
-
-            Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
-
             Console.ReadKey(true);
             HeartBeatService.Cleanup();
         }
