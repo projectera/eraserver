@@ -36,8 +36,8 @@ namespace EraS.Services
         /// </summary>
         public static readonly Int64 CappedSize = 24 * 60;
 
-        public static List<Dictionary<Tuple<String, String>, StatsDocument>> _history;
-        public static Dictionary<String, Dictionary<String, StatsDocument>> _instanceHistory;
+        public static List<Dictionary<Tuple<String, String>, StatisticsInfo.Document>> _history;
+        public static Dictionary<String, Dictionary<String, StatisticsInfo.Document>> _instanceHistory;
         private static Timer _timer, _writeTimer;
         private static Object _writeLock = new Object();
 
@@ -50,8 +50,8 @@ namespace EraS.Services
             if (!HeartBeatService.Database.CollectionExists("Stats"))
                 HeartBeatService.Database.CreateCollection("Stats", CollectionOptions.SetMaxDocuments(CappedSize).SetMaxSize(CappedSize * 2048).SetCapped(true));
 
-            _history = new List<Dictionary<Tuple<String, String>, StatsDocument>>() { new Dictionary<Tuple<String, String>, StatsDocument>() };
-            _instanceHistory = new Dictionary<String, Dictionary<String, StatsDocument>>();
+            _history = new List<Dictionary<Tuple<String, String>, StatisticsInfo.Document>>() { new Dictionary<Tuple<String, String>, StatisticsInfo.Document>() };
+            _instanceHistory = new Dictionary<String, Dictionary<String, StatisticsInfo.Document>>();
             Program.Services.OnDisconnect += new Action<ServiceConnection>(Services_OnDisconnect);
 
             _timer = new Timer(Tick, null, TimeSpan.Zero, TickInterval);
@@ -84,13 +84,13 @@ namespace EraS.Services
                 var stats = obj.Connection.Statistics;
                 if (last == null)
                 {
-                    _history.Add(new Dictionary<Tuple<String, String>, StatsDocument>());
+                    _history.Add(new Dictionary<Tuple<String, String>, StatisticsInfo.Document>());
                     last = _history.Last();
                 }
                 last.Remove(servicekey);
 
                 // Create doc
-                var doc = new StatsDocument()
+                var doc = new StatisticsInfo.Document()
                 {
                     Name = servicename,
                     ReceivedBytes = stats.ReceivedBytes,
@@ -102,9 +102,9 @@ namespace EraS.Services
                 last.Add(servicekey, doc);
 
                 // Register in instance history
-                Dictionary<String, StatsDocument> servicedata;
+                Dictionary<String, StatisticsInfo.Document> servicedata;
                 if (!_instanceHistory.TryGetValue(servicename, out servicedata))
-                    _instanceHistory.Add(servicename, new Dictionary<string, StatsDocument>());
+                    _instanceHistory.Add(servicename, new Dictionary<string, StatisticsInfo.Document>());
                 servicedata = _instanceHistory[servicename];
 
                 servicedata.Remove(obj.RemoteIdentifier);
@@ -143,10 +143,10 @@ namespace EraS.Services
                     }
 
                     // Get all the stats
-                    var docs = new Dictionary<Tuple<String, String>, StatsDocument>();
+                    var docs = new Dictionary<Tuple<String, String>, StatisticsInfo.Document>();
                     foreach (var stat in stats)
                     {
-                        docs.Add(stat.Key, new StatsDocument()
+                        docs.Add(stat.Key, new StatisticsInfo.Document()
                         {
                             Name = stat.Key.Item1,
                             ReceivedBytes = stat.Value.ReceivedBytes,
@@ -161,9 +161,9 @@ namespace EraS.Services
                     foreach (var doc in docs)
                     {
                         var serviceName = doc.Value.Name;
-                        Dictionary<String, StatsDocument> servicedata;
+                        Dictionary<String, StatisticsInfo.Document> servicedata;
                         if (!_instanceHistory.TryGetValue(serviceName, out servicedata))
-                            _instanceHistory.Add(serviceName, new Dictionary<string, StatsDocument>());
+                            _instanceHistory.Add(serviceName, new Dictionary<string, StatisticsInfo.Document>());
                         servicedata = _instanceHistory[serviceName];
 
                         servicedata.Remove(doc.Key.Item2);
@@ -189,7 +189,7 @@ namespace EraS.Services
         /// <param name="state"></param>
         private static void PushHistory(Object state)
         {
-            var pushServices = new Dictionary<String, StatsDocument>();
+            var pushServices = new Dictionary<String, StatisticsInfo.Document>();
 
             lock (_history)
             {
@@ -201,7 +201,7 @@ namespace EraS.Services
                     // Peek at front queue
                     var first = _history.First();
 
-                    var frameServices = new Dictionary<String, StatsDocument>();
+                    var frameServices = new Dictionary<String, StatisticsInfo.Document>();
                     foreach (var docdict in first)
                     {
                         // Empty (no services)
@@ -209,10 +209,10 @@ namespace EraS.Services
                             continue;
 
                         // Count per service name
-                        StatsDocument pushIndividual;
+                        StatisticsInfo.Document pushIndividual;
                         if (!frameServices.TryGetValue(docdict.Key.Item1, out pushIndividual))
                         {
-                            pushIndividual = new StatsDocument() { Name = docdict.Key.Item1 };
+                            pushIndividual = new StatisticsInfo.Document() { Name = docdict.Key.Item1 };
                             frameServices.Add(docdict.Key.Item1, pushIndividual);
                         }
 
@@ -222,7 +222,7 @@ namespace EraS.Services
                     // Update replace by latest frame with this service
                     foreach (var service in frameServices)
                     {
-                        StatsDocument serviceTotal;
+                        StatisticsInfo.Document serviceTotal;
                         if (pushServices.TryGetValue(service.Key, out serviceTotal))
                             pushServices.Remove(service.Key);
                         pushServices.Add(service.Key, service.Value);
@@ -233,334 +233,61 @@ namespace EraS.Services
                 }
             }
 
-            foreach (var push in pushServices.Values)
-                GetCollection().Save(push);
+            // TODO: add SERVER and push DELTAS
+            //foreach (var push in pushServices.Values)
+            //    GetCollection().Save(push);
         }
 
         /// <summary>
         /// Gets the statistics collection
         /// </summary>
         /// <returns></returns>
-        public static MongoCollection<StatsDocument> GetCollection()
+        public static MongoCollection<StatisticsInfo.Document> GetCollection()
         {
-            return HeartBeatService.Database.GetCollection<StatsDocument>("Stats");
+            return HeartBeatService.Database.GetCollection<StatisticsInfo.Document>("Stats");
         }
 
         /// <summary>
-        /// Functions provided by this service
+        /// Creates a deepclone of the current history
         /// </summary>
-        public static Dictionary<String, Action<MessageClient, Message>> Functions
+        /// <returns></returns>
+        public static List<Dictionary<Tuple<String, String>, StatisticsInfo.Document>> GetHistory()
         {
-            get
-            {
-                return new Dictionary<String, Action<MessageClient, Message>>() {
-                    { "GetVersion", GetStatisticsVersion },
-                    { "Get" , GetStatistics }, 
-                    { "GetTotal", GetStatisticsTotal },
-                    { "GetSlice", GetStatisticsSlice },                    
-                };
-            }
-        }
-
-        /// <summary>
-        /// Gets tatistics version
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetStatisticsVersion(MessageClient c, Message m)
-        {
-            var answer = m.Answer(c);
-            answer.Packet.Write(SERVICE_VERSION);
-            c.SendMessage(answer);
-        }
-
-        /// <summary>
-        /// Answers with all the frames
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetStatistics(MessageClient c, Message m)
-        {
-            var answer = m.Answer(c);
-            var results = new Stack<Dictionary<String, StatsDocument>>();
-
+            var result = new List<Dictionary<Tuple<String, String>, StatisticsInfo.Document>>();
             lock (_history)
             {
-                // In reverse order, call the history. If a service has no delta
-                // it means it was terminated that frame. Store it as delta. Each
-                // frame save the difference between delta and frame value. This is
-                // what was actually sent in that frame. Store the frame as the new
-                // delta. If there is no frame, but there is a delta, then this frame
-                // is the frame before the service started. Save it as a whole.
-                //
-                // [ { A:0 }, { A:1, B:0}, { A:2, B:1 }, { A:3 } ]
-                //
-                // * set A:3 to delta[A]
-                // * save delta[A]=3 - A:2
-                //   set A:2 to delta[A]
-                //   set B:1 to delta[B]
-                // * save delta[A]=2 - A:1
-                //   save delta[B]=1 - B:0
-                //   set A:1 to delta[A]
-                //   set B:0 to delta[B]
-                // * save delta[A]=1 - A:0
-                //   save delta[B]=0
-                //   set A:0 to delta[A]
-                // * save delta[A] = 0
-                //
-                // Each * denouncens an interation.
-
-                var deltas = new Dictionary<String, StatsDocument>();
-                for (Int32 i = _history.Count - 1; i >= 0; i--)
+                foreach (var frame in _history)
                 {
-                    var frame = _history[i];
-                    var aggregatedServices = new Dictionary<String, StatsDocument>();
-
-                    // Merge the instances to stats per service
+                    var resultframe = new Dictionary<Tuple<String, String>, StatisticsInfo.Document>();
                     foreach (var serviceInstance in frame)
-                    {
-                        var servicename = serviceInstance.Value.Name;
-                        StatsDocument aggregateStats;
-                        if (!aggregatedServices.TryGetValue(servicename, out aggregateStats))
-                            aggregatedServices.Add(servicename, new StatsDocument());
-                        aggregatedServices[servicename] = serviceInstance.Value.Merge(aggregatedServices[servicename]);
-                    }
-
-                    // Copy the old deltas
-                    Dictionary<String, StatsDocument> fixeddeltas = new Dictionary<string, StatsDocument>();
-                    foreach (var delta in deltas)
-                        fixeddeltas.Add(delta.Key, delta.Value);
-
-                    // If there is no delta doc, add this doc as delta
-                    var result = new Dictionary<String, StatsDocument>();
-                    foreach (var aggregate in aggregatedServices)
-                    {
-                        StatsDocument deltadoc;
-                        if (!deltas.TryGetValue(aggregate.Key, out deltadoc))
-                            deltas.Add(aggregate.Key, aggregate.Value);
-                    }
-
-                    // For the the old deltas, if the current aggregation doesn't
-                    // have the service, last frame was the first frame the service
-                    // was up. So add that frame as a result and remove it from deltas
-                    foreach (var delta in fixeddeltas)
-                    {
-                        StatsDocument aggredoc;
-                        if (!aggregatedServices.TryGetValue(delta.Key, out aggredoc))
-                        {
-                            result.Add(delta.Key, delta.Value);
-                            deltas.Remove(delta.Key);
-                            continue;
-                        }
-
-                        // Difference since last frame
-                        deltas[delta.Key] = aggredoc;
-
-                        var diff = delta.Value.Difference(aggredoc);
-                        //if (diff.SentPackets == 0 && diff.ReceivedPackets == 0)
-                        //    continue;
-                        result.Add(delta.Key, diff);
-                    }
-
-                    if (result.Count > 0)
-                        results.Push(result);
+                        resultframe.Add(new Tuple<String, String>(serviceInstance.Key.Item1, serviceInstance.Key.Item2),
+                            serviceInstance.Value.Merge(new StatisticsInfo.Document()));
+                    result.Add(resultframe);
                 }
-
-                // Add the delta's left
-                var finalresult = new Dictionary<String, StatsDocument>();
-                foreach (var delta in deltas)
-                    finalresult.Add(delta.Key, delta.Value);
-
-                // Push on the stack
-                results.Push(finalresult);
             }
-
-            answer.Packet.Write(results.Count);
-            while (results.Count > 0)
-                WriteStatisticsFrame(results.Pop(), answer.Packet);
-
-            c.SendMessage(answer);
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// Creates a deepclone of the instance history
         /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetStatisticsTotal(MessageClient c, Message m)
+        /// <returns></returns>
+        internal static Dictionary<String, Dictionary<String, StatisticsInfo.Document>> GetInstanceHistory()
         {
-            var answer = m.Answer(c);
+            var result = new Dictionary<String, Dictionary<String, StatisticsInfo.Document>>();
             lock (_history)
             {
-                // Services
-                answer.Packet.Write(DateTime.Now.ToUniversalTime().ToBinary());
-                answer.Packet.Write(_instanceHistory.Count);
                 foreach (var service in _instanceHistory)
                 {
-                    var frame = new StatsDocument();
+                    var resultservice = new Dictionary<String, StatisticsInfo.Document>();
                     foreach (var instance in service.Value)
-                        frame = instance.Value.Merge(frame);
-                    frame.Pack(answer.Packet);
+                        resultservice.Add(instance.Key.Clone() as String,
+                            instance.Value.Merge(new StatisticsInfo.Document()));
+                    result.Add(service.Key.Clone() as String, resultservice);
                 }
             }
-            c.SendMessage(answer);
-        }
 
-        /// <summary>
-        /// Answers the stats in the slice
-        /// </summary>
-        /// <param name="c"></param>
-        /// <param name="m"></param>
-        private static void GetStatisticsSlice(MessageClient c, Message m)
-        {
-            //var stime = m.Packet.ReadInt64();
-            //var etime = m.Packet.ReadInt64();
-
-            var answer = m.Answer(c);
-            
-            Dictionary<Tuple<String, String>, StatsDocument> last = null;
-            lock (_history)
-                last = _history[_history.Count - 1];
-            //WriteStatisticsFrame(last, answer.Packet);
-
-            // TODO: read from mongo and/or history to compose the slice data
-
-            c.SendMessage(answer);
-        }
-
-        /// <summary>
-        /// Writes a single statistics frame to a netbuffer
-        /// </summary>
-        /// <param name="frame"></param>
-        /// <param name="buffer"></param>
-        private static void WriteStatisticsFrame(Dictionary<String, StatsDocument> frame, NetBuffer buffer)
-        {
-            if (frame.Count == 0)
-            {
-                buffer.Write(new StatsDocument().Time.ToBinary());
-                buffer.Write(0);
-            }
-            /*else if (frame.Count == 1 && frame.First().Key == String.Empty)
-            {
-                buffer.Write(frame.First().Value.Time.ToBinary());
-                buffer.Write(0);
-            } */
-            else 
-            {
-                buffer.Write(frame.First().Value.Time.ToBinary());
-                buffer.Write(frame.Count);
-
-                // TODO: aggregate per server
-                foreach (var service in frame)
-                    service.Value.Pack(buffer);
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public class StatsDocument : BsonDocument 
-        {
-            /// <summary>
-            /// Id for the document
-            /// </summary>
-            [BsonId]
-            public ObjectId Id;
-
-            /// <summary>
-            /// Time of creation
-            /// </summary>
-            public DateTime Time { get { return Id.CreationTime; }}
-
-            /// <summary>
-            /// Name of the service
-            /// </summary>
-            public String Name;
-
-            /// <summary>
-            /// Number of bytes received
-            /// </summary>
-            public Int32 ReceivedBytes;
-
-            /// <summary>
-            /// Number of packets recieved
-            /// </summary>
-            public Int32 ReceivedPackets;
-
-            /// <summary>
-            /// Number of bytes sent
-            /// </summary>
-            public Int32 SentBytes;
-
-            /// <summary>
-            /// Number of packets sent
-            /// </summary>
-            public Int32 SentPackets;
-
-            /// <summary>
-            ///  Number of messages resent (reliable)
-            /// </summary>
-            public Int32 ResentMessages;
-
-            /// <summary>
-            /// Creates a new stats document
-            /// </summary>
-            public StatsDocument() {
-                Id = ObjectId.GenerateNewId();
-            }
-
-            /// <summary>
-            /// Merges this and doc in new document
-            /// </summary>
-            /// <param name="doc"></param>
-            /// <returns>New merged doc</returns>
-            public StatsDocument Merge(StatsDocument doc, Boolean saveId = true)
-            {
-                return new StatsDocument()
-                {
-                    Id = this.Id,
-                    Name = this.Name ?? doc.Name,
-                    ReceivedBytes = this.ReceivedBytes + doc.ReceivedBytes,
-                    ReceivedPackets = this.ReceivedPackets + doc.ReceivedPackets,
-                    SentBytes = this.SentBytes + doc.SentBytes,
-                    SentPackets = this.SentPackets + doc.SentPackets,
-                    ResentMessages = this.ResentMessages + doc.ResentMessages,
-                };
-            }
-
-            /// <summary>
-            /// Subtracts doc from this
-            /// </summary>
-            /// <param name="doc"></param>
-            /// <returns></returns>
-            public StatsDocument Difference(StatsDocument doc, Boolean saveId = true)
-            {
-                return new StatsDocument()
-                {
-                    Id = this.Id,
-                    Name = this.Name ?? doc.Name,
-                    ReceivedBytes = this.ReceivedBytes - doc.ReceivedBytes,
-                    ReceivedPackets = this.ReceivedPackets - doc.ReceivedPackets,
-                    SentBytes = this.SentBytes - doc.SentBytes,
-                    SentPackets = this.SentPackets - doc.SentPackets,
-                    ResentMessages = this.ResentMessages - doc.ResentMessages,
-                };
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="netBuffer"></param>
-            internal void Pack(NetBuffer buffer)
-            {
-                buffer.Write(Id.ToByteArray());
-                buffer.Write(Name);
-                buffer.Write(ReceivedBytes);
-                buffer.Write(ReceivedPackets);
-                buffer.Write(SentBytes);
-                buffer.Write(SentPackets);
-                buffer.Write(ResentMessages);
-            }
+            return result;
         }
     }
 }

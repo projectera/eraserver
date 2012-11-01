@@ -7,7 +7,7 @@ using ServiceProtocol;
 
 namespace EraS.MessageHandlers
 {
-    class DefaultComponent : IComponent
+    public class DefaultComponent : IComponent
     {
         /// <summary>
         /// The name of this component
