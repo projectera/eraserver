@@ -49,9 +49,22 @@ namespace NetworkFuzzer
 
             Random random = new Random();
 
+            long count = 0;
+
             while (true)
             {
                 NetOutgoingMessage m = client.Client.CreateMessage(32);
+                
+                //Semi-valid message header
+                if (random.NextDouble() > 0.95)
+                {
+                    m.Write(bytes.OrderBy((x) => random.Next()).First());
+                    m.Write(strings.OrderBy((x) => random.Next()).First());
+                    m.Write(strings.OrderBy((x) => random.Next()).First());
+                    m.Write(random.Next());
+                }
+
+                //Random data
                 for (int i = 0; i < random.Next(8); i++)
                 {
                     int type = random.Next(4);
@@ -70,6 +83,10 @@ namespace NetworkFuzzer
                     }
                 }
                 client.Client.SendMessage(m, NetDeliveryMethod.ReliableUnordered);
+
+                count++;
+                if ((count % 1000) == 0)
+                    Console.WriteLine(count);
             }
         }
     }
