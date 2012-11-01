@@ -11,76 +11,48 @@ namespace NetworkStatistics
     {
         static void Main(string[] args)
         {
-            var manual = false;
-
             var client = ServiceClient.Connect("NetworkStatistics");
+            var statisticsinfo = new StatisticsInfo(client);
             try
             {
-                var message = client.CreateQuestion(MessageType.EraS, "Self");
-
-                message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("Statistics");
-                message.Packet.Write("Get");
-                var answer = client.AskReliableQuestion(message);
-                var buffer = answer.Packet;
-
-                var frames = buffer.ReadInt32();
-                for (Int32 i = 0; i < frames; i++)
+                var stats = statisticsinfo.Get();
+                
+                foreach(var timeslice in stats)
                 {
-                    var timeslice = DateTime.FromBinary(buffer.ReadInt64());
-                    var sliceservices = buffer.ReadInt32();
-
-                    if (sliceservices == 0)
+                    if (timeslice.Item2.Count == 0)
                         continue;
 
-                    Console.WriteLine("On {0} there {1}.", timeslice.ToLongTimeString(), __n(sliceservices, "was {0} service", "where {0} services"));
-                    for (Int32 j = 0; j < sliceservices; j++)
+                    Console.WriteLine("On {0} there {1}.", timeslice.Item1.ToLongTimeString(), __n(timeslice.Item2.Count, "was {0} service", "where {0} services"));
+                    foreach (var service in timeslice.Item2) 
                     {
-                        var id = buffer.ReadBytes(12);
-                        var name = buffer.ReadString();
-                        var rbytes = buffer.ReadInt32();
-                        var rpackets = buffer.ReadInt32();
-                        var sbytes = buffer.ReadInt32();
-                        var spackets = buffer.ReadInt32();
-                        var rsmsgs = buffer.ReadInt32();
-                        if (rpackets == 0 && spackets == 0)
+                        if (service.ReceivedPackets == 0 && service.SentPackets == 0)
                         {
-                            Console.WriteLine(" - {0}\n    - inactive", name);
+                            Console.WriteLine(" - {0}\n    - inactive", service.Name);
                             continue;
                         }
                         Console.WriteLine(" - {0}\n    - recv {1:###0} in {2:###0} packets\n    - sent {3:###0} in {5:###0}{4} packets",
-                            name, ReadableBytes(rbytes), rpackets, ReadableBytes(sbytes), rsmsgs == 0 ? "" : String.Format("(+{0:###0})", rsmsgs), spackets - rsmsgs);
-                    }
-
-                    if (manual && i + 1 < frames)
-                    {
-                        Console.WriteLine("There are {0} frames left.", frames - 1 - i);
-                        Console.ReadKey();
+                            service.Name, 
+                            ReadableBytes(service.ReceivedBytes), 
+                            service.ReceivedPackets, 
+                            ReadableBytes(service.SentBytes), 
+                            service.ResentMessages == 0 ? "" : 
+                                String.Format("(+{0:###0})", service.ResentMessages),
+                            service.SentPackets - service.ResentMessages);
                     }
                 }
 
-                message = client.CreateQuestion(MessageType.EraS, "Self");
-                message.Packet.Write("Statistics");
-                message.Packet.Write("GetTotal");
-                answer = client.AskReliableQuestion(message);
-                buffer = answer.Packet;
-
-                var totaltime = DateTime.FromBinary(buffer.ReadInt64());
-                var services = buffer.ReadInt32();
-
-                Console.WriteLine("Total stats retrieval time {0} {1}.", totaltime.ToLongTimeString(), __n(services, "saw {0} service", "seen {0} services"));
-                for (Int32 j = 0; j < services; j++)
-                {
-                    var id = buffer.ReadBytes(12);
-                    var name = buffer.ReadString();
-                    var rbytes = buffer.ReadInt32();
-                    var rpackets = buffer.ReadInt32();
-                    var sbytes = buffer.ReadInt32();
-                    var spackets = buffer.ReadInt32();
-                    var rsmsgs = buffer.ReadInt32();
-                    Console.WriteLine(" - {0}\n    - recv {1:###0} in {2:###0} packets\n    - sent {3:###0} in {4:###0} packets",
-                        name, ReadableBytes(rbytes), rpackets, ReadableBytes(sbytes), spackets);
-                }
+                var total = statisticsinfo.GetTotal();
+                Console.WriteLine("Total stats retrieval timestamp {0} {1}.", total.Item1.ToLongTimeString(), __n(total.Item2.Count, "saw {0} service", "seen {0} services"));
+                foreach (var service in total.Item2)
+                    Console.WriteLine(" - {0}\n    - recv {1:###0} in {2:###0} packets\n    - sent {3:###0} in {5:###0}{4} packets",
+                        service.Name,
+                        ReadableBytes(service.ReceivedBytes),
+                        service.ReceivedPackets,
+                        ReadableBytes(service.SentBytes),
+                        service.ResentMessages == 0 ? "" :
+                            String.Format("(+{0:###0})", service.ResentMessages),
+                        service.SentPackets - service.ResentMessages);
+                
             }
             catch (TimeoutException)
             {
