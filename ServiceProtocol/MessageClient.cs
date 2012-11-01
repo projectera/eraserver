@@ -78,8 +78,7 @@ namespace ServiceProtocol
                     {
                         case ControlType.Kill:
                             Connection.Disconnect("kill");
-                            RaiseOnConnectionClosed();
-                            break;
+                            throw new ApplicationException();
                     }
                     break;
                 case MessageType.Answer:

@@ -56,7 +56,7 @@ namespace NetworkFuzzer
                 NetOutgoingMessage m = client.Client.CreateMessage(32);
                 
                 //Semi-valid message header
-                if (random.NextDouble() > 0.95)
+                if (random.NextDouble() < 0.95)
                 {
                     m.Write(bytes.OrderBy((x) => random.Next()).First());
                     m.Write(strings.OrderBy((x) => random.Next()).First());

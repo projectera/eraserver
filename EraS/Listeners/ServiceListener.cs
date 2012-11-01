@@ -123,7 +123,9 @@ namespace EraS.Listeners
                 else
                     ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
             }
-            catch (NetException) { }
+            catch (NetException) {
+                Console.WriteLine("Malformed package received");
+            }
         }
 
         /// <summary>
