@@ -124,13 +124,12 @@ namespace EraS.Listeners
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)
         {
-            //TODO: Add routing
-
             Message m = new Message(msg);
-            if (!MessageHandlers.ContainsKey(m.Type))
-                return;
 
-            MessageHandlers[m.Type](con, m);
+            if (m.Destination != "self" && m.Destination != Identifier)
+                RouteMessage(m);
+            else
+                ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
         }
 
         protected void HandleConnect(ServerConnection con, NetIncomingMessage msg)

@@ -8,6 +8,8 @@ using EraS.Topography;
 using EraS.Connections;
 using System.Threading.Tasks;
 using ServiceProtocol;
+using EraS.MessageHandlers;
+using EraS.MessageHandlers.ErasComponents;
 
 namespace EraS
 {
@@ -17,6 +19,7 @@ namespace EraS
         public ServiceListener Services { get; protected set; }
         public Network Network { get; protected set; }
         public String Identifier { get; protected set; }
+        public MessageHandler ErasHandler { get; protected set; }
 
         protected Random _random;
 
@@ -31,11 +34,17 @@ namespace EraS
             Servers = new ServerListener(Identifier);
             Network = new Network(Identifier);
 
+            ErasHandler = new MessageHandler();
+            ErasHandler.Add(new NetworkComponent(Network));
+            ErasHandler.Add(new StatisticsComponent());
+            ErasHandler.Add(new SettingsComponent());
+
             Servers.OnActivate += OnActivate;
             Servers.OnConnect += OnServerConnect;
             Servers.OnDisconnect += OnServerDisconnect;
 
             Servers.RouteMessage = RouteMessage;
+            Servers.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
         }
 
         protected void RouteMessage(Message msg)
@@ -164,6 +173,8 @@ namespace EraS
             Services = new ServiceListener(Identifier);
             Services.OnConnect += OnServiceConnect;
             Services.OnDisconnect += OnServiceDisconnect;
+            Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
+            Services.RouteMessage = RouteMessage;
         }
     }
 }

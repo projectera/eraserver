@@ -54,6 +54,8 @@ namespace EraS.Listeners
         /// </summary>
         public event Action<ServiceConnection> OnDisconnect;
 
+        public Action<Message> RouteMessage;
+
         /// <summary>
         /// Creates the servicelistener
         /// </summary>
@@ -102,10 +104,19 @@ namespace EraS.Listeners
                             ((ServiceConnection)m.SenderConnection.Tag).Stop();
                         break;
                     case NetIncomingMessageType.Data:
-                        ((ServiceConnection)m.SenderConnection.Tag).HandleMessage(new Message(m));
+                        OnData(m);
                         break;
                 }
             }
+        }
+
+        protected void OnData(NetIncomingMessage msg)
+        {
+            var m = new Message(msg);
+            if (m.Destination != "self" && m.Destination != Identifier)
+                RouteMessage(m);
+            else
+                ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
         }
 
         /// <summary>
