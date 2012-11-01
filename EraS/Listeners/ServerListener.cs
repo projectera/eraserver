@@ -61,6 +61,9 @@ namespace EraS.Listeners
                 UnconnectedServers.Add(server.ToString());
             }
 
+            if (UnconnectedServers.Count == 0)
+                Activate();
+
             Thread = new Thread(Run);
             Thread.Start();
         }
@@ -104,6 +107,7 @@ namespace EraS.Listeners
                                     if (UnconnectedServers.Contains(con.RemoteIdentifier))
                                     {
                                         Console.WriteLine("Unable to become active, connection refused.");
+                                        HeartBeatService.Cleanup();
                                         throw new ApplicationException();
                                     }
                                 }
