@@ -14,6 +14,8 @@ namespace EraS.Listeners
     class ServerListener
     {
         public const UInt16 ServerPort = 38237;
+        public const Byte Version = 1;
+
         public NetPeer Peer { get; protected set; }
         public Thread Thread { get; protected set; }
         public Boolean IsActive { get; protected set; }
@@ -46,7 +48,11 @@ namespace EraS.Listeners
             foreach (var server in servers.Keys)
             {
                 var nets = new Server(server.ToString());
-                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort), identifier, server.ToString());
+
+                NetOutgoingMessage m = Peer.CreateMessage(32);
+                m.Write(Identifier);
+
+                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), identifier, server.ToString());
                 Console.WriteLine("Connecting to: " + servers[server]["IP"].AsString);
                 nets.Connection = con;
                 con.Connection.Tag = con;
@@ -123,7 +129,17 @@ namespace EraS.Listeners
 
         protected virtual void OnConnectionApprove(ServerConnection con, NetIncomingMessage msg)
         {
-            throw new NotImplementedException();
+            byte version = msg.ReadByte();
+            if(version != Version)
+            {
+                con.Connection.Deny("Max version: " + Version.ToString());
+                return;
+            }
+            var remid = msg.ReadString();
+
+            NetOutgoingMessage m = Peer.CreateMessage(32);
+            m.Write(Identifier);
+            con.Connection.Approve(m);
         }
 
         protected void Activate()
