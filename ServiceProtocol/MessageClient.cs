@@ -78,7 +78,7 @@ namespace ServiceProtocol
                     {
                         case ControlType.Kill:
                             Connection.Disconnect("kill");
-                            throw new ApplicationException();
+                            throw new ApplicationException("Killed by client");
                     }
                     break;
                 case MessageType.Answer:

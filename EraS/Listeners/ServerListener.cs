@@ -132,12 +132,19 @@ namespace EraS.Listeners
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)
         {
-            Message m = new Message(msg);
+            try
+            {
+                Message m = new Message(msg);
 
-            if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
-                RouteMessage(m);
-            else
-                ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
+                if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
+                    RouteMessage(m);
+                else
+                    ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
+            }
+            catch (NetException)
+            {
+                Console.WriteLine("Malformed package received from: " + ((ServiceConnection)msg.SenderConnection.Tag).RemoteIdentifier);
+            }
         }
 
         protected void HandleConnect(ServerConnection con, NetIncomingMessage msg)

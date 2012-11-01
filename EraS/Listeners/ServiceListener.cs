@@ -124,7 +124,7 @@ namespace EraS.Listeners
                     ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
             }
             catch (NetException) {
-                Console.WriteLine("Malformed package received");
+                Console.WriteLine("Malformed package received from: " + ((ServiceConnection)msg.SenderConnection.Tag).RemoteIdentifier);
             }
         }
 
