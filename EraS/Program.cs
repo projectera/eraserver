@@ -35,8 +35,18 @@ namespace EraS
             Servers.OnConnect += (con) =>
             {
                 var s = new Server(con.RemoteIdentifier);
-                Network.AddServer(s);
+                lock(Network)
+                    Network.AddServer(s);
                 Console.WriteLine("Connection established: " + con.RemoteIdentifier);
+            };
+            Servers.OnDisconnect += (c) =>
+            {
+                lock (Network)
+                {
+                    Server s = Network.Servers[c.RemoteIdentifier];
+                    Network.RemoveServer(s);
+                }
+                Console.WriteLine("Disconnected: " + c.RemoteIdentifier);
             };
 
             Services = new ServiceListener(HeartBeatService.Identifier.ToString());

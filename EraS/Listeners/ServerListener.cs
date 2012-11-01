@@ -47,6 +47,9 @@ namespace EraS.Listeners
             var servers = HeartBeatService.GetServers();
             foreach (var server in servers.Keys)
             {
+                if (server.ToString() == Identifier)
+                    continue;
+
                 NetOutgoingMessage m = Peer.CreateMessage(32);
                 m.Write(Version);
                 m.Write(Identifier);
