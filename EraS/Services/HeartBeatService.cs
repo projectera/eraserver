@@ -264,7 +264,6 @@ namespace EraS.Services
                 {
                     if (!_flatlined.Contains(identifier))
                     {
-                        Console.WriteLine("Heartbeatservice [{0}] has flatlined.", identifier);
                         OnRemoteFlatline.Invoke(identifier);
 
                         _flatlined.Add(identifier);
@@ -279,10 +278,7 @@ namespace EraS.Services
                 {
                     identifiers.Add(identifier, server);
                     if (!_known.Contains(identifier))
-                    {
-                        Console.WriteLine("Heartbeatservice found heart [{0}].", identifier);
                         _known.Add(identifier);
-                    }
                 }
             }
 
