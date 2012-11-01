@@ -13,13 +13,13 @@ namespace ServiceProtocol
         /// <summary>
         /// The socket used to connect to the server
         /// </summary>
-        public ServiceClient Client { get; protected set; }
+        public MessageClient Client { get; protected set; }
 
         /// <summary>
         /// Creates a new NetworkInfo object
         /// </summary>
         /// <param name="client">The client to use</param>
-        public NetworkInfo(ServiceClient client)
+        public NetworkInfo(MessageClient client)
         {
             Client = client;
         }

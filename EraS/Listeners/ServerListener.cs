@@ -8,6 +8,7 @@ using System.Threading;
 using EraS.Connections;
 using EraS.Services;
 using ServiceProtocol;
+using System.Threading.Tasks;
 
 namespace EraS.Listeners
 {
@@ -27,6 +28,9 @@ namespace EraS.Listeners
 
         public event Action<ServerConnection> OnConnect;
         public event Action<ServerConnection> OnDisconnect;
+        public event Action OnActivate;
+
+        public Action<Message> RouteMessage;
 
         public ServerListener(String identifier)
         {
@@ -90,16 +94,7 @@ namespace EraS.Listeners
                         switch (msg.SenderConnection.Status)
                         {
                             case NetConnectionStatus.Connected:
-                                if (OnConnect != null)
-                                    OnConnect(con);
-
-                                if (IsActive)
-                                    break;
-                                if (UnconnectedServers.Contains(con.Identifier))
-                                    UnconnectedServers.Remove(con.Identifier);
-
-                                if (UnconnectedServers.Count == 0)
-                                    Activate();
+                                HandleConnect(con, msg);
                                 break;
                             case NetConnectionStatus.Disconnected:
                                 if (!IsActive && con != null)
@@ -138,6 +133,21 @@ namespace EraS.Listeners
             MessageHandlers[m.Type](con, m);
         }
 
+        protected void HandleConnect(ServerConnection con, NetIncomingMessage msg)
+        {
+            if (OnConnect != null)
+                OnConnect(con);
+
+            if (!IsActive)
+            {
+                if (UnconnectedServers.Contains(con.Identifier))
+                    UnconnectedServers.Remove(con.Identifier);
+
+                if (UnconnectedServers.Count == 0)
+                    Activate();
+            }
+        }
+
         protected virtual void OnConnectionApprove(ServerConnection con, NetIncomingMessage msg)
         {
             byte version = msg.ReadByte();
@@ -160,6 +170,8 @@ namespace EraS.Listeners
         {
             IsActive = true;
             Console.WriteLine("Became active!");
+            if (OnActivate != null)
+                OnActivate();
         }
     }
 }

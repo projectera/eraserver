@@ -25,70 +25,11 @@ namespace EraS
         static void Main(string[] args)
         {
             Console.WriteLine("EraS starting.");
-            if (HeartBeatService.Defibrillate())
-                IsRunning = true;
 
-
-            Network = new Network(HeartBeatService.Identifier.ToString());
-
-            Servers = new ServerListener(HeartBeatService.Identifier.ToString());
-            Servers.OnConnect += (con) =>
-            {
-                var s = new Server(con.RemoteIdentifier);
-                lock(Network)
-                    Network.AddServer(s);
-                Console.WriteLine("Connection established: " + con.RemoteIdentifier);
-            };
-            Servers.OnDisconnect += (c) =>
-            {
-                Console.WriteLine("Disconnected: " + c.RemoteIdentifier);
-                lock (Network)
-                {
-                    if (!Network.Servers.ContainsKey(c.RemoteIdentifier))
-                        return;
-                    Server s = Network.Servers[c.RemoteIdentifier];
-                    Network.RemoveServer(s);
-                }
-            };
+            Router router = new Router();
 
             Services = new ServiceListener(HeartBeatService.Identifier.ToString());
-            Services.OnConnect += (con, name) =>
-            {
-                try
-                {
-                    // Builds the network
-                    var s = new Service(Network.Me, con.RemoteIdentifier)
-                    {
-                        Name = name,
-                    };
-                    lock (Network)
-                        Network.AddService(s);
-
-                    Console.WriteLine("Service [" + name + "] approved.");
-                }
-                catch (Exception)
-                {
-                    // TODO exception reports
-                }
-            };
-
-            Services.OnDisconnect += (con) =>
-            {
-                try
-                {
-                    lock (Network)
-                    {
-                        var s = Network.ServiceInstances[con.RemoteIdentifier];
-                        Network.RemoveService(s);
-
-                        Console.WriteLine("Service [" + s.Name + "] disconnected.");
-                    }
-                }
-                catch (Exception)
-                {
-                    // TODO exception reports
-                }
-            };
+            
 
 
             StatisticsService.Start();
@@ -101,11 +42,8 @@ namespace EraS
 
             Services.MessageHandlers.Add(MessageType.EraS, h.HandleMessage);
 
-            while (!HeartBeatService.HasFlatlined && IsRunning)
-                System.Threading.Thread.Sleep(1000);
-
-            Console.WriteLine("Service listener stopped.");
-            Console.WriteLine("EraS stopped.");
+            Console.ReadKey(true);
+            HeartBeatService.Cleanup();
         }
     }
 }
