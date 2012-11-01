@@ -28,8 +28,12 @@ namespace EraS
 
             Router router = new Router();
 
+            Console.WriteLine("Press any key to kill me");
             Console.ReadKey(true);
+
+            Console.WriteLine("Starting cleanup");
             HeartBeatService.Cleanup();
+            throw new ApplicationException("Exit requested");
         }
     }
 }

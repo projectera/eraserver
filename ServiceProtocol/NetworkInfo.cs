@@ -113,7 +113,7 @@ namespace ServiceProtocol
             m.Packet.Write(function);
             var res = Client.AskQuestion(m);
 
-            Int32 count = res.Packet.ReadInt32();
+                Int32 count = res.Packet.ReadInt32();
             var l = new List<String>(count);
             for (int i = 0; i < count; i++)
                 l.Add(res.Packet.ReadString());
@@ -172,13 +172,20 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Gets the name of a service instance or null on error
         /// </summary>
-        /// <param name="identifier"></param>
-        /// <returns></returns>
+        /// <param name="identifier">The instance</param>
+        /// <returns>The name of the service</returns>
         public String GetServiceName(String identifier)
         {
-            return GetString("GetServiceName", identifier);
+            try
+            {
+                return GetString("GetServiceName", identifier);
+            }
+            catch (TimeoutException)
+            {
+                return null;
+            }
         }
     }
 }
