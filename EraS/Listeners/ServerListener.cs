@@ -75,14 +75,11 @@ namespace EraS.Listeners
 
 
                 ServerConnection con = null;
-                if(msg.SenderConnection != null)
-                     con = msg.SenderConnection.Tag as ServerConnection;
-
-                Console.WriteLine(msg.MessageType.ToString());
+                if (msg.SenderConnection != null)
+                    con = msg.SenderConnection.Tag as ServerConnection;
 
                 switch (msg.MessageType)
                 {
-                    case NetIncomingMessageType.DebugMessage:
                     case NetIncomingMessageType.WarningMessage:
                         Console.WriteLine(msg.ReadString());
                         break;
@@ -149,6 +146,7 @@ namespace EraS.Listeners
         protected void Activate()
         {
             IsActive = true;
+            Console.WriteLine("Became active!");
         }
     }
 }
