@@ -18,7 +18,7 @@ namespace ResourceService
     /// Once you get the asset object with the file information, the chunks can be retrieved individually
     /// to compose the binary file on the remote location. Files are automatically replaced if updated.
     /// </summary>
-    public class Asset
+    internal class Asset
     {
         /// <summary>
         /// File Id
