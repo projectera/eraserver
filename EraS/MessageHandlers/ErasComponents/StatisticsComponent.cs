@@ -16,7 +16,35 @@ namespace EraS.MessageHandlers.ErasComponents
         public StatisticsComponent() : base("Statistics")
         {
             Functions.Add("Get", Get);
+            Functions.Add("GetSlice", GetSlice);
             Functions.Add("GetTotal", GetTotal);
+        }
+
+        /// <summary>
+        /// Get history
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void Get(MessageClient c, Message m)
+        {
+            var stime =  (DateTime.Now - StatisticsService.WriteInterval).ToUniversalTime();
+            var etime = DateTime.Now.ToUniversalTime();
+            Get(c, m, stime, etime);
+        }
+
+        /// <summary>
+        /// Get slice of history
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="m"></param>
+        private static void GetSlice(MessageClient c, Message m)
+        {
+            var stime = DateTime.FromBinary(m.Packet.ReadInt64());
+            var etime = DateTime.FromBinary(m.Packet.ReadInt64());
+            if (etime - stime > StatisticsService.WriteInterval)
+                Console.WriteLine("TODO: Read from database");
+
+            Get(c, m, stime, etime);
         }
 
         /// <summary>
@@ -24,7 +52,7 @@ namespace EraS.MessageHandlers.ErasComponents
         /// </summary>
         /// <param name="c"></param>
         /// <param name="m"></param>
-        private static void Get(MessageClient c, Message m)
+        private static void Get(MessageClient c, Message m, DateTime stime, DateTime etime)
         {
             var answer = m.Answer(c);
             var results = new Stack<Dictionary<String, StatisticsInfo.Document>>();
@@ -103,7 +131,10 @@ namespace EraS.MessageHandlers.ErasComponents
                     var diff = delta.Value.Difference(aggredoc);
                     //if (diff.SentPackets == 0 && diff.ReceivedPackets == 0)
                     //    continue;
-                    result.Add(delta.Key, diff);
+
+                    var timestamp = diff.Time;
+                    if (stime <= timestamp && timestamp <= etime)
+                        result.Add(delta.Key, diff);
                 }
 
                 if (result.Count > 0)

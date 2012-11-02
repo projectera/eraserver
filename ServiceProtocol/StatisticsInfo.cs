@@ -31,13 +31,60 @@ namespace ServiceProtocol
         /// <returns></returns>
         public List<Tuple<DateTime, List<Document>>> Get()
         {
-            var result = new List<Tuple<DateTime, List<Document>>>();
             var m = Client.CreateQuestion(MessageType.EraS, "Self");
             m.Packet.Write("Statistics");
             m.Packet.Write("Get");
             var res = Client.AskQuestion(m);
+            return UnpackSlices(res.Packet);
+        }
 
-            var buffer = res.Packet;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stime"></param>
+        /// <param name="etime"></param>
+        /// <returns></returns>
+        public List<Tuple<DateTime, List<Document>>> GetSlice(DateTime stime, DateTime etime)
+        {
+            var m = Client.CreateQuestion(MessageType.EraS, "Self");
+            m.Packet.Write("Statistics");
+            m.Packet.Write("GetSlice");
+            m.Packet.Write(stime.ToUniversalTime().ToBinary());
+            m.Packet.Write(etime.ToUniversalTime().ToBinary());
+            var res = Client.AskQuestion(m);
+            return UnpackSlices(res.Packet);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stime"></param>
+        /// <param name="span"></param>
+        /// <returns></returns>
+        public List<Tuple<DateTime, List<Document>>> GetSpan(DateTime stime, TimeSpan span)
+        {
+            return GetSlice(stime, stime + span);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="span"></param>
+        /// <param name="etime"></param>
+        /// <returns></returns>
+        public List<Tuple<DateTime, List<Document>>> GetSpan(TimeSpan span, DateTime etime)
+        {
+            return GetSlice(etime - span, etime);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        private List<Tuple<DateTime, List<Document>>> UnpackSlices(NetBuffer buffer)
+        {
+            var result = new List<Tuple<DateTime, List<Document>>>();
             var frames = buffer.ReadInt32();
             for (Int32 i = 0; i < frames; i++)
             {
@@ -57,7 +104,7 @@ namespace ServiceProtocol
 
             return result;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -95,7 +142,7 @@ namespace ServiceProtocol
             /// <summary>
             /// Time of creation
             /// </summary>
-            public DateTime Time { get { return Id.CreationTime; } }
+            public DateTime Time { get { return Id.CreationTime.ToUniversalTime(); } }
 
             /// <summary>
             /// Name of the service
@@ -140,11 +187,11 @@ namespace ServiceProtocol
             /// </summary>
             /// <param name="doc"></param>
             /// <returns>New merged doc</returns>
-            public Document Merge(Document doc, Boolean saveId = true)
+            public Document Merge(Document doc, Boolean leftId = true)
             {
                 return new Document()
                 {
-                    Id = this.Id,
+                    Id = leftId ? this.Id : doc.Id,
                     Name = this.Name ?? doc.Name,
                     ReceivedBytes = this.ReceivedBytes + doc.ReceivedBytes,
                     ReceivedPackets = this.ReceivedPackets + doc.ReceivedPackets,
@@ -159,11 +206,11 @@ namespace ServiceProtocol
             /// </summary>
             /// <param name="doc"></param>
             /// <returns></returns>
-            public Document Difference(Document doc, Boolean saveId = true)
+            public Document Difference(Document doc, Boolean leftId = true)
             {
                 return new Document()
                 {
-                    Id = this.Id,
+                    Id = leftId ? this.Id : doc.Id,
                     Name = this.Name ?? doc.Name,
                     ReceivedBytes = this.ReceivedBytes - doc.ReceivedBytes,
                     ReceivedPackets = this.ReceivedPackets - doc.ReceivedPackets,
