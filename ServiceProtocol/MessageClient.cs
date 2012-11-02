@@ -76,9 +76,12 @@ namespace ServiceProtocol
                     ControlType t = (ControlType)msg.Packet.ReadByte();
                     switch (t)
                     {
-                        case ControlType.Kill:
+                        case ControlType.Kill: /*
                             Connection.Disconnect("kill");
                             throw new ApplicationException("Killed by client");
+                                                * */
+                            Console.WriteLine("DAAAAAG MAX");
+                            break;
                     }
                     break;
                 case MessageType.Answer:
