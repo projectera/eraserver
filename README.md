@@ -6,4 +6,5 @@ communication, but run as seperate processes whatsoever.
 
 Configuration
 -------------
-
+Before the first run, open the config.xml.sample file and make sure
+all the settings are filled. Save it as config.xml
