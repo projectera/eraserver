@@ -18,7 +18,6 @@ namespace EraS
             Console.WriteLine("EraS starting.");
 
             Router = new Router();
-            Console.WriteLine("Testing");
 
             while (true)
                 Thread.Sleep(1000);
