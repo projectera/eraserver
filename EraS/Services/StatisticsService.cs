@@ -52,7 +52,7 @@ namespace EraS.Services
 
             _history = new List<Dictionary<Tuple<String, String>, StatisticsInfo.Document>>() { new Dictionary<Tuple<String, String>, StatisticsInfo.Document>() };
             _instanceHistory = new Dictionary<String, Dictionary<String, StatisticsInfo.Document>>();
-            Program.Services.OnDisconnect += new Action<ServiceConnection>(Services_OnDisconnect);
+            Program.Router.Services.OnDisconnect += new Action<ServiceConnection>(Services_OnDisconnect);
 
             _timer = new Timer(Tick, null, TimeSpan.Zero, TickInterval);
             _writeTimer = new Timer(PushHistory, null, WriteInterval, WriteInterval);
@@ -127,14 +127,14 @@ namespace EraS.Services
                 {
                     // Get all the statistics per service name and unique key
                     var stats = new Dictionary<Tuple<String, String>, NetConnectionStatistics>();
-                    lock (Program.Network)
+                    lock (Program.Router.Network)
                     {
-                        foreach (var service in Program.Services.Connections)
+                        foreach (var service in Program.Router.Services.Connections)
                         {
                             var servicekey = new Tuple<String, String>(service.Value.Name, service.Key);
                             // TODO: on disconnect, add to history
                             // this makes sure only active services (connected) are added
-                            if (Program.Network.ServiceInstances.ContainsKey(service.Key))
+                            if (Program.Router.Network.ServiceInstances.ContainsKey(service.Key))
                             {
                                 stats.Add(servicekey, service.Value.Connection.Statistics);
                             }

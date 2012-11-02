@@ -67,7 +67,10 @@ namespace EraS.Listeners
             MessageHandlers = new Dictionary<MessageType, Action<ServiceConnection, Message>>();
             OnConnect = delegate { };
             OnDisconnect = delegate { };
+        }
 
+        public void Start()
+        {
             var conf = new NetPeerConfiguration("EraService")
             {
                 Port = ServiceClient.ServicePort,
@@ -75,7 +78,7 @@ namespace EraS.Listeners
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             Server = new NetServer(conf);
             Server.Start();
-  
+
             Thread = new Thread(Run);
             Thread.Start();
         }
@@ -112,11 +115,17 @@ namespace EraS.Listeners
 
         protected void OnData(NetIncomingMessage msg)
         {
-            var m = new Message(msg);
-            if (m.Destination != "self" && m.Destination != Identifier)
-                RouteMessage(m);
-            else
-                ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
+            try
+            {
+                var m = new Message(msg);
+                if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
+                    RouteMessage(m);
+                else
+                    ((ServiceConnection)msg.SenderConnection.Tag).HandleMessage(m);
+            }
+            catch (NetException) {
+                Console.WriteLine("Malformed package received from: " + ((ServiceConnection)msg.SenderConnection.Tag).RemoteIdentifier);
+            }
         }
 
         /// <summary>

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ServiceProtocol;
 using EraS.MessageHandlers;
 using EraS.MessageHandlers.ErasComponents;
+using Lidgren.Network;
 
 namespace EraS
 {
@@ -30,6 +31,7 @@ namespace EraS
             if (!HeartBeatService.Defibrillate())
                 throw new ApplicationException("Heartbeat failed");
             Identifier = HeartBeatService.Identifier.ToString();
+            Console.WriteLine("Router identifier: " + Identifier);
 
             Servers = new ServerListener(Identifier);
             Network = new Network(Identifier);
@@ -38,6 +40,7 @@ namespace EraS
             ErasHandler.Add(new NetworkComponent(Network));
             ErasHandler.Add(new StatisticsComponent());
             ErasHandler.Add(new SettingsComponent());
+            ErasHandler.Add(new ServiceExchangeComponent(Network));
 
             Servers.OnActivate += OnActivate;
             Servers.OnConnect += OnServerConnect;
@@ -45,6 +48,8 @@ namespace EraS
 
             Servers.RouteMessage = RouteMessage;
             Servers.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
+
+            Servers.Start();
         }
 
         protected void RouteMessage(Message msg)
@@ -113,40 +118,37 @@ namespace EraS
 
         protected void OnServerConnect(ServerConnection c)
         {
-            var s = new Server(c.RemoteIdentifier);
+            var s = new Server(c.RemoteIdentifier)
+            {
+                Connection = c,
+            };
             lock (Network)
                 Network.AddServer(s);
 
-            Task.Factory.StartNew(() =>
-            {
-                // Get service info
-                NetworkInfo n = new NetworkInfo(c);
-                //BUG: packets are being dropped
-                try
-                {
-                    var services = n.GetServices();
-                    foreach (var service in services)
-                    {
-                        var name = n.GetServiceName(service);
-                        if (name == null)
-                            continue;
-
-                        lock (Network)
-                            Network.AddService(new Service(s, service) { Name = name });
-                    }
-                }
-                catch (Exception) { }
-            });
+            Console.WriteLine("Connected to " + c.RemoteIdentifier);
         }
 
         protected void OnServerDisconnect(ServerConnection c)
         {
+            Console.WriteLine("Disconnected from: " + c.RemoteIdentifier);
+
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(c.RemoteIdentifier))
                     return;
                 Network.RemoveServer(Network.Servers[c.RemoteIdentifier]);
             }
+        }
+
+        protected void BroadcastServers(Message msg)
+        {
+            List<Server> servers = null;
+            lock (Network)
+                servers = Network.Servers.Values.ToList();
+            
+            foreach (var s in servers)
+                if(s.Identifier != Identifier)
+                    s.Connection.SendMessage(msg);
         }
 
         protected void OnServiceConnect(ServiceConnection con, String name)
@@ -158,6 +160,13 @@ namespace EraS
             };
             lock (Network)
                 Network.AddService(s);
+
+            Message register = new Message(Servers.Peer.CreateMessage(32), MessageType.EraS, Identifier, "Self", 0);
+            register.Packet.Write("ServiceExchange");
+            register.Packet.Write("RegisterService");
+            register.Packet.Write(con.RemoteIdentifier);
+            register.Packet.Write(name);
+            BroadcastServers(register);
 
             Console.WriteLine("Service [" + name + "] approved.");
         }
@@ -171,15 +180,76 @@ namespace EraS
 
                 Console.WriteLine("Service [" + s.Name + "] disconnected.");
             }
+
+            Message remove = new Message(Servers.Peer.CreateMessage(32), MessageType.EraS, Identifier, "Self", 0);
+            remove.Packet.Write("ServiceExchange");
+            remove.Packet.Write("RemoveService");
+            remove.Packet.Write(con.RemoteIdentifier);
+            BroadcastServers(remove);
         }
 
         protected void OnActivate()
         {
-            Services = new ServiceListener(Identifier);
-            Services.OnConnect += OnServiceConnect;
-            Services.OnDisconnect += OnServiceDisconnect;
-            Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
-            Services.RouteMessage = RouteMessage;
+            Task.Factory.StartNew(() =>
+            {
+                // Find connected services on other servers
+                List<String> servers;
+                lock (Network)
+                    servers = Network.Servers.Keys.ToList();
+
+                foreach (var server in servers)
+                {
+                    if (server == Identifier)
+                        continue;
+                    try
+                    {
+                        NetworkInfo n = null;
+                        lock (Network)
+                            if (Network.Servers.ContainsKey(server))
+                                n = new NetworkInfo(Network.Servers[server].Connection);
+
+                        if (n == null)
+                            continue;
+
+                        var services = n.GetServerServices(server);
+                        foreach (var service in services)
+                        {
+                            var name = n.GetServiceName(service);
+                            if (name == null)
+                                continue;
+
+                            lock (Network)
+                            {
+                                if (!Network.Servers.ContainsKey(server))
+                                    continue;
+                                Server serv = Network.Servers[server];
+                                Service s = new Service(serv, service) { Name = name, };
+
+                                Network.AddService(s);
+                            }
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        // If server didn't disconnect
+                        lock(Network)
+                            if(Network.Servers.ContainsKey(server))
+                                Console.WriteLine("Server didn't respond: " + server);
+                    }
+                }
+
+            });
+            Task.Factory.StartNew(() => {
+
+                // Start listening for services
+                Services = new ServiceListener(Identifier);
+                Services.OnConnect += OnServiceConnect;
+                Services.OnDisconnect += OnServiceDisconnect;
+                Services.MessageHandlers.Add(MessageType.EraS, ErasHandler.HandleMessage);
+                Services.RouteMessage = RouteMessage;
+
+                Services.Start();
+            });
         }
     }
 }

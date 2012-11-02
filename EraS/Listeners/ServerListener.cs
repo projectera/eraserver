@@ -9,6 +9,7 @@ using EraS.Connections;
 using EraS.Services;
 using ServiceProtocol;
 using System.Threading.Tasks;
+using EraS.MessageHandlers;
 
 namespace EraS.Listeners
 {
@@ -25,6 +26,7 @@ namespace EraS.Listeners
         public List<String> UnconnectedServers { get; protected set; }
 
         public Dictionary<MessageType, Action<MessageClient, Message>> MessageHandlers { get; protected set; }
+        public MessageHandler ControlHandler { get; protected set; }
 
         public event Action<ServerConnection> OnConnect;
         public event Action<ServerConnection> OnDisconnect;
@@ -37,7 +39,10 @@ namespace EraS.Listeners
             UnconnectedServers = new List<String>();
             MessageHandlers = new Dictionary<MessageType, Action<MessageClient, Message>>();
             Identifier = identifier;
+        }
 
+        public void Start()
+        {
             var conf = new NetPeerConfiguration("EraServer")
             {
                 Port = ServerPort,
@@ -58,10 +63,13 @@ namespace EraS.Listeners
                 m.Write(Version);
                 m.Write(Identifier);
 
-                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), identifier, server.ToString());
-                Console.WriteLine("Connecting to: " + servers[server]["IP"].AsString);
+                var con = new ServerConnection(Peer.Connect(servers[server]["IP"].AsString, ServerPort, m), Identifier, server.ToString());
+                foreach (var key in MessageHandlers.Keys)
+                    con.MessageHandlers.Add(key, (x) => MessageHandlers[key](con, x));
+
+                Console.WriteLine("Connecting to: " + server.ToString());
                 con.Connection.Tag = con;
-                
+
                 UnconnectedServers.Add(server.ToString());
             }
 
@@ -124,12 +132,19 @@ namespace EraS.Listeners
 
         protected virtual void OnData(ServerConnection con, NetIncomingMessage msg)
         {
-            Message m = new Message(msg);
+            try
+            {
+                Message m = new Message(msg);
 
-            if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
-                RouteMessage(m);
-            else
-                ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
+                if (m.Destination.ToLower() != "self" && m.Destination != Identifier)
+                    RouteMessage(m);
+                else
+                    ((ServerConnection)msg.SenderConnection.Tag).HandleMessage(m);
+            }
+            catch (NetException)
+            {
+                Console.WriteLine("Malformed package received from: " + ((ServiceConnection)msg.SenderConnection.Tag).RemoteIdentifier);
+            }
         }
 
         protected void HandleConnect(ServerConnection con, NetIncomingMessage msg)
@@ -139,8 +154,8 @@ namespace EraS.Listeners
 
             if (!IsActive)
             {
-                if (UnconnectedServers.Contains(con.Identifier))
-                    UnconnectedServers.Remove(con.Identifier);
+                if (UnconnectedServers.Contains(con.RemoteIdentifier))
+                    UnconnectedServers.Remove(con.RemoteIdentifier);
 
                 if (UnconnectedServers.Count == 0)
                     Activate();

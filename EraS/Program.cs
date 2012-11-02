@@ -2,22 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
-using EraS.Listeners;
-using EraS.Topography;
-using EraS.MessageHandlers;
-using EraS.MessageHandlers.ErasComponents;
-using EraS.Services;
+using System.Threading;
 
 namespace EraS
 {
     class Program
     {
-        public static ServiceListener Services { get; protected set; }
-        public static ServerListener Servers { get; protected set; }
-        public static Network Network { get; protected set; }
-        public static Boolean IsRunning { get; set; }
-
+        public static Router Router { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -26,10 +17,10 @@ namespace EraS
         {
             Console.WriteLine("EraS starting.");
 
-            Router router = new Router();
+            Router = new Router();
 
-            Console.ReadKey(true);
-            HeartBeatService.Cleanup();
+            while (true)
+                Thread.Sleep(1000);
         }
     }
 }
