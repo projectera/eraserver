@@ -11,7 +11,7 @@ namespace NetworkFuzzer
     {
         static void Main(string[] args)
         {
-            var client = ServiceClient.Connect("NetworkMapper");
+            var client = ServiceClient.Connect("NetworkFuzzer");
             NetworkInfo n = new NetworkInfo(client);
 
             List<string> strings = new List<string>(){
