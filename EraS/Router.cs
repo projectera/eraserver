@@ -249,6 +249,7 @@ namespace EraS
                 Services.RouteMessage = RouteMessage;
 
                 Services.Start();
+                StatisticsService.Start();
             });
         }
     }
