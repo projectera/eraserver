@@ -197,11 +197,15 @@ namespace EraS.Services
             }
             catch (Exception)
             {
+                // TODO Exception handling
                 if (HasFlatlined)
                     Flatline(state);
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static void Cleanup()
         {
             HeartBeatTime = DateTime.Now.AddMinutes(-5).ToUniversalTime();
@@ -216,7 +220,7 @@ namespace EraS.Services
                     true
                 );
             }
-            catch (Exception) { }
+            catch (MongoException) { }
         }
 
         /// <summary>
@@ -275,6 +279,7 @@ namespace EraS.Services
 
             foreach (var server in servers)
             {
+                IPAddress ip;
                 var identifier = server["_id"].AsObjectId;
                 // Server is flatlinening
                 if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
@@ -291,7 +296,7 @@ namespace EraS.Services
                         previousflat.Remove(identifier);
                     }
                 }
-                else
+                else if (IPAddress.TryParse(server["IP"].AsString, out ip) && !IPAddress.None.Equals(ip))
                 {
                     identifiers.Add(identifier, server);
                     if (!_known.Contains(identifier))
