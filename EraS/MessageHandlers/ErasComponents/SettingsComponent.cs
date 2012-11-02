@@ -53,7 +53,7 @@ namespace EraS.MessageHandlers.ErasComponents
             }
             catch (FileNotFoundException)
             {
-                Data = new Settings();
+                Data = new Settings() { MongoConnectionString = "mongodb://localhost/" };
                 SaveSettings();
             }
         }
