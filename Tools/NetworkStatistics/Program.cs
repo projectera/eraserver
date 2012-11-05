@@ -15,20 +15,22 @@ namespace NetworkStatistics
         {
             var client = ServiceClient.Connect("NetworkStatistics");
 
-            var message = client.CreateQuestion(MessageType.Service, "Resource");
+           /* var message = client.CreateQuestion(MessageType.Service, "Resource");
             message.Packet.Write("GetVersion");
             var answer = client.AskQuestion(message);
-            Console.WriteLine("Resource version is: {0}", answer.Packet.ReadString());
+            Console.WriteLine("Resource version is: {0}", answer.Packet.ReadString());*/
 
             var data = new Byte[12];
             Array.Copy(BitConverter.GetBytes(0x62), 0, data, 8, 4);
             var id = new ObjectId(data);
 
-            message = client.CreateQuestion(MessageType.Service, "Map");
+            var message = client.CreateQuestion(MessageType.Service, "Map");
             message.Packet.Write("Subscribe");
             message.Packet.Write(id.ToString());
-            answer = client.AskQuestion(message);
+            var answer = client.AskQuestion(message);
             Console.WriteLine("Has been subscribed: {0}", answer.Packet.ReadBoolean());
+
+            client.MessageHandlers.Add(MessageType.Public, HandleSubscription);
 
             Console.ReadKey();
 
@@ -167,6 +169,11 @@ namespace NetworkStatistics
         static String __n(Int64 count, String single, String multiple)
         {
             return String.Format(count == 1 ? single : multiple, count);
+        }
+
+        static void HandleSubscription(Message msg)
+        {
+            Console.WriteLine(msg.Packet.ReadString());
         }
     }
 }
