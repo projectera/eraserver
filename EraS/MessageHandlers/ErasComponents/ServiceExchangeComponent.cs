@@ -23,6 +23,7 @@ namespace EraS.MessageHandlers.ErasComponents
             var server = msg.Origin;
             var serviceid = msg.Packet.ReadString();
             var servicename = msg.Packet.ReadString();
+
             lock (Network)
             {
                 if (!Network.Servers.ContainsKey(server))
