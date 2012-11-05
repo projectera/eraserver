@@ -53,17 +53,12 @@ namespace ResourceService
             Console.WriteLine("Connected with Id: {0}", _erasClient.ServiceName);
 
             // Get mongo and connect
-            var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
-            q.Packet.Write("Settings");
-            q.Packet.Write("GetMongo");
-            
-            var mongo = _erasClient.AskReliableQuestion(q);
-            var host = mongo.Packet.ReadString();
-            var port = mongo.Packet.ReadInt32();
+            var settings = new SettingsInfo(_erasClient);
+            var mongo = settings.GetMongo();
 
-            Server = MongoServer.Create("mongodb://" + new MongoServerAddress(host, port).ToString());
+            Server = MongoServer.Create("mongodb://" + mongo.ToString());
             Database = Server.GetDatabase("era");
-            Console.WriteLine("Connected to database: {0}:{1}", host, port);
+            Console.WriteLine("Connected to database: {0}", mongo);
             IsRunning = true;
 
             // Save the network info

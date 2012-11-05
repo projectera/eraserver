@@ -22,9 +22,7 @@ namespace NetworkStatistics
 
             var data = new Byte[12];
             Array.Copy(BitConverter.GetBytes(0x62), 0, data, 8, 4);
-            
             var id = new ObjectId(data);
-
 
             message = client.CreateQuestion(MessageType.Service, "Map");
             message.Packet.Write("Subscribe");
