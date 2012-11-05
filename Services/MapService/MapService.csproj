@@ -73,10 +73,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\MapInstance.cs" />
+    <Compile Include="Data\Map.cs" />
+    <Compile Include="Data\Tileset.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Subscriptions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\MapProtocol\MapProtocol.csproj">
+      <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
+      <Name>MapProtocol</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
       <Name>ServiceProtocol</Name>

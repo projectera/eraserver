@@ -5,13 +5,22 @@ using System.Text;
 using EraS.Connections;
 using ServiceProtocol;
 using EraS.Services;
+using System.Xml.Linq;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace EraS.MessageHandlers.ErasComponents
 {
-    class SettingsComponent : DefaultComponent
+    internal class SettingsComponent : DefaultComponent
     {
+        protected Settings Data { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public SettingsComponent() : base("Settings")
         {
+            LoadSettings();
             Functions.Add("GetMongo", GetMongo);
         }
 
@@ -27,5 +36,45 @@ namespace EraS.MessageHandlers.ErasComponents
             ans.Packet.Write(HeartBeatService.ServerAddress.Port);
             c.SendMessage(ans);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected void LoadSettings()
+        {
+            //var doc = XElement.Load("config.xml");
+            XmlSerializer deserializer = new XmlSerializer(typeof(Settings));
+            try
+            {
+                using (TextReader textReader = new StreamReader(@"config.xml"))
+                {
+                    Data = (Settings)deserializer.Deserialize(textReader);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Data = new Settings() { MongoConnectionString = "mongodb://localhost/" };
+                SaveSettings();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected void SaveSettings()
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+            using (TextWriter textWriter = new StreamWriter(@"config.xml"))
+            {
+                serializer.Serialize(textWriter, Data);
+            }
+        }
+    }
+
+    public class Settings {
+        /// <summary>
+        /// 
+        /// </summary>
+        public String MongoConnectionString;
     }
 }

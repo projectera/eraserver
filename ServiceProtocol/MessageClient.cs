@@ -76,9 +76,12 @@ namespace ServiceProtocol
                     ControlType t = (ControlType)msg.Packet.ReadByte();
                     switch (t)
                     {
-                        case ControlType.Kill:
+                        case ControlType.Kill: /*
                             Connection.Disconnect("kill");
                             throw new ApplicationException("Killed by client");
+                                                * */
+                            Console.WriteLine("DAAAAAG MAX");
+                            break;
                     }
                     break;
                 case MessageType.Answer:
@@ -131,8 +134,8 @@ namespace ServiceProtocol
         public Message CloneMessage(Message message)
         {
             var result = new Message(Connection.Peer.CreateMessage(32), message.Type, message.Origin, message.Destination, message.Thread);
-            var leftover = message.Packet.Data.Skip(result.Packet.PositionInBytes);
-            result.Packet.Write(leftover.ToArray());
+            var leftover = message.Packet.Data.Skip(result.Packet.LengthBytes);
+            result.Packet.Write(leftover.ToArray()); 
             return result;
         }
 

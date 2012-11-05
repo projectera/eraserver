@@ -5,6 +5,7 @@ using System.Text;
 using ServiceProtocol;
 using Lidgren.Network;
 using System.Threading;
+using MongoDB.Bson;
 
 namespace NetworkStatistics
 {
@@ -13,6 +14,18 @@ namespace NetworkStatistics
         static void Main(string[] args)
         {
             var client = ServiceClient.Connect("NetworkStatistics");
+
+            var message = client.CreateQuestion(MessageType.Service, "Resource");
+            message.Packet.Write("GetVersion");
+            var answer = client.AskQuestion(message);
+            Console.WriteLine("Resource version is: {0}", answer.Packet.ReadString());
+
+            message = client.CreateQuestion(MessageType.Service, "Map");
+            message.Packet.Write("Subscribe");
+            message.Packet.Write(new ObjectId(0, 0, 62, 0).ToString());
+            answer = client.AskQuestion(message);
+            Console.WriteLine("Has been subscribed: {0}", answer.Packet.ReadBoolean());
+
             var statisticsinfo = new StatisticsInfo(client);
             try
             {
@@ -66,12 +79,15 @@ namespace NetworkStatistics
                 while(!token.IsCancellationRequested) {
                     System.Threading.Thread.Sleep(1000);
 
-                    var etime = DateTime.Now;
+                    var etime = DateTime.Now.ToUniversalTime();
                     var slicestats = statisticsinfo.GetSlice(stime, etime);
 
                     foreach (var timeslice in slicestats)
                     {
                         if (timeslice.Item2.Count == 0)
+                            continue;
+
+                        if (timeslice.Item1 < stime || timeslice.Item1 > etime)
                             continue;
 
                         Console.WriteLine("On {0} there {1}.", timeslice.Item1.ToLongTimeString(), __n(timeslice.Item2.Count, "was {0} service", "where {0} services"));
@@ -91,7 +107,7 @@ namespace NetworkStatistics
                                     String.Format("(+{0:###0})", service.ResentMessages),
                                 service.SentPackets - service.ResentMessages);
                         }
-                        stime = stime < timeslice.Item1 ? stime : timeslice.Item1;
+                        stime = stime > timeslice.Item1 ? stime : timeslice.Item1;
                     }
                 }
                 

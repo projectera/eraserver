@@ -173,33 +173,39 @@ namespace EraS.Services
         /// <param name="state"></param>
         private static void Beat(Object state)
         {
-            HeartBeatTime = DateTime.Now.ToUniversalTime();
-
-            try
+            if (Monitor.TryEnter(_timer))
             {
-                var upsert = GetCollection().FindAndModify(
-                    Query.EQ("_id", Identifier),
-                    SortBy.Null,
-                    Update.Replace(Document),
-                    false,
-                    true
-                );
+                HeartBeatTime = DateTime.Now.ToUniversalTime();
 
-                if (upsert.Ok)
+                try
                 {
-                    _beatTime = NetTime.Now;
-                    OnBeat.Invoke(Identifier);
+                    var upsert = GetCollection().FindAndModify(
+                        Query.EQ("_id", Identifier),
+                        SortBy.Null,
+                        Update.Replace(Document),
+                        false,
+                        true
+                    );
+
+                    if (upsert.Ok)
+                    {
+                        _beatTime = NetTime.Now;
+                        OnBeat.Invoke(Identifier);
+                    }
+                    else
+                    {
+                        throw new Exception(upsert.ErrorMessage);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    throw new Exception(upsert.ErrorMessage);
+                    // TODO Exception handling
+                    Console.WriteLine("Beat error: {0}", e.Message);
+                    if (HasFlatlined)
+                        Flatline(state);
                 }
-            }
-            catch (Exception)
-            {
-                // TODO Exception handling
-                if (HasFlatlined)
-                    Flatline(state);
+
+                Monitor.Exit(_timer);
             }
         }
 
@@ -208,19 +214,36 @@ namespace EraS.Services
         /// </summary>
         public static void Cleanup()
         {
-            HeartBeatTime = DateTime.Now.AddMinutes(-5).ToUniversalTime();
-
-            try
+            lock (_timer)
             {
-                var upsert = GetCollection().FindAndModify(
-                    Query.EQ("_id", Identifier),
-                    SortBy.Null,
-                    Update.Replace(Document),
-                    false,
-                    true
-                );
+                var time = DateTime.Now.ToUniversalTime() - FlatlineTime;
+                var doc = Document;
+                doc["HeartBeatTime"] = time;
+
+                try
+                {
+                    var upsert = GetCollection().FindAndModify(
+                        Query.EQ("_id", doc["_id"]),
+                        SortBy.Null,
+                        Update.Replace(doc),
+                        false,
+                        true
+                    );
+
+                    if (upsert.Ok)
+                    {
+                        upsert = GetCollection().FindAndModify(
+                            Query.EQ("IP", Utils.NetUtils.GetIPAddress().ToString()),
+                            SortBy.Null,
+                            Update.Replace(doc),
+                            false,
+                            true
+                        );
+                    }
+                }
+                catch (MongoException) { }
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
             }
-            catch (MongoException) { }
         }
 
         /// <summary>
@@ -245,7 +268,8 @@ namespace EraS.Services
         /// </summary>
         private static void Flatline(Object state)
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            lock(_timer)
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
             OnFlatline.Invoke(Identifier);
 
             Console.WriteLine("Heartbeatservice [local: {0}] has flatlined.", state);
@@ -276,13 +300,14 @@ namespace EraS.Services
 
             var servers = GetCollection().FindAllAs<BsonDocument>();
             var identifiers = new Dictionary<ObjectId, BsonDocument>();
+            var me = Utils.NetUtils.GetIPAddress();
 
             foreach (var server in servers)
             {
                 IPAddress ip;
                 var identifier = server["_id"].AsObjectId;
                 // Server is flatlinening
-                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
+                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime.ToUniversalTime()) > FlatlineTime)
                 {
                     if (!_flatlined.Contains(identifier))
                     {
@@ -296,7 +321,7 @@ namespace EraS.Services
                         previousflat.Remove(identifier);
                     }
                 }
-                else if (IPAddress.TryParse(server["IP"].AsString, out ip) && !IPAddress.None.Equals(ip))
+                else if (IPAddress.TryParse(server["IP"].AsString, out ip) && !IPAddress.None.Equals(ip) && !ip.Equals(me))
                 {
                     identifiers.Add(identifier, server);
                     if (!_known.Contains(identifier))

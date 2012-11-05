@@ -59,6 +59,7 @@ namespace EraS
                 case MessageType.Service:
                     RouteServiceMessage(msg);
                     break;
+                case MessageType.Answer:
                 case MessageType.Internal:
                     RouteInternalMessage(msg);
                     break;
@@ -249,6 +250,7 @@ namespace EraS
                 Services.RouteMessage = RouteMessage;
 
                 Services.Start();
+                StatisticsService.Start();
             });
         }
     }
