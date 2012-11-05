@@ -48,7 +48,7 @@ namespace ResourceService
             RegisterFunctions();
 
             // Connect to the cloud
-            _erasClient = ServiceClient.Connect("Map");
+            _erasClient = ServiceClient.Connect("Resource");
             _erasClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             Console.WriteLine("Connected with Id: {0}", _erasClient.ServiceName);
 

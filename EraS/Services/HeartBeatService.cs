@@ -197,9 +197,10 @@ namespace EraS.Services
                         throw new Exception(upsert.ErrorMessage);
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // TODO Exception handling
+                    Console.WriteLine("Beat error: {0}", e.Message);
                     if (HasFlatlined)
                         Flatline(state);
                 }
@@ -215,14 +216,16 @@ namespace EraS.Services
         {
             lock (_timer)
             {
-                HeartBeatTime = DateTime.Now.ToUniversalTime() - FlatlineTime;
+                var time = DateTime.Now.ToUniversalTime() - FlatlineTime;
+                var doc = Document;
+                doc["HeartBeatTime"] = time;
 
                 try
                 {
                     var upsert = GetCollection().FindAndModify(
-                        Query.EQ("_id", Identifier),
+                        Query.EQ("_id", doc["_id"]),
                         SortBy.Null,
-                        Update.Replace(Document),
+                        Update.Replace(doc),
                         false,
                         true
                     );
@@ -232,7 +235,7 @@ namespace EraS.Services
                         upsert = GetCollection().FindAndModify(
                             Query.EQ("IP", Utils.NetUtils.GetIPAddress().ToString()),
                             SortBy.Null,
-                            Update.Replace(Document),
+                            Update.Replace(doc),
                             false,
                             true
                         );
@@ -297,6 +300,7 @@ namespace EraS.Services
 
             var servers = GetCollection().FindAllAs<BsonDocument>();
             var identifiers = new Dictionary<ObjectId, BsonDocument>();
+            var me = Utils.NetUtils.GetIPAddress();
 
             foreach (var server in servers)
             {
@@ -317,7 +321,7 @@ namespace EraS.Services
                         previousflat.Remove(identifier);
                     }
                 }
-                else if (IPAddress.TryParse(server["IP"].AsString, out ip) && !IPAddress.None.Equals(ip))
+                else if (IPAddress.TryParse(server["IP"].AsString, out ip) && !IPAddress.None.Equals(ip) && !ip.Equals(me))
                 {
                     identifiers.Add(identifier, server);
                     if (!_known.Contains(identifier))
