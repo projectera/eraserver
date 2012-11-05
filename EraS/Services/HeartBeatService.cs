@@ -130,7 +130,7 @@ namespace EraS.Services
             }
 
             // Default fallback
-            if (String.IsNullOrWhiteSpace(url))
+            //if (String.IsNullOrWhiteSpace(url))
                 url = "localhost";
 
             // Connect to mongo
@@ -173,33 +173,38 @@ namespace EraS.Services
         /// <param name="state"></param>
         private static void Beat(Object state)
         {
-            HeartBeatTime = DateTime.Now.ToUniversalTime();
-
-            try
+            if (Monitor.TryEnter(_timer))
             {
-                var upsert = GetCollection().FindAndModify(
-                    Query.EQ("_id", Identifier),
-                    SortBy.Null,
-                    Update.Replace(Document),
-                    false,
-                    true
-                );
+                HeartBeatTime = DateTime.Now.ToUniversalTime();
 
-                if (upsert.Ok)
+                try
                 {
-                    _beatTime = NetTime.Now;
-                    OnBeat.Invoke(Identifier);
+                    var upsert = GetCollection().FindAndModify(
+                        Query.EQ("_id", Identifier),
+                        SortBy.Null,
+                        Update.Replace(Document),
+                        false,
+                        true
+                    );
+
+                    if (upsert.Ok)
+                    {
+                        _beatTime = NetTime.Now;
+                        OnBeat.Invoke(Identifier);
+                    }
+                    else
+                    {
+                        throw new Exception(upsert.ErrorMessage);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    throw new Exception(upsert.ErrorMessage);
+                    // TODO Exception handling
+                    if (HasFlatlined)
+                        Flatline(state);
                 }
-            }
-            catch (Exception)
-            {
-                // TODO Exception handling
-                if (HasFlatlined)
-                    Flatline(state);
+
+                Monitor.Exit(_timer);
             }
         }
 
@@ -208,19 +213,34 @@ namespace EraS.Services
         /// </summary>
         public static void Cleanup()
         {
-            HeartBeatTime = DateTime.Now.AddMinutes(-5).ToUniversalTime();
-
-            try
+            lock (_timer)
             {
-                var upsert = GetCollection().FindAndModify(
-                    Query.EQ("_id", Identifier),
-                    SortBy.Null,
-                    Update.Replace(Document),
-                    false,
-                    true
-                );
+                HeartBeatTime = DateTime.Now.ToUniversalTime() - FlatlineTime;
+
+                try
+                {
+                    var upsert = GetCollection().FindAndModify(
+                        Query.EQ("_id", Identifier),
+                        SortBy.Null,
+                        Update.Replace(Document),
+                        false,
+                        true
+                    );
+
+                    if (upsert.Ok)
+                    {
+                        upsert = GetCollection().FindAndModify(
+                            Query.EQ("IP", Utils.NetUtils.GetIPAddress().ToString()),
+                            SortBy.Null,
+                            Update.Replace(Document),
+                            false,
+                            true
+                        );
+                    }
+                }
+                catch (MongoException) { }
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
             }
-            catch (MongoException) { }
         }
 
         /// <summary>
@@ -245,7 +265,8 @@ namespace EraS.Services
         /// </summary>
         private static void Flatline(Object state)
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            lock(_timer)
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
             OnFlatline.Invoke(Identifier);
 
             Console.WriteLine("Heartbeatservice [local: {0}] has flatlined.", state);
@@ -282,7 +303,7 @@ namespace EraS.Services
                 IPAddress ip;
                 var identifier = server["_id"].AsObjectId;
                 // Server is flatlinening
-                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime) > FlatlineTime)
+                if ((HeartBeatTime - server["HeartBeatTime"].AsDateTime.ToUniversalTime()) > FlatlineTime)
                 {
                     if (!_flatlined.Contains(identifier))
                     {

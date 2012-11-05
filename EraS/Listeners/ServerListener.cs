@@ -111,7 +111,7 @@ namespace EraS.Listeners
                                     {
                                         Console.WriteLine("Unable to become active, connection refused.");
                                         HeartBeatService.Cleanup();
-                                        throw new ApplicationException();
+                                        throw new ApplicationException("Could not connect to all nodes.");
                                     }
                                 }
 
