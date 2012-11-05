@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using System.Threading.Tasks;
+using Lidgren.Network;
 
 namespace MapService.Data
 {
@@ -24,13 +26,20 @@ namespace MapService.Data
         public DateTime CreationTime { get { return InstanceData.Id.CreationTime.ToUniversalTime(); } }
 
         /// <summary>
+        /// Action Queue for this instance
+        /// </summary>
+        protected ActionQueue Queue { get; set; }
+
+        /// <summary>
         /// Creates a new map Instance
         /// </summary>
         /// <param name="data"></param>
         protected MapInstance(MapProtocol.Map data)
         {
-            MapData = data;
-            InstanceData = new MapProtocol.MapInstance(data.Id); 
+            this.MapData = data;
+            this.InstanceData = new MapProtocol.MapInstance(data.Id);
+
+            this.Queue = new ActionQueue();
         }
 
         /// <summary>
