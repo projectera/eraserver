@@ -22,12 +22,12 @@ namespace ResourceService
         public static MongoDatabase Database { get; protected set; }
 
         /// <summary>
-        /// 
+        /// Network Information
         /// </summary>
         public static NetworkInfo NetworkInfo { get; protected set; }
 
         /// <summary>
-        /// 
+        /// Service is Running
         /// </summary>
         public static Boolean IsRunning { get; set; }
 
@@ -38,7 +38,7 @@ namespace ResourceService
         static void Main(string[] args)
         {
             // Startup delay
-            var delay = 4000;
+            var delay = 500;
             if (args.Contains("-d"))
                 delay = Int32.Parse(args.SkipWhile(a => a != "-d").Skip(1).First());
             Console.WriteLine("Service starting [{0} ms].", delay);
@@ -48,7 +48,7 @@ namespace ResourceService
             RegisterFunctions();
 
             // Connect to the cloud
-            _erasClient = ServiceClient.Connect("Resource");
+            _erasClient = ServiceClient.Connect("Map");
             _erasClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             Console.WriteLine("Connected with Id: {0}", _erasClient.ServiceName);
 
@@ -56,7 +56,6 @@ namespace ResourceService
             var q = _erasClient.CreateQuestion(MessageType.EraS, "Self");
             q.Packet.Write("Settings");
             q.Packet.Write("GetMongo");
-            
             
             var mongo = _erasClient.AskReliableQuestion(q);
             var host = mongo.Packet.ReadString();
