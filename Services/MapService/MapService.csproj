@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Data\MapInstance.cs" />
     <Compile Include="Data\Map.cs" />
+    <Compile Include="Data\Region.cs" />
     <Compile Include="Data\Tileset.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
