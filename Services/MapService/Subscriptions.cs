@@ -116,6 +116,9 @@ namespace ServiceProtocol
 
             lock (_subscriptions)
             {
+                if (!_subscriptions.ContainsKey(list))
+                    return;
+
                 array = new String[_subscriptions[list].Count];
                 _subscriptions[list].CopyTo(array);
             }
