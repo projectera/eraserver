@@ -130,7 +130,7 @@ namespace EraS.Services
             }
 
             // Default fallback
-            //if (String.IsNullOrWhiteSpace(url))
+            if (String.IsNullOrWhiteSpace(url))
                 url = "localhost";
 
             // Connect to mongo
