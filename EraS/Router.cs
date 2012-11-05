@@ -24,6 +24,9 @@ namespace EraS
 
         protected Random _random;
 
+        /// <summary>
+        /// Creates a new Router
+        /// </summary>
         public Router()
         {
             _random = new Random();
@@ -52,6 +55,10 @@ namespace EraS
             Servers.Start();
         }
 
+        /// <summary>
+        /// Routes a message
+        /// </summary>
+        /// <param name="msg"></param>
         protected void RouteMessage(Message msg)
         {
             switch (msg.Type)
@@ -61,6 +68,7 @@ namespace EraS
                     break;
                 case MessageType.Answer:
                 case MessageType.Internal:
+                case MessageType.Public:
                     RouteInternalMessage(msg);
                     break;
                 default:
@@ -69,6 +77,10 @@ namespace EraS
             }
         }
 
+        /// <summary>
+        /// Routes a message locally or to the other era's.
+        /// </summary>
+        /// <param name="msg"></param>
         protected void RouteInternalMessage(Message msg)
         {
             MessageClient dst = null;
@@ -91,6 +103,11 @@ namespace EraS
             dst.SendMessage(dst.CloneMessage(msg));
         }
 
+        /// <summary>
+        /// Routes a service message to the local instance or a random remote instance if there 
+        /// is no local instance available. 
+        /// </summary>
+        /// <param name="msg"></param>
         protected void RouteServiceMessage(Message msg)
         {
             MessageClient dst = null;
@@ -117,6 +134,10 @@ namespace EraS
             dst.SendMessage(dst.CloneMessage(msg));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
         protected void OnServerConnect(ServerConnection c)
         {
             var s = new Server(c.RemoteIdentifier)
@@ -129,6 +150,10 @@ namespace EraS
             Console.WriteLine("Connected to " + c.RemoteIdentifier);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="c"></param>
         protected void OnServerDisconnect(ServerConnection c)
         {
             Console.WriteLine("Disconnected from: " + c.RemoteIdentifier);
@@ -141,6 +166,10 @@ namespace EraS
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
         protected void BroadcastServers(Message msg)
         {
             List<Server> servers = null;
@@ -152,6 +181,11 @@ namespace EraS
                     s.Connection.SendMessage(msg);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="con"></param>
+        /// <param name="name"></param>
         protected void OnServiceConnect(ServiceConnection con, String name)
         {
             // Builds the network
@@ -172,6 +206,10 @@ namespace EraS
             Console.WriteLine("Service [" + name + "] approved.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="con"></param>
         protected void OnServiceDisconnect(ServiceConnection con)
         {
             lock (Network)
@@ -189,6 +227,9 @@ namespace EraS
             BroadcastServers(remove);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected void OnActivate()
         {
             Task.Factory.StartNew(() =>
