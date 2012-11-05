@@ -24,11 +24,11 @@ namespace MapService
             Functions.Add("GetVersion", GetVersion);
             Functions.Add("GetFunctions", GetFunctions);
 
-            // Broadcast
+            // Broadcast Response
             Functions.Add("GetRunning", GetRunning);
             Functions.Add("GetRunningInstances", GetRunningInstances);
             
-            // Public
+            // Public Response
             Functions.Add("Subscribe", Subscribe);
             Functions.Add("Unsubscribe", Unsubscribe);
             #endregion

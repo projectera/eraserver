@@ -72,14 +72,13 @@ namespace MapService
             Database = Server.GetDatabase("era");
             Console.WriteLine("Connected to database: {0}", mongo);
 
+            // Save the network info
+            NetworkInfo = new NetworkInfo(_erasClient);
             StartRunningMaps();
 
             // Messages and start running
             _erasClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             IsRunning = true;
-
-            // Save the network info
-            NetworkInfo = new NetworkInfo(_erasClient);
 
             while (_erasClient.IsConnected && IsRunning)
                 System.Threading.Thread.Sleep(1000);
@@ -89,19 +88,42 @@ namespace MapService
         }
 
         /// <summary>
-        /// 
+        /// Starts running maps
         /// </summary>
         private static void StartRunningMaps()
         {
-            // TODO get all the already running instances
-            // compare with all the database instances
-            // start running all that is not yet running
-            // request some maps from other services
+            var mapservices = NetworkInfo.GetServiceInstances("Map");
+            var maps = new List<ObjectId>();
 
+            // TODO make a broadcast type
+            foreach (var mapservice in mapservices)
+            {
+                if (mapservice == NetworkInfo.Client.Identifier)
+                    continue;
+
+                try
+                {
+                    var question = _erasClient.CreateQuestion(MessageType.Internal, mapservice);
+                    question.Packet.Write("GetRunning");
+                    var answer = _erasClient.AskQuestion(question);
+                    var count = answer.Packet.ReadInt32();
+                    for (Int32 i = 0; i < count; i++)
+                        maps.Add(new ObjectId(answer.Packet.ReadBytes(12)));
+                }
+                catch (TimeoutException) { continue; }
+            }
+            
             var col = Data.Map.GetCollection();
             foreach (var map in col.FindAll())
             {
-                Data.MapInstance.StartInstance(map);
+                if (maps.Contains(map.Id))
+                    continue;
+
+                var instance = Data.MapInstance.StartInstance(map);
+                MapSubscriptions.AddSubscriptionList(map.Id.ToString());
+                
+                // TODO broadcast I am running this
+
                 Console.WriteLine("Started instance of {0}", map.Id);
             }
         }
