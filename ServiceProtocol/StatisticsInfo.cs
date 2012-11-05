@@ -8,47 +8,37 @@ using Lidgren.Network;
 
 namespace ServiceProtocol
 {
-    public class StatisticsInfo
+    public class StatisticsInfo : AbstractInfo
     {
-        /// <summary>
-        /// The socket used to connect to the server
-        /// </summary>
-        public ServiceClient Client { get; protected set; }
-
         /// <summary>
         /// Creates a new StatisticsInfo object
         /// </summary>
         /// <param name="client">The client to use</param>
         public StatisticsInfo(ServiceClient client)
+            : base("Statistics", client)
         {
-            Client = client;
+
         }
 
         /// <summary>
-        /// 
+        /// Get all the timeslices
         /// </summary>
-        /// <param name="function"></param>
         /// <returns></returns>
         public List<Tuple<DateTime, List<Document>>> Get()
         {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Statistics");
-            m.Packet.Write("Get");
-            var res = Client.AskQuestion(m);
+            var res = Client.AskQuestion(CreateQuestion("Get"));
             return UnpackSlices(res.Packet);
         }
 
         /// <summary>
-        /// 
+        /// Get all the slices between stime and etime
         /// </summary>
-        /// <param name="stime"></param>
-        /// <param name="etime"></param>
+        /// <param name="stime">Start time</param>
+        /// <param name="etime">End time</param>
         /// <returns></returns>
         public List<Tuple<DateTime, List<Document>>> GetSlice(DateTime stime, DateTime etime)
         {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Statistics");
-            m.Packet.Write("GetSlice");
+            var m = CreateQuestion("GetSlice");
             m.Packet.Write(stime.ToUniversalTime().ToBinary());
             m.Packet.Write(etime.ToUniversalTime().ToBinary());
             var res = Client.AskQuestion(m);
@@ -56,10 +46,10 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Get all the slices from stime to stime + span
         /// </summary>
-        /// <param name="stime"></param>
-        /// <param name="span"></param>
+        /// <param name="stime">Start time</param>
+        /// <param name="span">Timespan to get</param>
         /// <returns></returns>
         public List<Tuple<DateTime, List<Document>>> GetSpan(DateTime stime, TimeSpan span)
         {
@@ -67,10 +57,10 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Get all the slices from etime - span to etime
         /// </summary>
-        /// <param name="span"></param>
-        /// <param name="etime"></param>
+        /// <param name="span">Timespan to get</param>
+        /// <param name="etime">End time</param>
         /// <returns></returns>
         public List<Tuple<DateTime, List<Document>>> GetSpan(TimeSpan span, DateTime etime)
         {
@@ -78,7 +68,7 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Unpack timeslices from a buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
@@ -106,16 +96,12 @@ namespace ServiceProtocol
         }
         
         /// <summary>
-        /// 
+        /// Get aggregated data
         /// </summary>
         /// <returns></returns>
         public Tuple<DateTime, List<Document>> GetTotal()
         {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Statistics");
-            m.Packet.Write("GetTotal");
-            var res = Client.AskQuestion(m);
-
+            var res = Client.AskQuestion(CreateQuestion("GetTotal"));
             var buffer = res.Packet;
 
             var retrievalTime = DateTime.FromBinary(buffer.ReadInt64());

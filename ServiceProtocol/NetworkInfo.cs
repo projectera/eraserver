@@ -8,18 +8,14 @@ namespace ServiceProtocol
     /// <summary>
     /// Gets info from the connected server
     /// </summary>
-    public class NetworkInfo
+    public class NetworkInfo : AbstractInfo
     {
-        /// <summary>
-        /// The socket used to connect to the server
-        /// </summary>
-        public MessageClient Client { get; protected set; }
-
         /// <summary>
         /// Creates a new NetworkInfo object
         /// </summary>
         /// <param name="client">The client to use</param>
         public NetworkInfo(MessageClient client)
+            : base("Network", client)
         {
             Client = client;
         }
@@ -34,7 +30,7 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Get all the services
         /// </summary>
         /// <returns></returns>
         public List<String> GetServices()
@@ -43,9 +39,9 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Get the service instances
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Service</param>
         /// <returns></returns>
         public List<String> GetServiceInstances(String name)
         {
@@ -53,43 +49,13 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Get the server where this service belongs to
         /// </summary>
-        /// <param name="identifier"></param>
+        /// <param name="identifier">service id</param>
         /// <returns></returns>
         public String GetServiceServer(String identifier)
         {
             return GetString("GetServiceServer", identifier);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="function"></param>
-        /// <returns></returns>
-        protected String GetString(String function)
-        {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Network");
-            m.Packet.Write(function);
-            var res = Client.AskQuestion(m);
-            return res.Packet.ReadString();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="function"></param>
-        /// <param name="argument"></param>
-        /// <returns></returns>
-        protected String GetString(String function, String argument)
-        {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Network");
-            m.Packet.Write(function);
-            m.Packet.Write(argument);
-            var res = Client.AskQuestion(m);
-            return res.Packet.ReadString();
         }
 
         /// <summary>
@@ -99,48 +65,6 @@ namespace ServiceProtocol
         public List<String> GetConnectedServers()
         {
             return GetStringList("GetConnectedServers");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="function"></param>
-        /// <returns></returns>
-        protected List<String> GetStringList(String function)
-        {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Network");
-            m.Packet.Write(function);
-            var res = Client.AskQuestion(m);
-
-                Int32 count = res.Packet.ReadInt32();
-            var l = new List<String>(count);
-            for (int i = 0; i < count; i++)
-                l.Add(res.Packet.ReadString());
-
-            return l;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="function"></param>
-        /// <param name="argument"></param>
-        /// <returns></returns>
-        protected List<String> GetStringList(String function, String argument)
-        {
-            var m = Client.CreateQuestion(MessageType.EraS, "Self");
-            m.Packet.Write("Network");
-            m.Packet.Write(function);
-            m.Packet.Write(argument);
-            var res = Client.AskQuestion(m);
-
-            Int32 count = res.Packet.ReadInt32();
-            var l = new List<String>(count);
-            for (int i = 0; i < count; i++)
-                l.Add(res.Packet.ReadString());
-
-            return l;
         }
 
         /// <summary>

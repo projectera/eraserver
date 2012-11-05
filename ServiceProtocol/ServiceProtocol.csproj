@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractInfo.cs" />
     <Compile Include="ControlType.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageClient.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="NetworkInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceClient.cs" />
+    <Compile Include="SettingsInfo.cs" />
     <Compile Include="StatisticsInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
