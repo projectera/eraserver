@@ -13,6 +13,7 @@ namespace KillServer
             var client = ServiceClient.Connect("KillServer");
             var msg = client.CreateMessage(MessageType.Control, "self");
             msg.Packet.Write((byte)ControlType.Kill);
+
             client.SendMessage(msg);
         }
     }
