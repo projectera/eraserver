@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ServiceProtocol")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Service Protocol")]
+[assembly: AssemblyDescription("The interservice protocol classes")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ServiceProtocol")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCompany("Derk-Jan Karrenbeld & Max Maton")]
+[assembly: AssemblyProduct("Service Protocol")]
+[assembly: AssemblyCopyright("Copyright © Derk-Jan Karrenbeld & Max Maton  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

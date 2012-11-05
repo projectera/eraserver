@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MapProtocol")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Map Protocol")]
+[assembly: AssemblyDescription("Shared map protocol classes")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MapProtocol")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCompany("Derk-Jan Karrenbeld & Max Maton")]
+[assembly: AssemblyProduct("Map Protocol")]
+[assembly: AssemblyCopyright("Copyright © Derk-Jan Karrenbeld & Max Maton 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
