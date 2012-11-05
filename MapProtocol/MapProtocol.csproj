@@ -54,6 +54,7 @@
     <Compile Include="Map.cs" />
     <Compile Include="MapInstance.cs" />
     <Compile Include="MapType.cs" />
+    <Compile Include="ObjectIdExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tileset.cs" />
   </ItemGroup>

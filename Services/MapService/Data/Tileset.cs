@@ -9,10 +9,8 @@ using MongoDB.Driver;
 
 namespace MapService.Data
 {
-    internal class Tileset
+    internal static class Tileset
     {
-        private Tileset() { }
-
         /// <summary>
         /// Gets a tileset from the db
         /// </summary>

@@ -9,10 +9,8 @@ using MongoDB.Driver;
 
 namespace MapService.Data
 {
-    internal class Map
+    internal static class Map
     {
-        private Map() { }
-
         /// <summary>
         /// Gets a map from the db
         /// </summary>
