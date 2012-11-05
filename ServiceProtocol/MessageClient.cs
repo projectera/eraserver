@@ -17,11 +17,15 @@ namespace ServiceProtocol
         public NetConnection Connection { get; protected set; }
 
         /// <summary>
-        /// The identifier received from the server
+        /// The identifier of this client, address known by the server
         /// </summary>
         public String Identifier { get; protected set; }
 
+        /// <summary>
+        /// The identifier address of the server
+        /// </summary>
         public String RemoteIdentifier { get; protected set; }
+
         /// <summary>
         /// The message handlers
         /// </summary>
@@ -112,7 +116,17 @@ namespace ServiceProtocol
         /// <returns>A new message</returns>
         public Message CreateMessage(MessageType type, String destination, int thread)
         {
-            return new Message(Connection.Peer.CreateMessage(32), type, Identifier, destination, thread);
+            return new Message(CreateOutgoingMessage(32), type, Identifier, destination, thread);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public NetOutgoingMessage CreateOutgoingMessage(Int32 size = 32)
+        {
+            return Connection.Peer.CreateMessage(size);
         }
 
         /// <summary>
