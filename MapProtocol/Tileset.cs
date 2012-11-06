@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Lidgren.Network;
 
 namespace MapProtocol
 {
@@ -208,6 +209,69 @@ namespace MapProtocol
             code = (Int32)(this.Version * 255) ^ code;
 
             return code;
+        }
+
+        /// <summary>
+        /// Read the tileset from buffer
+        /// </summary>
+        /// <param name="netBuffer"></param>
+        /// <returns></returns>
+        public static Tileset Read(NetBuffer buffer)
+        {
+            Tileset result = new Tileset();
+            result.Id = new ObjectId(buffer.ReadBytes(12));
+            result.Name = buffer.ReadString();
+            result.AssetName = buffer.ReadString();
+
+            var count = buffer.ReadByte();
+            result.AutotileAssetNames = new List<String>(count);
+            result.AutotileAnimationFlags = new List<Boolean>(count);
+
+            for (int i = 0; i < count; i++)
+                result.AutotileAssetNames.Add(buffer.ReadString());
+            for (int i = 0; i < count; i++)
+                result.AutotileAnimationFlags.Add(buffer.ReadBoolean());
+
+            result.Tiles = buffer.ReadInt32();
+            result.Passages = new Byte[result.Tiles];
+            result.Priorities = new Byte[result.Tiles];
+            result.Flags = new Byte[result.Tiles];
+            result.Tags = new Byte[result.Tiles];
+            for (Int32 i = 0; i < result.Tiles; i++)
+            {
+                result.Passages[i] = buffer.ReadByte();
+                result.Priorities[i] = buffer.ReadByte();
+                result.Flags[i] = buffer.ReadByte();
+                result.Tags[i] = buffer.ReadByte();
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// Write the tileset to buffer
+        /// </summary>
+        /// <param name="netBuffer"></param>
+        public void Write(NetBuffer buffer)
+        {
+            buffer.Write(this.Id.ToByteArray());
+            buffer.Write(this.Name ?? String.Empty);
+            buffer.Write(this.AssetName ?? String.Empty);
+            buffer.Write((Byte)this.AutotileAssetNames.Count);
+
+            foreach (var name in this.AutotileAssetNames)
+                buffer.Write(name ?? String.Empty);
+            foreach (var flag in this.AutotileAnimationFlags)
+                buffer.Write(flag);
+
+            buffer.Write(this.Tiles);
+            for (Int32 i = 0; i < this.Tiles; i++)
+            {
+                buffer.Write(this.Passages[i]);
+                buffer.Write(this.Priorities[i]);
+                buffer.Write(this.Flags[i]);
+                buffer.Write(this.Tags[i]);
+            }
         }
     }
 }

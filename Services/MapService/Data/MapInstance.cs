@@ -50,18 +50,8 @@ namespace MapService.Data
         public static MapInstance StartInstance(MapProtocol.Map map)
         {
             var result = new MapInstance(map);
-
-            lock (Program.MapInstances)
-            {
-                Dictionary<ObjectId, MapInstance> instances;
-                if (!Program.MapInstances.TryGetValue(result.InstanceData.MapId, out instances)) {
-                    instances = new Dictionary<ObjectId,MapInstance>();
-                    Program.MapInstances.Add(result.InstanceData.MapId, instances);
-                }
-                
-                instances.Add(result.InstanceData.Id, result);
-            }
-
+            Program.MapInstances.AddInside(result.InstanceData.MapId, result.InstanceData.Id, result);
+            Program.MapSubscriptions.AddSubscriptionList(map.Id.ToString());
             return result;
         }
     }

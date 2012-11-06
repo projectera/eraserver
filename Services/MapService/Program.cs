@@ -38,16 +38,17 @@ namespace MapService
         /// </summary>
         private static ManualResetEvent StopRunningSemaphore { get; set; }
 
-                /// <summary>
+        /// <summary>
         /// MapId { InstanceId => Instance}
         /// </summary>
-        public static Dictionary<ObjectId, Dictionary<ObjectId, Data.MapInstance>> MapInstances { get; protected set; }
+        public static ThreadsafeDictOfDict<ObjectId, ObjectId, Data.MapInstance> MapInstances { get; protected set; }
         
         /// <summary>
         /// Subscriptions
         /// </summary>
         public static Subscriptions MapSubscriptions { get; protected set; }
 
+    
         /// <summary>
         /// 
         /// </summary>
@@ -66,7 +67,7 @@ namespace MapService
             // Save the network info
             MapSubscriptions = new Subscriptions(EraSClient);
             NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
-            MapInstances = new Dictionary<ObjectId, Dictionary<ObjectId, Data.MapInstance>>();
+            MapInstances = new ThreadsafeDictOfDict<ObjectId, ObjectId, Data.MapInstance>();
 
             // Start this
             StartRunningMaps();
@@ -113,7 +114,6 @@ namespace MapService
                     continue;
 
                 var instance = Data.MapInstance.StartInstance(map);
-                MapSubscriptions.AddSubscriptionList(map.Id.ToString());
                 
                 // TODO broadcast I am running this
 
