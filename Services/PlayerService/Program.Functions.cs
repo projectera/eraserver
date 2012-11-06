@@ -25,6 +25,31 @@ namespace PlayerService
             #region Register Functions
             Functions.Add("GetVersion", GetVersion);
             Functions.Add("GetFunctions", GetFunctions);
+
+            // Functions needed:
+            // Do we need a lobby for connects and picking an interactable and getting
+            // the friend list and private messages list?
+
+            // Subscribe << subscribes on the updates (online/offline status) of this person
+            // JoinGame << sets the interactable, subscribes on a map, subscribes on an interactable
+            // ^^ << sends the map resources, sends the interactable resources
+            // LeaveGame << unsets the interatable, unsubscribes from a map, unsubscribes from an interactable
+
+            // Private Message << receives (type == service/internal/public) or sends (type == cient) a message
+            // FriendRequest << receives (type == service/internal/public) or sends (type == client) a friend request
+            // Befriend << accepts the friend request
+            // Unfriend << unfriends a friend
+            // Block << blocks all messages from this person
+
+            // THESE SHOULD BE IN INTERACTABLE
+            /// -- Shout << tells the interactale to shout << not an actual function >
+            /// -- MoveTo << tells the interactable to tell the map to try to move to xxx << Not an actual function, >
+            /// -- Equip
+            /// -- Trade
+            /// -- Attack
+            /// -- Action
+            /// -- Guild stuff
+            /// -- Team stuff
             #endregion
 
             FunctionsLock.ExitWriteLock();
