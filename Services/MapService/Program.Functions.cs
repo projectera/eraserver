@@ -34,6 +34,19 @@ namespace MapService
             // Public Response
             Functions.Add("Subscribe", Subscribe);
             Functions.Add("Unsubscribe", Unsubscribe);
+
+            // InteractableJoinMap
+            // InteractableLeaveMap
+
+            Functions.Add("Get", Get); // Data
+            //Functions.Add("GetTileset", GetTileset); // Data
+            //Functions.Add("GetHash", GetHash); 
+            //Functions.Add("GetTilesetHash", GetTilesetHash);
+            //Functions.Add("GetResourceHashes", GetResourceHashes);
+            //Functions.Add("GetResources", GetResources); // Tileset + Autotile Graphics
+
+            // TransferMapRequest
+
             #endregion
             FunctionsLock.ExitWriteLock();
         }
@@ -68,12 +81,21 @@ namespace MapService
         public static void GetRunning(Message msg)
         {
             var answer = msg.Answer(EraSClient);
-            lock (MapInstances)
+            var maps = MapInstances.GetKeys();
+            foreach (var map in maps)
             {
-                answer.Packet.Write(MapInstances.Keys.Count);
-                foreach (var instance in MapInstances)
-                    answer.Packet.Write(instance.Key.ToByteArray());
+                answer.Packet.Write(map.ToByteArray());
+
+                // Write the instance ids
+                var keys = MapInstances.GetKeysOf(map);
+                if (keys == null)
+                    answer.Packet.Write((Int32)0);
+                else
+                    answer.Packet.Write(keys.Count);
+                foreach (var key in keys)
+                    answer.Packet.Write(key.ToByteArray());
             }
+
             EraSClient.SendMessage(answer);
         }
 
@@ -83,19 +105,17 @@ namespace MapService
         /// <param name="msg"></param>
         public static void GetRunningInstances(Message msg)
         {
-            var key = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
             var answer = msg.Answer(EraSClient);
-            lock (MapInstances)
-            {
-                Dictionary<ObjectId, Data.MapInstance> instances = null;
-                if (!MapInstances.TryGetValue(key, out instances)) {
-                    answer.Packet.Write((Int32)0);
-                } else {
-                    answer.Packet.Write(instances.Keys.Count);
-                    foreach (var instance in instances)
-                        answer.Packet.Write(instance.Key.ToByteArray());
-                }
-            }
+
+            var keys = MapInstances.GetKeysOf(mapId);
+            if (keys == null)
+                answer.Packet.Write((Int32)0);
+            else
+                answer.Packet.Write(keys.Count);
+            foreach (var key in keys)
+                answer.Packet.Write(key.ToByteArray());
+
             EraSClient.SendMessage(answer);
         }
 
@@ -117,6 +137,25 @@ namespace MapService
         public static void Unsubscribe(Message msg)
         {
             MapSubscriptions.RemoveSubscriber(msg);
+        }
+
+        /// <summary>
+        /// Gets map data
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void Get(Message msg)
+        {
+            var mapid = new ObjectId(msg.Packet.ReadBytes(12)); 
+            var instances = MapInstances.GetKeysOf(mapid);
+            if (instances == null || instances.Count == 0)
+                return;
+            var instance = MapInstances.GetValueOf(mapid, instances.First()); // TODO don't get first instance ?
+            if (instance == null)
+                return;
+
+            var answer = msg.Answer(EraSClient);
+            instance.MapData.Write(answer.Packet);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
