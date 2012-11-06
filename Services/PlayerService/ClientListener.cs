@@ -71,7 +71,7 @@ namespace PlayerService
         {
             var conf = new NetPeerConfiguration("EraClient")
             {
-                Port = ServiceClient.ServerPort,
+                Port = 45247, //Client.ServerPort,
             };
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
 

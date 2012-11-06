@@ -33,10 +33,11 @@ namespace PlayerService
             // Subscribe << subscribes on the updates (online/offline status) of this person
             // JoinGame << sets the interactable, subscribes on a map, subscribes on an interactable
             // ^^ << sends the map resources, sends the interactable resources
-            // LeaveGame << unsets the interatable, unsubscribes from a map, unsubscribes from an interactable
+            // LeaveGame << unsets the interactable, unsubscribes from a map, unsubscribes from an interactable
 
             // Private Message << receives (type == service/internal/public) or sends (type == cient) a message
             // FriendRequest << receives (type == service/internal/public) or sends (type == client) a friend request
+            //  
             // Befriend << accepts the friend request
             // Unfriend << unfriends a friend
             // Block << blocks all messages from this person
