@@ -11,14 +11,16 @@ namespace MapService.Data
 {
     internal static class Tileset
     {
+        protected static Dictionary<ObjectId, MapProtocol.Tileset> Cache = new Dictionary<ObjectId, MapProtocol.Tileset>();
+
         /// <summary>
         /// Gets a tileset from the db
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Tileset> Get(ObjectId id)
+        internal static Task<MapProtocol.Tileset> Get(ObjectId id, Boolean tryCache = true)
         {
-            return Task.Factory.StartNew(() => { return GetBlocking(id); });
+            return Task.Factory.StartNew(() => { return GetBlocking(id, tryCache); });
         }
 
         /// <summary>
@@ -36,9 +38,26 @@ namespace MapService.Data
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Tileset GetBlocking(ObjectId id)
+        internal static MapProtocol.Tileset GetBlocking(ObjectId id, Boolean tryCache = true)
         {
-            return GetCollection().FindOneById(id) as MapProtocol.Tileset;
+            MapProtocol.Tileset result = null;
+            if (tryCache)
+            {
+                lock (Cache)
+                {
+                    if (Cache.TryGetValue(id, out result))
+                        return result;
+                }
+            }
+
+            result = GetCollection().FindOneById(id) as MapProtocol.Tileset;
+
+            lock (Cache) 
+            {
+                Cache.Remove(id);
+                Cache.Add(id, result);
+            }
+            return result;
         }
 
         /// <summary>

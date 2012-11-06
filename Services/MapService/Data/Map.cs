@@ -11,14 +11,16 @@ namespace MapService.Data
 {
     internal static class Map
     {
+        protected static Dictionary<ObjectId, MapProtocol.Map> Cache = new Dictionary<ObjectId, MapProtocol.Map>();
+
         /// <summary>
         /// Gets a map from the db
         /// </summary>
         /// <param name="id">id of map to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Map> Get(ObjectId id)
+        internal static Task<MapProtocol.Map> Get(ObjectId id, Boolean tryCache = true)
         {
-            return Task.Factory.StartNew(() => { return GetBlocking(id); });
+            return Task.Factory.StartNew(() => { return GetBlocking(id, tryCache); });
         }
 
         /// <summary>
@@ -36,9 +38,26 @@ namespace MapService.Data
         /// </summary>
         /// <param name="id">id of map to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Map GetBlocking(ObjectId id)
+        internal static MapProtocol.Map GetBlocking(ObjectId id, Boolean tryCache = true)
         {
-            return GetCollection().FindOneById(id) as MapProtocol.Map;
+            MapProtocol.Map result = null;
+            if (tryCache)
+            {
+                lock (Cache)
+                {
+                    if (Cache.TryGetValue(id, out result))
+                        return result;
+                }
+            }
+
+            result = GetCollection().FindOneById(id) as MapProtocol.Map;
+
+            lock (Cache)
+            {
+                Cache.Remove(id);
+                Cache.Add(id, result);
+            }
+            return result;
         }
 
         /// <summary>
