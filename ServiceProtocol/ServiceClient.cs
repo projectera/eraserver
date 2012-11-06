@@ -6,6 +6,7 @@ using Lidgren.Network;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 
 namespace ServiceProtocol
 {
@@ -14,7 +15,10 @@ namespace ServiceProtocol
     /// </summary>
     public class ServiceClient : MessageClient
     {
-        public const UInt16 ServicePort = 45246;
+        /// <summary>
+        /// EraS port
+        /// </summary>
+        public const UInt16 ServerPort = 45246;
         
         /// <summary>
         /// The name of this service
@@ -22,17 +26,29 @@ namespace ServiceProtocol
         public String ServiceName { get; protected set; }
 
         /// <summary>
-        /// 
+        /// Net Client
         /// </summary>
         public NetClient Client { get; protected set; }
 
         /// <summary>
-        /// 
+        /// Service Thread
         /// </summary>
         protected Thread Thread { get; set; }
 
         /// <summary>
-        /// 
+        /// Server reference
+        /// </summary>
+        public static MongoServer Server { get; protected set; }
+
+        /// <summary>
+        /// Database reference
+        /// </summary>
+        public static MongoDatabase Database { get; protected set; }
+
+        protected static Object _serverSingletonLock = new Object();
+
+        /// <summary>
+        /// Is currently connected to the server
         /// </summary>
         public Boolean IsConnected
         {
@@ -47,7 +63,7 @@ namespace ServiceProtocol
         /// </summary>
         /// <param name="serviceName">The servicename</param>
         /// <returns>A new ServiceClient</returns>
-        public static ServiceClient Connect(string serviceName)
+        public static ServiceClient Connect(String serviceName, Boolean withDatabase = false)
         {
             var conf = new NetPeerConfiguration("EraService");
             var client = new NetClient(conf);
@@ -58,7 +74,7 @@ namespace ServiceProtocol
             hail.Write(Version);
             hail.Write(serviceName);
 
-            client.Connect(new IPEndPoint(IPAddress.Loopback, ServicePort), hail);
+            client.Connect(new IPEndPoint(IPAddress.Loopback, ServerPort), hail);
 
             // Wait for greeting and read identifier
             while (true)
@@ -78,10 +94,15 @@ namespace ServiceProtocol
             if (client.ServerConnection == null || client.ServerConnection.Status != NetConnectionStatus.Connected)
                 throw new InvalidOperationException("Server did not connect to this client.");
 
+            // Get the identifiers
             var remid = client.ServerConnection.RemoteHailMessage.ReadString();
             var myid = client.ServerConnection.RemoteHailMessage.ReadString();
 
-            return new ServiceClient(client, myid, serviceName, remid);
+            var result = new ServiceClient(client, myid, serviceName, remid);
+
+            if (withDatabase)
+                result.ConnectToDatabase();
+            return result;
         }
 
         /// <summary>
@@ -98,7 +119,28 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Connect to Mongo Database
+        /// </summary>
+        public void ConnectToDatabase()
+        {
+            lock (_serverSingletonLock)
+            {
+                if (Server != null)
+                    return;
+
+                // Get mongo and connect
+                var settings = new SettingsInfo(this);
+                var mongo = settings.GetMongo();
+
+                Server = MongoServer.Create("mongodb://" + mongo.ToString());
+                Database = Server.GetDatabase("era");
+
+                Console.WriteLine("Connected to database: {0}", mongo);
+            }
+        }
+
+        /// <summary>
+        /// Stops the service
         /// </summary>
         public void Stop(String reason = null)
         {
@@ -108,7 +150,7 @@ namespace ServiceProtocol
         }
 
         /// <summary>
-        /// 
+        /// Runs the service loop
         /// </summary>
         protected virtual void Run()
         {
