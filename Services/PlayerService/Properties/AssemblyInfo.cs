@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PlayerService")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Player Service")]
+[assembly: AssemblyDescription("Provides players service for Project ERA Server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PlayerService")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCompany("Derk-Jan Karrenbeld & Max Maton")]
+[assembly: AssemblyProduct("Player Service")]
+[assembly: AssemblyCopyright("Copyright © Derk-Jan Karrenbeld & Max Maton 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

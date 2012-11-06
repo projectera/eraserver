@@ -72,11 +72,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
+      <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
+      <Name>PlayerProtocol</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
       <Name>ServiceProtocol</Name>
@@ -104,6 +109,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
