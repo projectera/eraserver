@@ -24,7 +24,7 @@ namespace ServiceProtocol
         /// <returns></returns>
         public MongoServerAddress GetMongo()
         {
-            var a = Client.AskQuestion(CreateQuestion("GetMongo"));
+            var a = Client.AskReliableQuestion(CreateQuestion("GetMongo"));
             return new MongoServerAddress(
                 a.Packet.ReadString(),
                 a.Packet.ReadInt32()
