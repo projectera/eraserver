@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using Lidgren.Network;
 
 namespace MapProtocol
 {
@@ -175,6 +176,59 @@ namespace MapProtocol
                 ((Int32)this.Type * 3) ^
                 (this.Version * 255) ^
                 code);
+        }
+
+        /// <summary>
+        /// Reads a map from a buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        public static Map Read(NetBuffer buffer)
+        {
+            var result = new Map();
+            result.Id = new ObjectId(buffer.ReadBytes(12));
+            result.TilesetId  = new ObjectId(buffer.ReadBytes(12));
+            result.RegionId  = new ObjectId(buffer.ReadBytes(12));
+            result.Name = buffer.ReadString();
+            result.Width = buffer.ReadUInt16();
+            result.Height = buffer.ReadUInt16();
+            result.Type = (MapType)buffer.ReadByte();
+
+            result.Data = new UInt16[result.Width][][];
+            for (Int32 x = 0; x < result.Width; x++)
+            {
+                result.Data[x] = new UInt16[result.Height][];
+                for (Int32 y = 0; y < result.Height; y++)
+                {
+                    result.Data[x][y] = new UInt16[Layers];
+                    for (Int32 z = 0; z < Layers; z++)
+                        result.Data[x][y][z] = buffer.ReadUInt16();
+                }
+            }
+
+            result.Version = buffer.ReadVariableUInt32();
+            return result;
+        }
+
+        /// <summary>
+        /// Writes a map to a buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        public void Write(NetBuffer buffer)
+        {
+            buffer.Write(this.Id.ToByteArray());
+            buffer.Write(this.TilesetId.ToByteArray());
+            buffer.Write(this.RegionId.ToByteArray());
+            buffer.Write(this.Name);
+            buffer.Write(this.Width);
+            buffer.Write(this.Height);
+            buffer.Write((Byte)this.Type);
+
+            for(Int32 x = 0; x < this.Width; x++)
+                for(Int32 y = 0; y < this.Height; y++)
+                    for (Int32 z = 0; z < Layers; z++)
+                        buffer.Write(this.Data[x][y][z]);
+           
+            buffer.WriteVariableUInt32(this.Version);
         }
     }
 }
