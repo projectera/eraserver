@@ -5,22 +5,16 @@ using System.Text;
 using ServiceProtocol;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using System.Threading;
 
 namespace MapService
 {
     partial class Program
     {
-        static ServiceClient _erasClient;
-
         /// <summary>
-        /// Server reference
+        /// Reference to the service client
         /// </summary>
-        public static MongoServer Server { get; protected set; }
-
-        /// <summary>
-        /// Database reference
-        /// </summary>
-        public static MongoDatabase Database { get; protected set; }
+        internal static ServiceClient EraSClient;
 
         /// <summary>
         /// Network Information
@@ -30,15 +24,27 @@ namespace MapService
         /// <summary>
         /// Service is Running
         /// </summary>
-        public static Boolean IsRunning { get; set; }
+        public static Boolean IsRunning
+        {
+            set
+            {
+                if (value) StopRunningSemaphore.Reset();
+                else StopRunningSemaphore.Set();
+            }
+        }
 
         /// <summary>
+        /// Signals the thread if it can stop running
+        /// </summary>
+        private static ManualResetEvent StopRunningSemaphore { get; set; }
+
+                /// <summary>
         /// MapId { InstanceId => Instance}
         /// </summary>
         public static Dictionary<ObjectId, Dictionary<ObjectId, Data.MapInstance>> MapInstances { get; protected set; }
         
         /// <summary>
-        /// 
+        /// Subscriptions
         /// </summary>
         public static Subscriptions MapSubscriptions { get; protected set; }
 
@@ -48,43 +54,30 @@ namespace MapService
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            // Startup delay
-            var delay = 500;
-            if (args.Contains("-d"))
-                delay = Int32.Parse(args.SkipWhile(a => a != "-d").Skip(1).First());
-            Console.WriteLine("Service starting [{0} ms].", delay);
-            System.Threading.Thread.Sleep(delay);
+            Console.WriteLine("Service starting.");
 
             // Functions
             RegisterFunctions();
 
             // Connect to the cloud
-            _erasClient = ServiceClient.Connect("Map");
-            Console.WriteLine("Connected with Id: {0}", _erasClient.ServiceName);
-            MapSubscriptions = new Subscriptions(_erasClient);
-            MapInstances = new Dictionary<ObjectId, Dictionary<ObjectId, Data.MapInstance>>();
-
-            // Get mongo and connect
-            var settings = new SettingsInfo(_erasClient);
-            var mongo = settings.GetMongo();
-
-            Server = MongoServer.Create("mongodb://" + mongo.ToString());
-            Database = Server.GetDatabase("era");
-            Console.WriteLine("Connected to database: {0}", mongo);
+            EraSClient = ServiceClient.Connect("Map", true);
+            StopRunningSemaphore = new ManualResetEvent(true);
 
             // Save the network info
-            NetworkInfo = new NetworkInfo(_erasClient);
+            MapSubscriptions = new Subscriptions(EraSClient);
+            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            MapInstances = new Dictionary<ObjectId, Dictionary<ObjectId, Data.MapInstance>>();
+
+            // Start this
             StartRunningMaps();
 
-            // Messages and start running
-            _erasClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
+            // Start handling messages
+            EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
+            Console.WriteLine("Connected with Id: {0}", EraSClient.ServiceName);
             IsRunning = true;
 
-            while (_erasClient.IsConnected && IsRunning)
-                System.Threading.Thread.Sleep(1000);
-
+            StopRunningSemaphore.WaitOne();
             Console.WriteLine("Service terminated.");
-        
         }
 
         /// <summary>
@@ -103,9 +96,9 @@ namespace MapService
 
                 try
                 {
-                    var question = _erasClient.CreateQuestion(MessageType.Internal, mapservice);
+                    var question = EraSClient.CreateQuestion(MessageType.Internal, mapservice);
                     question.Packet.Write("GetRunning");
-                    var answer = _erasClient.AskQuestion(question);
+                    var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
                     for (Int32 i = 0; i < count; i++)
                         maps.Add(new ObjectId(answer.Packet.ReadBytes(12)));
