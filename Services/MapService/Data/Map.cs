@@ -11,7 +11,7 @@ namespace MapService.Data
 {
     internal static class Map
     {
-        protected static Dictionary<ObjectId, MapProtocol.Map> Cache = new Dictionary<ObjectId, MapProtocol.Map>();
+        private static Dictionary<ObjectId, MapProtocol.Map> Cache = new Dictionary<ObjectId, MapProtocol.Map>();
 
         /// <summary>
         /// Gets a map from the db

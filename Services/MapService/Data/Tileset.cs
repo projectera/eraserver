@@ -11,7 +11,7 @@ namespace MapService.Data
 {
     internal static class Tileset
     {
-        protected static Dictionary<ObjectId, MapProtocol.Tileset> Cache = new Dictionary<ObjectId, MapProtocol.Tileset>();
+        private static Dictionary<ObjectId, MapProtocol.Tileset> Cache = new Dictionary<ObjectId, MapProtocol.Tileset>();
 
         /// <summary>
         /// Gets a tileset from the db
