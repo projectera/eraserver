@@ -47,6 +47,9 @@ namespace NetworkFuzzer
                 5,
             };
 
+            // disable kill bytes
+            bytes.RemoveAll(a => a == (byte)ControlType.Kill);
+
             Random random = new Random();
 
             long count = 0;
