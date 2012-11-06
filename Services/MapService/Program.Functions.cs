@@ -38,12 +38,14 @@ namespace MapService
             // InteractableJoinMap
             // InteractableLeaveMap
 
-            Functions.Add("Get", Get); // Data
-            //Functions.Add("GetTileset", GetTileset); // Data
-            //Functions.Add("GetHash", GetHash); 
-            //Functions.Add("GetTilesetHash", GetTilesetHash);
-            //Functions.Add("GetResourceHashes", GetResourceHashes);
+            Functions.Add("Get", Get);
+            Functions.Add("GetTileset", GetTileset);
+            Functions.Add("GetMapTileset", GetMapTileset);
+            Functions.Add("GetHash", GetHash); 
+            Functions.Add("GetTilesetHash", GetTilesetHash);
+            Functions.Add("GetMapTilesetHash", GetMapTilesetHash);
             //Functions.Add("GetResources", GetResources); // Tileset + Autotile Graphics
+            //Functions.Add("GetResourceHashes", GetResourceHashes);
 
             // TransferMapRequest
 
@@ -145,16 +147,114 @@ namespace MapService
         /// <param name="msg"></param>
         public static void Get(Message msg)
         {
-            var mapid = new ObjectId(msg.Packet.ReadBytes(12)); 
-            var instances = MapInstances.GetKeysOf(mapid);
-            if (instances == null || instances.Count == 0)
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapData = __GetMapData(mapId);
+            if (mapData == null)
                 return;
-            var instance = MapInstances.GetValueOf(mapid, instances.First()); // TODO don't get first instance ?
-            if (instance == null)
-                return;
-
             var answer = msg.Answer(EraSClient);
-            instance.MapData.Write(answer.Packet);
+            mapData.Write(answer.Packet);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// Gets map data from active, cache or database
+        /// </summary>
+        /// <param name="mapid"></param>
+        /// <returns></returns>
+        protected static Map __GetMapData(ObjectId mapId)
+        {
+            var instances = MapInstances.GetKeysOf(mapId);
+
+            Map mapData = null;
+            if (instances != null && instances.Count > 0)
+            {
+                var instance = MapInstances.GetValueOf(mapId, instances.First());
+                if (instance != null)
+                    mapData = instance.MapData;
+            }
+
+            return mapData ?? Data.Map.GetBlocking(mapId, true);
+        }
+
+        /// <summary>
+        /// Gets the tileset data
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetTileset(Message msg)
+        {
+            var tilesetId = new ObjectId(msg.Packet.ReadBytes(12));
+            var tileset = Data.Tileset.GetBlocking(tilesetId, true);
+            if (tileset == null)
+                return;
+            var answer = msg.Answer(EraSClient);
+            tileset.Write(answer.Packet);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// Gets the tileset data for a map
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetMapTileset(Message msg)
+        {
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapData = __GetMapData(mapId);
+            if (mapData == null)
+                return;
+            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId, true);
+            if (tileset == null)
+                return;
+            var answer = msg.Answer(EraSClient);
+            tileset.Write(answer.Packet);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// Gets the map data hash
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetHash(Message msg)
+        {
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapData = __GetMapData(mapId);
+            if (mapData == null)
+                return;
+            var answer = msg.Answer(EraSClient);
+            answer.Packet.Write(mapData.GetHashCode());
+            answer.Packet.Write(mapData.Version);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// Gets the tileset hash
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetTilesetHash(Message msg)
+        {
+            var tilesetId = new ObjectId(msg.Packet.ReadBytes(12));
+            var tileset = Data.Tileset.GetBlocking(tilesetId, true);
+            var answer = msg.Answer(EraSClient);
+            answer.Packet.Write(tileset.GetHashCode());
+            answer.Packet.Write(tileset.Version);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// Gets the tileset hash from a map
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetMapTilesetHash(Message msg)
+        {
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapData = __GetMapData(mapId);
+            if (mapData == null)
+                return;
+            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId, true);
+            if (tileset == null)
+                return;
+            var answer = msg.Answer(EraSClient);
+            answer.Packet.Write(tileset.GetHashCode());
+            answer.Packet.Write(tileset.Version);
             EraSClient.SendMessage(answer);
         }
 
