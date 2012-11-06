@@ -22,10 +22,12 @@ namespace MapProtocol
         /// 
         /// </summary>
         /// <param name="map"></param>
-        public MapInstance(ObjectId map)
+        public static MapInstance Generate(ObjectId map)
         {
-            Id = ObjectId.GenerateNewId();
-            MapId = map;
+            var result = new MapInstance();
+            result.Id = ObjectId.GenerateNewId();
+            result.MapId = map;
+            return result;
         }
     }
 }

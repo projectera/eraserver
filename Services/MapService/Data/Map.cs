@@ -58,7 +58,7 @@ namespace MapService.Data
         /// <returns></returns>
         internal static MongoCollection<MapProtocol.Map> GetCollection()
         {
-            return Program.Database.GetCollection<MapProtocol.Map>("Maps");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<MapProtocol.Map>("Maps");
         }
 
         /// <summary>

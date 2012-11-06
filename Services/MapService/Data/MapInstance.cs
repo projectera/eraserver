@@ -37,7 +37,7 @@ namespace MapService.Data
         protected MapInstance(MapProtocol.Map data)
         {
             this.MapData = data;
-            this.InstanceData = new MapProtocol.MapInstance(data.Id);
+            this.InstanceData = MapProtocol.MapInstance.Generate(data.Id);
 
             this.Queue = new ActionQueue();
         }

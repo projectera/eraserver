@@ -58,7 +58,7 @@ namespace MapService.Data
         /// <returns></returns>
         internal static MongoCollection<MapProtocol.Tileset> GetCollection()
         {
-            return Program.Database.GetCollection<MapProtocol.Tileset>("Tilesets");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<MapProtocol.Tileset>("Tilesets");
         }
 
         /// <summary>

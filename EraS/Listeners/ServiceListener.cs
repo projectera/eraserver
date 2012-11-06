@@ -73,7 +73,7 @@ namespace EraS.Listeners
         {
             var conf = new NetPeerConfiguration("EraService")
             {
-                Port = ServiceClient.ServicePort,
+                Port = ServiceClient.ServerPort,
             };
             conf.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             Server = new NetServer(conf);

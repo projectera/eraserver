@@ -5,6 +5,7 @@ using System.Text;
 using ServiceProtocol;
 using MongoDB.Bson;
 using MapProtocol;
+using System.Threading;
 
 namespace MapService
 {
@@ -12,12 +13,14 @@ namespace MapService
     {
         public const String SERVICE_VERSION = "1.0.0";
         public static Dictionary<String, Action<Message>> Functions { get; protected set; }
+        public static ReaderWriterLockSlim FunctionsLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// 
         /// </summary>
         public static void RegisterFunctions()
         {
+            FunctionsLock.EnterWriteLock();
             Functions = new Dictionary<String, Action<Message>>();
 
             #region Register Functions
@@ -32,6 +35,7 @@ namespace MapService
             Functions.Add("Subscribe", Subscribe);
             Functions.Add("Unsubscribe", Unsubscribe);
             #endregion
+            FunctionsLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -39,9 +43,9 @@ namespace MapService
         /// </summary>
         /// <param name="msg"></param>
         public static void GetVersion(Message msg) {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             answer.Packet.Write(SERVICE_VERSION);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -50,11 +54,11 @@ namespace MapService
         /// <param name="msg"></param>
         public static void GetFunctions(Message msg)
         {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             answer.Packet.Write(Functions.Keys.Count);
             foreach (var key in Functions.Keys)
                 answer.Packet.Write(key);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -63,14 +67,14 @@ namespace MapService
         /// <param name="msg"></param>
         public static void GetRunning(Message msg)
         {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             lock (MapInstances)
             {
                 answer.Packet.Write(MapInstances.Keys.Count);
                 foreach (var instance in MapInstances)
                     answer.Packet.Write(instance.Key.ToByteArray());
             }
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -80,7 +84,7 @@ namespace MapService
         public static void GetRunningInstances(Message msg)
         {
             var key = new ObjectId(msg.Packet.ReadBytes(12));
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             lock (MapInstances)
             {
                 Dictionary<ObjectId, Data.MapInstance> instances = null;
@@ -92,7 +96,7 @@ namespace MapService
                         answer.Packet.Write(instance.Key.ToByteArray());
                 }
             }
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -101,9 +105,9 @@ namespace MapService
         /// <param name="msg"></param>
         public static void Subscribe(Message msg)
         {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             answer.Packet.Write(MapSubscriptions.AddSubscriber(msg));
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -122,12 +126,12 @@ namespace MapService
         public static void HandleMessages(Message m)
         {
             var function = m.Packet.ReadString();
-            lock (Functions)
-            {
-                if (!Functions.ContainsKey(function))
-                    return;
-                Functions[function](m);
-            }
+
+            FunctionsLock.EnterReadLock();
+            if (!Functions.ContainsKey(function))
+                return;
+            Functions[function](m);
+            FunctionsLock.ExitReadLock();
         }
     }
 }

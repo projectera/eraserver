@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ServiceProtocol;
 using MongoDB.Bson;
+using System.Threading;
 
 namespace ResourceService
 {
@@ -11,12 +12,14 @@ namespace ResourceService
     {
         public const String SERVICE_VERSION = "1.0.0";
         public static Dictionary<String, Action<Message>> Functions { get; protected set; }
+        public static ReaderWriterLockSlim FunctionsLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// 
         /// </summary>
         public static void RegisterFunctions()
         {
+            FunctionsLock.EnterWriteLock();
             Functions = new Dictionary<String, Action<Message>>();
 
             #region Register Functions
@@ -26,6 +29,8 @@ namespace ResourceService
             Functions.Add("GetAssetChunks", GetAssetChunks);
             Functions.Add("GetAssetChunk", GetAssetChunk);
             #endregion
+
+            FunctionsLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -33,9 +38,9 @@ namespace ResourceService
         /// </summary>
         /// <param name="msg"></param>
         public static void GetVersion(Message msg) {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             answer.Packet.Write(SERVICE_VERSION);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -44,11 +49,11 @@ namespace ResourceService
         /// <param name="msg"></param>
         public static void GetFunctions(Message msg)
         {
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             answer.Packet.Write(Functions.Keys.Count);
             foreach(var key in Functions.Keys)
                 answer.Packet.Write(key);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -58,12 +63,12 @@ namespace ResourceService
         public static void GetAsset(Message msg)
         {
             var filename = msg.Packet.ReadString();
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             var file = Asset.GetFile(filename);
             if (file == null)
                 return;
             file.Pack(answer.Packet);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -73,7 +78,7 @@ namespace ResourceService
         public static void GetAssetChunks(Message msg)
         {
             var fileid = new ObjectId(msg.Packet.ReadBytes(12));
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             Int32 chunkSize, length;
             var chunks = Asset.GetChunksById(fileid, out chunkSize, out length);
             if (chunks == null)
@@ -83,7 +88,7 @@ namespace ResourceService
             answer.Packet.Write(chunks.Length); // Is this needed?
             foreach (var chunk in chunks)
                 answer.Packet.Write(chunk.ToByteArray());
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -93,13 +98,13 @@ namespace ResourceService
         public static void GetAssetChunk(Message msg)
         {
             var chunkid = new ObjectId(msg.Packet.ReadBytes(12));
-            var answer = msg.Answer(_erasClient);
+            var answer = msg.Answer(EraSClient);
             var data = Asset.GetChunkById(chunkid);
             if (data == null)
                 return;
             answer.Packet.Write(data.Bytes.Length); // Is this needed?
             answer.Packet.Write(data.Bytes);
-            _erasClient.SendMessage(answer);
+            EraSClient.SendMessage(answer);
         }
 
         /// <summary>
@@ -109,12 +114,12 @@ namespace ResourceService
         public static void HandleMessages(Message m)
         {
             var function = m.Packet.ReadString();
-            lock (Functions)
-            {
-                if (!Functions.ContainsKey(function))
-                    return;
-                Functions[function](m);
-            }
+
+            FunctionsLock.EnterReadLock();
+            if (!Functions.ContainsKey(function))
+                return;
+            Functions[function](m);
+            FunctionsLock.ExitReadLock();
         }
     }
 }

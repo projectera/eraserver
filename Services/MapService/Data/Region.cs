@@ -58,7 +58,7 @@ namespace MapService.Data
         /// <returns></returns>
         public static MongoCollection<MapProtocol.Region> GetCollection()
         {
-            return Program.Database.GetCollection<MapProtocol.Region>("Regions");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<MapProtocol.Region>("Regions");
         }
 
         /// <summary>
