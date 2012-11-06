@@ -15,6 +15,8 @@ namespace PlayerService
         /// </summary>
         internal static ServiceClient EraSClient;
 
+        internal static ClientListener EraListener;
+
         /// <summary>
         /// Network Information
         /// </summary>
@@ -47,11 +49,15 @@ namespace PlayerService
             RegisterFunctions();
 
             // Connect to the cloud
-            EraSClient = ServiceClient.Connect("Resource", true);
+            EraSClient = ServiceClient.Connect("Player", true);
             StopRunningSemaphore = new ManualResetEvent(true);
 
             EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             Console.WriteLine("Connected with Id: {0}", EraSClient.ServiceName);
+
+            EraListener = new ClientListener();
+            EraListener.Start();
+
             IsRunning = true;
 
             // Save the network info

@@ -35,6 +35,11 @@ namespace ServiceProtocol
         /// <summary>
         /// Communication to subscribers
         /// </summary>
-        Public = 5
+        Public = 5,
+
+        /// <summary>
+        /// Communication from Clients
+        /// </summary>
+        Client = 6,
     }
 }
