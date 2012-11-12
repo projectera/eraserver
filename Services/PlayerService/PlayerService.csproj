@@ -72,14 +72,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientConnection.cs" />
-    <Compile Include="ClientListener.cs" />
+    <Compile Include="Listeners\ClientListener.cs" />
+    <Compile Include="Connections\Connection.cs" />
     <Compile Include="Data\Player.cs" />
+    <Compile Include="LogonManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\Protocol.cs" />
+    <Compile Include="Protocols\Server\ServerProtocols.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
+      <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
+      <Name>Lidgren.Network.Lobby</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
       <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
       <Name>PlayerProtocol</Name>
