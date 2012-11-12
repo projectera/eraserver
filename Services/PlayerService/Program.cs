@@ -15,7 +15,6 @@ namespace PlayerService
         /// Reference to the service client
         /// </summary>
         internal static ServiceClient EraSClient;
-
         internal static ClientListener EraListener;
 
         /// <summary>
@@ -56,6 +55,7 @@ namespace PlayerService
             EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             Console.WriteLine("Connected with Id: {0}", EraSClient.ServiceName);
 
+            Lidgren.Network.Lobby.NetLobby.LogonManager = new LogonManager("There is no secret.", Lidgren.Network.Lobby.NetLobby.KeySize);
             EraListener = new ClientListener();
             EraListener.Start();
 
