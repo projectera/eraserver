@@ -15,8 +15,7 @@ namespace PlayerProtocol
         /// Player ID (readonly)
         /// </summary>
         [BsonId]
-        public ObjectId 
-            Id
+        public ObjectId Id
         {
             get;
             protected set;
