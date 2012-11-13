@@ -23,7 +23,13 @@ namespace PlayerService.Listeners
         private Thread _serverThread;
         private NetServer _server;
 
+        public NetServer Server { get { return _server; } }
+
         private TimeSpan ReleasePrematureMessageAfter = TimeSpan.FromSeconds(1);
+
+        public delegate void ConnectionDelegate(ObjectId nodeId, String username);
+        public event ConnectionDelegate OnConnected = delegate { };
+        public event ConnectionDelegate OnDisconnected = delegate { };
 
         //public static ConcurrentDictionary<ObjectId, UserTransferData> TransferedUsers = new ConcurrentDictionary<ObjectId, UserTransferData>();
         //public static ConcurrentDictionary<ObjectId, UserTransferData> PendingUserTransfers = new ConcurrentDictionary<ObjectId, UserTransferData>();
@@ -123,6 +129,7 @@ namespace PlayerService.Listeners
                                         ClientConnection new_connection = new ClientConnection(_server, msg.SenderConnection, (msg.SenderConnection.Tag as Handshake).CreateEncryption());
                                         RegisterProtocols(new_connection, connection.Username);
 
+                                        OnConnected.Invoke(new_connection.NodeId, new_connection.Username);
                                         //Logger.Info("SRP connection established with: " + msg.SenderConnection.RemoteEndpoint);
                                         break;
 
@@ -241,9 +248,13 @@ namespace PlayerService.Listeners
                                 // When disconnect is called and processed
                                 case NetConnectionStatus.Disconnected:
                                     // If already connection established, destroy resources
-                                    if (msg.SenderConnection.Tag is ClientConnection &&
-                                        !((ClientConnection)msg.SenderConnection.Tag).IsDisposed)
-                                        ((ClientConnection)msg.SenderConnection.Tag).Dispose();
+                                    var disconnected_connection = msg.SenderConnection.Tag as ClientConnection;
+                                    if (disconnected_connection != null)
+                                    {
+                                        OnDisconnected.Invoke(disconnected_connection.NodeId, disconnected_connection.Username);
+                                        if (!disconnected_connection.IsDisposed)
+                                            disconnected_connection.Dispose();
+                                    }
 
                                     // Received a reason for disconnecting? (e.a. Handshake Fail)
                                     String finalReason = Encoding.UTF8.GetString(msg.ReadBytes((Int32)msg.ReadVariableUInt32()));
