@@ -6,7 +6,6 @@ using Lidgren.Network;
 using Lidgren.Network.Authentication;
 using MongoDB.Bson;
 using PlayerService.Protocols;
-using PlayerService.Protocols.Server;
 
 namespace PlayerService.Connections
 {
@@ -207,7 +206,7 @@ namespace PlayerService.Connections
 
             Byte p = msg.ReadByte();
 
-            if (p == (Byte)ServerProtocols.Extension)
+            if (p == (Byte)ProtocolConstants.ExtensionByte)
             {
                 ExtendedIncomingMessage(msg);
                 return;
