@@ -143,8 +143,12 @@ namespace EraS.Services
             catch (Exception) { return false; }
 
             // Create the collection
-            if (!Database.CollectionExists("Servers"))
-                Database.CreateCollection("Servers", CollectionOptions.SetAutoIndexId(true));
+            try
+            {
+                if (!Database.CollectionExists("Servers"))
+                    Database.CreateCollection("Servers", CollectionOptions.SetAutoIndexId(true));
+            }
+            catch (MongoConnectionException) { return false; }
 
             // Make sure it's an Time To Live collection
             GetCollection().EnsureIndex(
