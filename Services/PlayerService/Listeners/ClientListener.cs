@@ -18,7 +18,6 @@ namespace PlayerService.Listeners
     internal class ClientListener
     {
         internal static Int32 Port { get; private set; }
-
         internal Boolean IsRunning { get; set; }
         
         private Thread _serverThread;
@@ -30,7 +29,7 @@ namespace PlayerService.Listeners
         //public static ConcurrentDictionary<ObjectId, UserTransferData> PendingUserTransfers = new ConcurrentDictionary<ObjectId, UserTransferData>();
 
         /// <summary>
-        /// 
+        /// Client Listener
         /// </summary>
         public ClientListener()
         {
@@ -48,7 +47,7 @@ namespace PlayerService.Listeners
         }
 
         /// <summary>
-        /// 
+        /// Start running thread
         /// </summary>
         public void Start()
         {
@@ -59,7 +58,7 @@ namespace PlayerService.Listeners
         }
 
         /// <summary>
-        /// 
+        /// Client message loop
         /// </summary>
         private void ClientLoop()
         {
@@ -108,9 +107,10 @@ namespace PlayerService.Listeners
                                 return;
                             }*/
 
-                            if (msg.SenderConnection.Tag is ClientConnection)
+                            var connection = msg.SenderConnection.Tag as ClientConnection;
+                            if (connection != null)
                             {
-                                ((ClientConnection)msg.SenderConnection.Tag).IncomingMessage(msg);
+                                connection.IncomingMessage(msg);
                             }
                             else
                             {
@@ -120,8 +120,8 @@ namespace PlayerService.Listeners
                                 {
                                     case Handshake.Contents.Succes:
 
-                                        ClientConnection connection = new ClientConnection(_server, msg.SenderConnection, (msg.SenderConnection.Tag as Handshake).CreateEncryption());
-                                        RegisterProtocols(connection, connection.Username);
+                                        ClientConnection new_connection = new ClientConnection(_server, msg.SenderConnection, (msg.SenderConnection.Tag as Handshake).CreateEncryption());
+                                        RegisterProtocols(new_connection, connection.Username);
 
                                         //Logger.Info("SRP connection established with: " + msg.SenderConnection.RemoteEndpoint);
                                         break;
