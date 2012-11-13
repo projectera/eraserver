@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MongoDB.Bson;
 using Lidgren.Network;
 using System.Threading;
+using ServiceProtocol;
 
-namespace ServiceProtocol
+namespace SubscriptionProtocol
 {
-    // TODO REFACTOR
     public class Subscriptions
     {
         protected Dictionary<String, List<String>> _subscriptions;

@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerService", "Services\P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerProtocol", "PlayerProtocol\PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionProtocol", "SubscriptionProtocol\SubscriptionProtocol.csproj", "{4466984A-46B0-418F-90A2-2CD80CA305CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,16 @@ Global
 		{700B2309-3E14-4876-A556-2B641B5B8084}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{700B2309-3E14-4876-A556-2B641B5B8084}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{700B2309-3E14-4876-A556-2B641B5B8084}.Release|x86.ActiveCfg = Release|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
