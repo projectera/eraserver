@@ -5,6 +5,7 @@ using System.Text;
 using ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
+using PlayerService.Listeners;
 
 namespace PlayerService
 {

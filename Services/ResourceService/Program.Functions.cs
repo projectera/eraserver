@@ -28,6 +28,7 @@ namespace ResourceService
             Functions.Add("GetAsset", GetAsset);
             Functions.Add("GetAssetChunks", GetAssetChunks);
             Functions.Add("GetAssetChunk", GetAssetChunk);
+            Functions.Add("Generate", Generate);
             #endregion
 
             FunctionsLock.ExitWriteLock();
