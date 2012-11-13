@@ -80,10 +80,15 @@
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\Client\Player.cs" />
     <Compile Include="Protocols\Protocol.cs" />
     <Compile Include="Protocols\ProtocolConstants.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ClientProtocol\ClientProtocol.csproj">
+      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Name>ClientProtocol</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
       <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
       <Name>Lidgren.Network.Lobby</Name>

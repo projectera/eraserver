@@ -5,6 +5,7 @@ using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using System.Threading.Tasks;
+using Lidgren.Network;
 
 namespace PlayerProtocol
 {
@@ -80,7 +81,7 @@ namespace PlayerProtocol
         public ObjectId ActiveInteractable
         {
             get;
-            protected set;
+            set;
         }
 
         /// <summary>
@@ -192,6 +193,37 @@ namespace PlayerProtocol
             this.BannedReason = null;
             this.Verifier = null;
             this.Salt = null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="msg"></param>
+        public static NetBuffer Pack(Player player, NetBuffer msg)
+        {
+            msg.Write(player.Id.ToByteArray());
+            msg.Write(player.ForumId);
+            msg.Write(player.Username);
+            msg.Write(player.EmailAddress);
+
+            // TODO GET INTERACTABLE ID's
+
+            /*if (player.AvatarIds != null)
+            {
+                msg.Write(player.AvatarIds.Count);
+                IOrderedEnumerable<ObjectId> result = player.AvatarIds.OrderBy(a => a.CreationTime);
+                foreach (ObjectId id in result)
+                {
+                    msg.Write(id.ToByteArray());
+                }
+            }
+            else
+            {
+                msg.Write((Int32)0);
+            }*/
+
+            return msg;
         }
     }
 }
