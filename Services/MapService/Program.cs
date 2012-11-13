@@ -6,6 +6,7 @@ using ServiceProtocol;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using System.Threading;
+using SubscriptionProtocol;
 
 namespace MapService
 {
