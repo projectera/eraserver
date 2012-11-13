@@ -128,5 +128,16 @@ namespace SubscriptionProtocol
                 _client.SendMessage(message);
             }
         }
+
+        /// <summary>
+        /// Removes a subscriptionlist
+        /// </summary>
+        /// <param name="p"></param>
+        public void RemoveSubscriptionList(String id)
+        {
+            _subscriptionsLock.EnterWriteLock();
+            _subscriptions.Remove(id);
+            _subscriptionsLock.ExitWriteLock();
+        }
     }
 }
