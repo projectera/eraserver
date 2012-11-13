@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson;
 using Lidgren.Network;
+using System.Threading;
 
 namespace ServiceProtocol
 {
@@ -12,6 +13,7 @@ namespace ServiceProtocol
     {
         protected Dictionary<String, List<String>> _subscriptions;
         protected ServiceClient _client;
+        protected ReaderWriterLockSlim _subscriptionsLock;
 
         /// <summary>
         /// Creates anew subscriptions object
@@ -20,6 +22,7 @@ namespace ServiceProtocol
         {
             _subscriptions = new Dictionary<String, List<String>>();
             _client = client;
+            _subscriptionsLock = new ReaderWriterLockSlim();
         }
 
         /// <summary>
@@ -28,11 +31,10 @@ namespace ServiceProtocol
         /// <param name="id"></param>
         public void AddSubscriptionList(String id)
         {
-            lock (_subscriptions)
-            {
-                if (!_subscriptions.ContainsKey(id))
-                    _subscriptions.Add(id, new List<String>());
-            }
+            _subscriptionsLock.EnterWriteLock();
+            if (!_subscriptions.ContainsKey(id))
+                _subscriptions.Add(id, new List<String>());
+            _subscriptionsLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -41,10 +43,10 @@ namespace ServiceProtocol
         /// <returns></returns>
         public List<String> GetSubscriptionLists()
         {
-            lock (_subscriptions)
-            {
-                return _subscriptions.Keys.ToList();
-            }
+            _subscriptionsLock.EnterReadLock();
+            var result = _subscriptions.Keys.ToList();
+            _subscriptionsLock.ExitReadLock();
+            return result;
         }
 
         /// <summary>
@@ -68,12 +70,11 @@ namespace ServiceProtocol
         /// <returns></returns>
         public Boolean AddSubscriber(String list, String subscriber)
         {
-            lock (_subscriptions)
-            {
-                if (!_subscriptions.ContainsKey(list))
-                    return false;
-                _subscriptions[list].Add(subscriber);
-            }
+            _subscriptionsLock.EnterWriteLock();
+            if (!_subscriptions.ContainsKey(list))
+                return false;
+            _subscriptions[list].Add(subscriber);
+            _subscriptionsLock.ExitWriteLock();
             return true;
         }
 
@@ -97,12 +98,11 @@ namespace ServiceProtocol
         /// <param name="subscriber"></param>
         public void RemoveSubscriber(String list, String subscriber)
         {
-            lock (_subscriptions)
-            {
-                if (!_subscriptions.ContainsKey(list))
-                    return;
-                _subscriptions[list].Remove(subscriber);
-            }
+            _subscriptionsLock.EnterWriteLock();
+            if (!_subscriptions.ContainsKey(list))
+                return;
+            _subscriptions[list].Remove(subscriber);
+            _subscriptionsLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -114,14 +114,13 @@ namespace ServiceProtocol
         {
             String[] array = null;
 
-            lock (_subscriptions)
-            {
-                if (!_subscriptions.ContainsKey(list))
-                    return;
+            _subscriptionsLock.EnterReadLock();
+            if (!_subscriptions.ContainsKey(list))
+                return;
 
-                array = new String[_subscriptions[list].Count];
-                _subscriptions[list].CopyTo(array);
-            }
+            array = new String[_subscriptions[list].Count];
+            _subscriptions[list].CopyTo(array);
+            _subscriptionsLock.ExitReadLock();
 
             foreach (var destination in array)
             {
