@@ -119,7 +119,7 @@ namespace PlayerProtocol
                 get { return Id.CreationTime; }
             }
 
-            public abstract NetBuffer Pack(ref NetBuffer msg);
+            internal abstract NetBuffer Pack(ref NetBuffer msg);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace PlayerProtocol
         /// </summary>
         public class LocationAttachment : IAttachment
         {
-            private const Byte AttachmentType = 1;
+            internal const Byte AttachmentType = 1;
 
             /// <summary>
             /// Map id
@@ -181,7 +181,7 @@ namespace PlayerProtocol
             /// </summary>
             /// <param name="msg"></param>
             /// <returns></returns>
-            public override NetBuffer Pack(ref NetBuffer msg)
+            internal override NetBuffer Pack(ref NetBuffer msg)
             {
                 msg.Write(AttachmentType); // 1
                 msg.Write(this.Id.ToByteArray()); // 13
@@ -189,8 +189,18 @@ namespace PlayerProtocol
                 msg.Write(this.MapX); // 29
                 msg.Write(this.MapY); // 33
                 msg.Write(this.Sender.ToByteArray()); // 45
-                msg.Write(this.TimeStamp.ToBinary()); // 53
                 return msg;
+            }
+
+            internal static IAttachment Unpack(NetBuffer msg)
+            {
+                var result = new LocationAttachment();
+                result.Id = new ObjectId(msg.ReadBytes(12));
+                result.MapId = new ObjectId(msg.ReadBytes(12));
+                result.MapX = msg.ReadInt32();
+                result.MapY = msg.ReadInt32();
+                result.Sender = new ObjectId(msg.ReadBytes(12));
+                return result;
             }
         }
 
@@ -199,7 +209,7 @@ namespace PlayerProtocol
         /// </summary>
         public class ItemAttachment : IAttachment
         {
-            private const Byte AttachmentType = 2;
+            internal const Byte AttachmentType = 2;
 
             /// <summary>
             /// Item id
@@ -241,14 +251,22 @@ namespace PlayerProtocol
             /// </summary>
             /// <param name="msg"></param>
             /// <returns></returns>
-            public override NetBuffer Pack(ref NetBuffer msg)
+            internal override NetBuffer Pack(ref NetBuffer msg)
             {
                 msg.Write(AttachmentType); // 1
                 msg.Write(this.Id.ToByteArray()); // 13
                 msg.Write(this.BlueprintId); // 17
                 msg.Write(this.Sender.ToByteArray()); // 29
-                msg.Write(this.TimeStamp.ToBinary()); // 37
                 return msg;
+            }
+
+            internal static IAttachment Unpack(NetBuffer msg)
+            {
+                var result = new ItemAttachment();
+                result.Id = new ObjectId(msg.ReadBytes(12));
+                result.BlueprintId = msg.ReadInt32();
+                result.Sender = new ObjectId(msg.ReadBytes(12));
+                return result;
             }
         }
 
@@ -257,20 +275,27 @@ namespace PlayerProtocol
         /// </summary>
         public class AchievementAttachment : IAttachment
         {
-            private const Byte AttachmentType = 3;
+            internal const Byte AttachmentType = 3;
 
             /// <summary>
             /// 
             /// </summary>
             /// <param name="msg"></param>
             /// <returns></returns>
-            public override NetBuffer Pack(ref NetBuffer msg)
+            internal override NetBuffer Pack(ref NetBuffer msg)
             {
                 msg.Write(AttachmentType); // 1
                 msg.Write(this.Id.ToByteArray()); // 13
                 msg.Write(this.Sender.ToByteArray()); // 25
-                msg.Write(this.TimeStamp.ToBinary()); // 33
                 return msg;
+            }
+
+            internal static IAttachment Unpack(NetBuffer msg)
+            {
+                var result = new AchievementAttachment();
+                result.Id = new ObjectId(msg.ReadBytes(12));
+                result.Sender = new ObjectId(msg.ReadBytes(12));
+                return result;
             }
         }
 
@@ -279,20 +304,27 @@ namespace PlayerProtocol
         /// </summary>
         public class EffortAttachment : IAttachment
         {
-            private const Byte AttachmentType = 3;
+            internal const Byte AttachmentType = 4;
 
             /// <summary>
             /// 
             /// </summary>
             /// <param name="msg"></param>
             /// <returns></returns>
-            public override NetBuffer Pack(ref NetBuffer msg)
+            internal override NetBuffer Pack(ref NetBuffer msg)
             {
                 msg.Write(AttachmentType); // 1
                 msg.Write(this.Id.ToByteArray()); // 13
                 msg.Write(this.Sender.ToByteArray()); // 25
-                msg.Write(this.TimeStamp.ToBinary()); // 33
                 return msg;
+            }
+
+            internal static IAttachment Unpack(NetBuffer msg)
+            {
+                var result = new EffortAttachment();
+                result.Id = new ObjectId(msg.ReadBytes(12));
+                result.Sender = new ObjectId(msg.ReadBytes(12));
+                return result;
             }
         }
 
@@ -352,12 +384,45 @@ namespace PlayerProtocol
             msg.Write(this.Id.ToByteArray()); // 12
             msg.Write(this.Contents); // 12 + x
             msg.Write(this.Sender.ToByteArray()); // 24 + x
-            msg.Write(this.TimeStamp.ToBinary()); // 32 + x
             msg.Write(this.Attachment != null); // 33 + x
             if (this.Attachment != null)
                 this.Attachment.Pack(ref msg); // (33 || 45) + x
 
             return msg;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public DialogueMessage Unpack(NetBuffer msg)
+        {
+            var result = new DialogueMessage();
+            result.Id = new ObjectId(msg.ReadBytes(12));
+            result.Contents = msg.ReadString();
+            result.Sender = new ObjectId(msg.ReadBytes(12));
+            if (msg.ReadBoolean())
+            {
+                var type = msg.ReadByte();
+                switch (type)
+                {
+                    case AchievementAttachment.AttachmentType:
+                        result.Attachment = AchievementAttachment.Unpack(msg);
+                        break;
+                    case EffortAttachment.AttachmentType:
+                        result.Attachment = EffortAttachment.Unpack(msg);
+                        break;
+                    case ItemAttachment.AttachmentType:
+                        result.Attachment = ItemAttachment.Unpack(msg);
+                        break;
+                    case LocationAttachment.AttachmentType:
+                        result.Attachment = LocationAttachment.Unpack(msg);
+                        break;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -68,56 +68,6 @@ namespace PlayerService.Data
 
         }
 
-            /*DialoguePage lastPage;
-            FindAndModifyResult atomicResult;
-
-            // First create a new page with the message
-            DialoguePage newPage = DialoguePage.Generate(this.Id, message);
-
-            GetCollection().Update(Query.EQ("_id", this.Id), 
-                Update.AddToSet("Pages", newPage.ToBsonDocument<DialoguePage>()));     
-
-            // Now mark this page and try to put it as follow up page
-            lock(this.Pages)
-            {
-                lastPage = this.Pages[this.Pages.Count - 1];
-            
-                atomicResult = Dialogue.GetCollection().FindAndModify(
-                    Query.And(Query.EQ("_id", this.Id), Query.EQ("Pages._id", lastPage.Id), Query.EQ("Pages.$.FollowUp", BsonNull.Value)), 
-                    SortBy.Null, Update.Set("Pages.$.FollowUp", newPage.Id));
-            }
-
-            // If follow up page was already set
-            if (!atomicResult.Ok)
-            {
-                // Remove the local follow up page
-                Dialogue.GetCollection().Update(Query.EQ("_id", this.Id), 
-                    Update.Pull("Pages._id", newPage.Id));
-
-                // Get pages from the database
-                lock (this.Pages)
-                {
-                    this.Pages = Dialogue.GetCollection().FindOneById(this.Id).Pages;
-                    lastPage = this.Pages[this.Pages.Count - 1];
-                }
-
-                // Add message to assumed last page (recursively when failure)
-                lastPage.AddMessage(message);
-            }
-            else
-            {
-                lock (this.Pages)
-                {
-                    // Follow up page now updates, so set it
-                    lastPage.FollowUp = newPage.Id;
-                    this.Pages.Add(newPage);
-                }
-            }
-
-            // Adds page
-            //GetCollection().Update(Query.EQ("_id", this.Id), Update.AddToSet("Pages", this.Pages[this.Pages.Count - 1].ToBsonDocument<DialoguePage>())); 
-             */
-
         /// <summary>
         /// 
         /// </summary>
@@ -275,11 +225,13 @@ namespace PlayerService.Data
 
             if (!archived)
             {
+                // Only find those with no followups
                 IMongoQuery innerQuery = Query.EQ("FollowUp", BsonNull.Value);
 
+                // Only find those with unread messages
                 if (unread)
                 {
-                    //innerQuery = Query.Or(innerQuery, Query.ElemMatch("Messages", Query.NotIn("Messages.Read", id)));
+                    innerQuery = Query.Or(innerQuery, Query.ElemMatch("Messages", Query.NE("Messages.Read", id)));
                 }
 
                 query = Query.And(query, innerQuery);

@@ -213,9 +213,25 @@ namespace PlayerProtocol
             foreach (var participant in this.Participants)
                 msg.Write(participant.ToByteArray()); // 16 + 12 * x
             msg.Write(this.Messages.Count()); // 20 + 12 * x
-            msg.Write(this.TimeStamp.ToBinary()); // 28 + 12 * x + 12 * y
 
             return msg;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="msgs"></param>
+        /// <returns></returns>
+        public Dialogue Unpack(NetBuffer msg, out Int32 msgs)
+        {
+            var result = new Dialogue();
+            result.Id = new ObjectId(msg.ReadBytes(12));
+            var ps = msg.ReadInt32();
+            for (; ps > 0; ps--)
+                result.Participants.Add(new ObjectId(msg.ReadBytes(12)));
+            msgs = msg.ReadInt32();
+            return result;
         }
     }
 }
