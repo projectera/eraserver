@@ -171,6 +171,13 @@ namespace PlayerProtocol
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public void Ban(String reason) {
+            this.BannedReason = reason;
+        }
+
+        /// <summary>
         /// Clears for pool
         /// </summary>
         public void Clear()

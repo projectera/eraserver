@@ -69,7 +69,7 @@ namespace PlayerService.Data
         /// </summary>
         /// <param name="reason"></param>
         /// <returns>Update task</returns>
-        internal static Task<Boolean> Ban(PlayerProtocol.Player player, String reason)
+        internal static Task<Boolean> Ban(ref PlayerProtocol.Player player, String reason)
         {
             // Update locally
             if (String.IsNullOrEmpty(reason))
@@ -77,6 +77,9 @@ namespace PlayerService.Data
 
             // Update remotely
             ObjectId updateId = player.Id;
+
+            // New player
+            player.Ban(reason);
 
             return Task.Factory.StartNew(() =>
             {
@@ -94,18 +97,21 @@ namespace PlayerService.Data
         /// <remarks>Even though locally changes always succeeded, you should inspect the Task.Result value to see if the update succeeded remotely</remarks>
         /// <param name="username">new username</param>
         /// <returns>Update Task</returns>
-        internal static Task<Boolean> ChangeUsername(PlayerProtocol.Player player, String username)
+        internal static Task<Boolean> ChangeUsername(ref PlayerProtocol.Player player, String username)
         {
             // Copy old value and update (local) value
             String oldname = player.Username;
-            
+
+            // New player
+            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
+
             // Start updating
             return Task.Factory.StartNew(() =>
             {
                 // First, find a player with the new username
-                player = GetCollection().FindOne(Query.EQ("Username", username));
+                var otherplayer = GetCollection().FindOne(Query.EQ("Username", username));
                 // If we found one, we can not change to this username
-                if (!player.Id.Equals(ObjectId.Empty))
+                if (!otherplayer.Id.Equals(ObjectId.Empty))
                     return false;
                 // Second, try updating the username to the new username
                 SafeModeResult sfr = GetCollection().Update(Query.EQ("Username", oldname), Update.Set("Username", username), SafeMode.True);
@@ -119,13 +125,17 @@ namespace PlayerService.Data
         /// </summary>
         /// <param name="email">new Email</param>
         /// <returns></returns>
-        internal static Task<Boolean> ChangeEmail(PlayerProtocol.Player player, String email)
+        internal static Task<Boolean> ChangeEmail(ref PlayerProtocol.Player player, String email)
         {
             // Copy old value and update (local) value
             String oldmail = player.EmailAddress;
-            //player.EmailAddress = email;
             Int32 validationCode = NetRandom.Instance.NextInt();
             ObjectId updateId = player.Id;
+
+            // New player
+            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, email, player.PermissionGroup);
+            String mail = player.EmailAddress;
+            String username = player.Username;
 
             // Start updating
             return Task.Factory.StartNew(() =>
@@ -145,7 +155,7 @@ namespace PlayerService.Data
                 try
                 {
                     MailMessage message = new MailMessage(new MailAddress("derk-jan@projectera.org", "Derk-Jan [ProjectERA]"),
-                        new MailAddress(player.EmailAddress, player.Username + " [ProjectERA]"));
+                        new MailAddress(mail, username + " [ProjectERA]"));
                     message.IsBodyHtml = true;
                     message.Subject = "Email address linked to ProjectERA account";
 
@@ -154,7 +164,7 @@ namespace PlayerService.Data
 
                     SmtpClient smtp = new SmtpClient("mail.direct-adsl.nl");
                     //smtp.SendCompleted += new SendCompletedEventHandler(smtp_SendCompleted);
-                    smtp.SendAsync(message, player.Id);
+                    smtp.SendAsync(message, updateId);
                 }
                 catch (Exception)
                 {
@@ -172,17 +182,20 @@ namespace PlayerService.Data
         /// </summary>
         /// <param name="?"></param>
         /// <returns></returns>
-        internal static Task<Boolean> LinkAccount(PlayerProtocol.Player player, UInt16 forumId)
+        internal static Task<Boolean> LinkAccount(ref PlayerProtocol.Player player, UInt16 forumId)
         {
             // Copy old value and update (local) value
             ObjectId updateId = player.Id;
             Int32 validationCode = NetRandom.Instance.NextInt();
 
+            // new player
+            player = PlayerProtocol.Player.Generate(player.Id, forumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
+            String mail = player.EmailAddress;
+            String username = player.Username;
+
             // Start updating
             return Task.Factory.StartNew(() =>
             {
-                //player.ValidationLinkCode = NetRandom.Instance.NextInt();
-
                 FindAndModifyResult fmr = GetCollection().FindAndModify(
                     Query.EQ("_id", updateId),
                     SortBy.Null,
@@ -193,8 +206,8 @@ namespace PlayerService.Data
             {
                 try
                 {
-                    MailMessage message = new MailMessage(new MailAddress("derk-jan@projectera.org", "Derk-Jan [ProjectERA]"), 
-                        new MailAddress(player.EmailAddress, player.Username + " [ProjectERA]"));
+                    MailMessage message = new MailMessage(new MailAddress("derk-jan@projectera.org", "Derk-Jan [ProjectERA]"),
+                        new MailAddress(mail, username + " [ProjectERA]"));
                     message.IsBodyHtml = true;
                     message.Subject = "Forum account linked to ProjectERA account";
 
@@ -203,7 +216,7 @@ namespace PlayerService.Data
 
                     SmtpClient smtp = new SmtpClient("mail.direct-adsl.nl");
                     //smtp.SendCompleted += new SendCompletedEventHandler(smtp_SendCompleted);
-                    smtp.SendAsync(message, player.Id);
+                    smtp.SendAsync(message, updateId);
                 }
                 catch (Exception)
                 {
@@ -220,10 +233,11 @@ namespace PlayerService.Data
         /// </summary>
         /// <param name="permissionGroup">new permissiongroup</param>
         /// <returns>Update task</returns>
-        internal static Task<Boolean> Elevate(PlayerProtocol.Player player, PlayerProtocol.PermissionGroup permissionGroup)
+        internal static Task<Boolean> Elevate(ref PlayerProtocol.Player player, PlayerProtocol.PermissionGroup permissionGroup)
         {
-            //player.PermissionGroup = permissionGroup;
-
+            // New player
+            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, permissionGroup);
+            
             // Update remotely
             ObjectId updateId = player.Id;
 
