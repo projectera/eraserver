@@ -1,0 +1,12 @@
+﻿#=====================================================
+# Use ! to capitalize a word
+# Use _ to add a space
+# Use \! to add an exclamation point
+# Use [A-Z]:option option option
+#=====================================================
+W:captain!,_we_need_to_A_the_B_C_D\!
+A:perform_a_level_E_diagnostic_on run_a_level_E_diagnostic_on reroute_the_B_C_D_to redirect_the_B_C_D_to divert_the_B_C_D_to bypass amplify modify polarize reconfigure extend rebuild vary analyze adjust recalibrate
+B:field tachyon baryon lepton e-m phase pulse sub-space spectral antimatter plasma bandwidth particle
+C:dispersion induction frequency resonance
+D:conduit discriminator modulator transducer wave-guide coils matrix sensors
+E:one two three four five
