@@ -126,6 +126,7 @@ namespace HeadlessClient
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 //Logger.Fatal(ex.Message);
             }
         }

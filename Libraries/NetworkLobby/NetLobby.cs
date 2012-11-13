@@ -233,6 +233,9 @@ namespace Lidgren.Network.Lobby
                     var reasonByte = message.ReadByte();
 
                     var reason = (Handshake.Contents)reasonByte;
+
+                    Console.WriteLine("Got handshake {0}", reason);
+
                     var handshake = message.SenderConnection.Tag as Handshake;
                     switch (reason)
                     {
