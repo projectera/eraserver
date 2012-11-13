@@ -10,21 +10,49 @@ namespace Lidgren.Network.Lobby
     public static class NetLobby
     {
         /// <summary>
-        /// 
+        /// Keysize of SRP
         /// </summary>
         public static Int32 KeySize = 1024;
-        public static ILogonManager LogonManager;
-
-        public delegate void HandshakeFinishedEvent(String reason);
-        public static event HandshakeFinishedEvent OnDenied, OnSucces, OnExpired, OnError;
 
         /// <summary>
-        /// 
+        /// The LogonManager handler
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        public static void Authenticate(NetConnection connection, String username, String password, Byte[] data = null)
+        public static ILogonManager LogonManager;
+
+        /// <summary>
+        /// Delegate that runs when a handshake is finished
+        /// </summary>
+        /// <param name="reason"></param>
+        public delegate void HandshakeFinishedEvent(String reason);
+
+        /// <summary>
+        /// On handshake denied (username/password failure)
+        /// </summary>
+        public static event HandshakeFinishedEvent OnDenied;
+        
+        /// <summary>
+        /// On handshake succeeded
+        /// </summary>
+        public static event HandshakeFinishedEvent OnSucces;
+        
+        /// <summary>
+        /// On handshake expired (timeout/old session)
+        /// </summary>
+        public static event HandshakeFinishedEvent OnExpired;
+        
+        /// <summary>
+        /// On handshake error
+        /// </summary>
+        public static event HandshakeFinishedEvent OnError;
+
+        /// <summary>
+        /// Authenticates the connection
+        /// </summary>
+        /// <param name="connection">Connection to authenticate</param>
+        /// <param name="username">Username</param>
+        /// <param name="password">Password</param>
+        /// <param name="data">Additional data to send</param>
+        internal static void Authenticate(NetConnection connection, String username, String password, Byte[] data = null)
         {
             var handshake = new Handshake(true, KeySize);
             var request = handshake.GenerateSRPRequest(username, password, data ?? new Byte[0]);
@@ -39,10 +67,10 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Receives authentication
         /// </summary>
-        /// <param name="connection"></param>
-        public static void ReceiveAuthenticate(NetIncomingMessage message)
+        /// <param name="message">Message with authentication</param>
+        internal static void ReceiveAuthenticate(NetIncomingMessage message)
         {
             try
             {
@@ -66,10 +94,10 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Receives authentication response
         /// </summary>
         /// <param name="message"></param>
-        public static void ReceiveResponse(NetIncomingMessage message)
+        internal static void ReceiveResponse(NetIncomingMessage message)
         {
             try
             {
@@ -88,10 +116,10 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Receives active party verification
         /// </summary>
         /// <param name="message"></param>
-        public static void ReceiveActiveVerification(NetIncomingMessage message)
+        internal static void ReceiveActiveVerification(NetIncomingMessage message)
         {
             try
             {
@@ -116,10 +144,10 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Recieves passive verification
         /// </summary>
         /// <param name="message"></param>
-        public static void ReceivePassiveVerification(NetIncomingMessage message)
+        internal static void ReceivePassiveVerification(NetIncomingMessage message)
         {
             try
             {
@@ -139,19 +167,19 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Receives expired
         /// </summary>
-        public static void ReceiveFromExpired(NetIncomingMessage message)
+        internal static void ReceiveFromExpired(NetIncomingMessage message)
         {
             var result = Create(message.SenderConnection, Handshake.Contents.Expired);
             message.SenderConnection.SendMessage(result, NetDeliveryMethod.ReliableUnordered, 0);
         }
 
         /// <summary>
-        /// 
+        /// Handles exceptions
         /// </summary>
         /// <param name="message"></param>
-        public static void ExceptionHandle(NetIncomingMessage message, String reason)
+        internal static void ExceptionHandle(NetIncomingMessage message, String reason)
         {
             Handshake.Contents contents;
             switch ((message.SenderConnection.Tag as Handshake).HandshakeState)
@@ -180,7 +208,7 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Creates a new message
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="reason"></param>
@@ -194,7 +222,7 @@ namespace Lidgren.Network.Lobby
         }
 
         /// <summary>
-        /// 
+        /// Handles incoming messages
         /// </summary>
         /// <param name="message"></param>
         public static Handshake.Contents IncomingMessage(NetIncomingMessage message)
