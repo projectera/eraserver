@@ -52,7 +52,7 @@ namespace Lidgren.Network.Lobby
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <param name="data">Additional data to send</param>
-        internal static void Authenticate(NetConnection connection, String username, String password, Byte[] data = null)
+        public static void Authenticate(NetConnection connection, String username, String password, Byte[] data = null)
         {
             var handshake = new Handshake(true, KeySize);
             var request = handshake.GenerateSRPRequest(username, password, data ?? new Byte[0]);
