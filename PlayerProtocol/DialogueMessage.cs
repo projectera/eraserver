@@ -319,6 +319,11 @@ namespace PlayerProtocol
                 return msg;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="msg"></param>
+            /// <returns></returns>
             internal static IAttachment Unpack(NetBuffer msg)
             {
                 var result = new EffortAttachment();
@@ -396,7 +401,7 @@ namespace PlayerProtocol
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public DialogueMessage Unpack(NetBuffer msg)
+        public static DialogueMessage Unpack(NetBuffer msg)
         {
             var result = new DialogueMessage();
             result.Id = new ObjectId(msg.ReadBytes(12));

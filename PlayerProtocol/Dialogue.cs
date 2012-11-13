@@ -210,10 +210,13 @@ namespace PlayerProtocol
         {
             msg.Write(this.Id.ToByteArray()); // 12
             msg.Write(this.Participants.Count); // 16
-            foreach (var participant in this.Participants)
+            var participants = this.GetParticipants();
+            foreach (var participant in participants)
                 msg.Write(participant.ToByteArray()); // 16 + 12 * x
-            msg.Write(this.Messages.Count()); // 20 + 12 * x
-
+            var messages = this.GetMessages();
+            msg.Write(messages.Count); // 20 + 12 * x
+            foreach (var message in messages)
+                message.Pack(ref msg);
             return msg;
         }
 
@@ -223,14 +226,16 @@ namespace PlayerProtocol
         /// <param name="msg"></param>
         /// <param name="msgs"></param>
         /// <returns></returns>
-        public Dialogue Unpack(NetBuffer msg, out Int32 msgs)
+        public Dialogue Unpack(NetBuffer msg)
         {
             var result = new Dialogue();
             result.Id = new ObjectId(msg.ReadBytes(12));
             var ps = msg.ReadInt32();
             for (; ps > 0; ps--)
                 result.Participants.Add(new ObjectId(msg.ReadBytes(12)));
-            msgs = msg.ReadInt32();
+            var ms = msg.ReadInt32();
+            for (; ms > 0; ms--)
+                result.AddMessage(DialogueMessage.Unpack(msg));
             return result;
         }
     }
