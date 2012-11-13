@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Dialogue.cs" />
     <Compile Include="Listeners\ClientListener.cs" />
     <Compile Include="Connections\Connection.cs" />
     <Compile Include="Data\Player.cs" />
