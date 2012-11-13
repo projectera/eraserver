@@ -44,7 +44,7 @@ namespace HeadlessClient
                 // This is checked each cycle
                 while (this.IsRunning)
                 {
-                    _client.MessageReceivedEvent.WaitOne();
+                    _client.MessageReceivedEvent.WaitOne(1000);
                     NetIncomingMessage msg = _client.ReadMessage();
 
                     // No message received, please poll

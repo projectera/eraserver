@@ -72,7 +72,7 @@ namespace PlayerService.Listeners
             
             while (this.IsRunning)
             {
-                _server.MessageReceivedEvent.WaitOne();
+                _server.MessageReceivedEvent.WaitOne(1000);
                 msg = _server.ReadMessage();
 
                 // If this second no messages accepted, releave CPU
