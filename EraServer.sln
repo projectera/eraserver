@@ -30,7 +30,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{BE35170A-4F2F-4B74-BA77-E28102F8793C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Lobby", "Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj", "{46A4AE63-B570-41BF-8B56-5C0711260CBF}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionProtocol", "SubscriptionProtocol\SubscriptionProtocol.csproj", "{4466984A-46B0-418F-90A2-2CD80CA305CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientProtocol", "ClientProtocol\ClientProtocol.csproj", "{DE4A1299-5253-45E3-809D-CE9AF4C6475F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -172,6 +175,16 @@ Global
 		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4466984A-46B0-418F-90A2-2CD80CA305CA}.Release|x86.ActiveCfg = Release|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
