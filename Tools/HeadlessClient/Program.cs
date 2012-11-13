@@ -64,7 +64,6 @@ namespace HeadlessClient
                 _manager.Connect(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 15936));
 
                 Console.WriteLine("Sorry! Trying loopback:15936");
-                _manager.IsRunning = false;
             }
         }
 
