@@ -56,7 +56,7 @@ namespace PlayerService
             RegisterFunctions();
 
             // Connect to the cloud
-            EraSClient = ServiceClient.Connect("Map", true);
+            EraSClient = ServiceClient.Connect("Player", true);
             StopRunningSemaphore = new ManualResetEvent(true);
 
             // Save the network info
