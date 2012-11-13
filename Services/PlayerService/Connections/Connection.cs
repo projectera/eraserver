@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using PlayerService.Protocols;
 using Lidgren.Network;
-using MongoDB.Bson;
 using Lidgren.Network.Authentication;
+using MongoDB.Bson;
+using PlayerService.Protocols;
 using PlayerService.Protocols.Server;
 
 namespace PlayerService.Connections
@@ -36,6 +36,11 @@ namespace PlayerService.Connections
         /// Node id
         /// </summary>
         public ObjectId NodeId { get; set; }
+
+        /// <summary>
+        /// Node username
+        /// </summary>
+        public String Username { get; set; }
 
         /// <summary>
         /// Connected flag
@@ -82,7 +87,9 @@ namespace PlayerService.Connections
             this.NodeId = nodeId;
 
             if (encryption != null)
+            {
                 _netEncryption = encryption;
+            }
             else
             {
                 this.IsTransfering = true;
@@ -360,6 +367,7 @@ namespace PlayerService.Connections
             if(this.IsDisposed)
                 return;
 
+            _keepAliveTimer.Stop();
             _disposed = true;
 
             for(Int32 i = 0; i < ProtocolConstants.NetworkMaxValue; i++)
@@ -369,6 +377,8 @@ namespace PlayerService.Connections
                     _protocols[i].DeRegister();
                     _protocols[i].Dispose();
                 }
+
+            _keepAliveTimer.Dispose();
         }
 
         /// <summary>
@@ -379,8 +389,5 @@ namespace PlayerService.Connections
         {
             _netEncryption = enc;
         }
-
-
-        public string Username { get; set; }
     }
 }
