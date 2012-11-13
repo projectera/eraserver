@@ -97,6 +97,10 @@
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
       <Name>ServiceProtocol</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SubscriptionProtocol\SubscriptionProtocol.csproj">
+      <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>
+      <Name>SubscriptionProtocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
