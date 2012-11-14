@@ -43,6 +43,11 @@ namespace InteractableService
         /// </summary>
         public static Subscriptions InteractableSubscriptions { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Dictionary<ObjectId, String> InteractableMapper { get; protected set; }
+
     
         /// <summary>
         /// 
@@ -61,6 +66,7 @@ namespace InteractableService
 
             // Save the network info
             InteractableSubscriptions = new Subscriptions(EraSClient);
+            InteractableMapper = new Dictionary<ObjectId, string>();
             NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
 
             // Start this
@@ -95,8 +101,11 @@ namespace InteractableService
                     question.Packet.Write("GetRunning");
                     var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
-                    for (Int32 i = 0; i < count; i++)
-                        interactables.Add(new ObjectId(answer.Packet.ReadBytes(12)));
+                    for (Int32 i = 0; i < count; i++) {
+                        var id = new ObjectId(answer.Packet.ReadBytes(12));
+                        InteractableMapper.Add(id, iservice);
+                        interactables.Add(id);
+                    }
                 }
                 catch (TimeoutException) { continue; }
             }
