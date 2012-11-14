@@ -76,13 +76,14 @@ namespace HeadlessClient
 
             var playerTask = ((Protocols.Player)protocol).Get((player) =>
                 {
-                //
+                    Console.WriteLine("Hello {0}! You registered on {1}.", player.Username, player.RegistrationDate.ToShortDateString());
                 }
             );
         }
 
         static void QueryDetails()
         {
+            _manager.CancelConnect();
             Console.Write("Username: ");
             var username = Console.ReadLine().Replace("\n", "").Replace("\r","");
             Console.Write("Password: ");
