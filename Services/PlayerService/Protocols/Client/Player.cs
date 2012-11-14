@@ -3,27 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lidgren.Network;
-using ProjectERA.Protocols;
 using MongoDB.Bson;
 using System.Threading;
-using ERAUtils;
-using ERAUtils.Logger;
-using ERAServer.Services;
+using PlayerService.Connections;
+using ClientProtocol;
 
-namespace ERAServer.Protocols.Client
+namespace PlayerService.Protocols.Client
 {
     internal partial class Player : Protocol
     {
         private ReaderWriterLockSlim _playerDataLock;
-        private Data.Player _playerData;
-
-        private ReaderWriterLockSlim _interactableDataLock;
-        private Data.Interactable _interactableData;
+        private PlayerProtocol.Player _playerData;
 
         /// <summary>
         /// Player
         /// </summary>
-        internal Data.Player PlayerData 
+        internal PlayerProtocol.Player PlayerData 
         {
             get
             {
@@ -58,67 +53,6 @@ namespace ERAServer.Protocols.Client
             } 
         }
 
-        /// <summary>
-        /// Interactable/Active Avatar
-        /// </summary>
-        internal Data.Interactable InteractableData
-        {
-            get
-            {
-                try
-                {
-                    _interactableDataLock.EnterReadLock();
-                    return _interactableData;
-                }
-                finally
-                {
-                    _interactableDataLock.ExitReadLock();
-                }
-
-            }
-
-            set
-            {
-                _interactableDataLock.EnterWriteLock();
-                _interactableData = value;
-                _interactableDataLock.ExitWriteLock();
-            }
-        }
-
-        /// <summary>
-        /// Interactable/Active Avatar Id
-        /// </summary>
-        internal ObjectId ActiveId
-        {
-            get
-            {
-                try
-                {
-                    _interactableDataLock.EnterReadLock();
-
-                    if (_interactableData != null)
-                        return _interactableData.Id;
-
-                    return ObjectId.Empty;
-                }
-                finally
-                {
-                    _interactableDataLock.ExitReadLock();
-                }
-
-            }
-            set
-            {
-                _interactableDataLock.EnterWriteLock();
-                _interactableData = Data.Interactable.GetBlocking(value);
-                _interactableDataLock.ExitWriteLock();
-
-                // Add to dictionairy
-                Data.GeneralCache<ObjectId, Data.Interactable>.UpdateCache(this.InteractableData.Id, this.InteractableData);
-            }
-        }
-
-        /// <summary>
         /// Private static list of this protocols instances
         /// </summary>
         private static List<Protocol> _instances;
@@ -151,44 +85,26 @@ namespace ERAServer.Protocols.Client
         /// Constructor
         /// </summary>
         /// <param name="connection"></param>
-        public Player(Connection connection, String username)
+        public Player(ClientConnection connection, String username)
             : base(connection)
         {
-            Data.GeneralCache<ObjectId, Data.Player>.InitializeCache();
-            Data.GeneralCache<ObjectId, Data.Interactable>.InitializeCache();
-
             _playerDataLock = new ReaderWriterLockSlim();
-            _interactableDataLock = new ReaderWriterLockSlim();
-            this.PlayerData = Data.Player.GetBlocking(username) ?? new Data.Player();
+            this.PlayerData = Data.Player.GetBlocking(username) ?? new PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
-
-            // We don't want the playerdata still being null when it is added
-            Thread.MemoryBarrier();
-
-            // Add to dictionairy
-            Data.GeneralCache<ObjectId, Data.Player>.AddCache(this.PlayerData.Id, this.PlayerData);
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="connection"></param>
-        public Player(Connection connection, ObjectId id)
+        public Player(ClientConnection connection, ObjectId id)
             : base(connection)
         {
-            Data.GeneralCache<ObjectId, Data.Player>.InitializeCache();
-            Data.GeneralCache<ObjectId, Data.Interactable>.InitializeCache();
-
             _playerDataLock = new ReaderWriterLockSlim();
-            _interactableDataLock = new ReaderWriterLockSlim();
-            this.PlayerData = Data.Player.GetBlocking(id) ?? new Data.Player();
+            _playerDataLock.EnterWriteLock();
+            this.PlayerData = Data.Player.GetBlocking(id) ?? new PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
-
-            // We don't want the playerdata still being null when it is added
-            Thread.MemoryBarrier();
-
-            // Add to dictionairy
-            Data.GeneralCache<ObjectId, Data.Player>.AddCache(this.PlayerData.Id, this.PlayerData);
+            _playerDataLock.ExitWriteLock();
         }
         
         /// <summary>
@@ -211,161 +127,58 @@ namespace ERAServer.Protocols.Client
                     this.QueueAction(() =>
                     {
                         // Find the player 
-                        Data.Player player = Player.Find(searchPlayerId == ObjectId.Empty ? this.PlayerData.Id : searchPlayerId);
+                        Data.Player.Get(searchPlayerId == ObjectId.Empty ? this.PlayerData.Id : searchPlayerId).ContinueWith(
+                            (pt) => QueueAction(() =>
+                            {
+                                PlayerProtocol.Player player = pt.Result;
+                                PlayerProtocol.Player tempPlayer = null;
+                                if (player == null)
+                                    tempPlayer = new PlayerProtocol.Player();
 
-                        Data.Player tempPlayer = null;
-                        if (player == null)
-                            tempPlayer = new Data.Player();
+                                // Log this action
+                                //Logger.Verbose("PlayerAction.Get requested: " + searchPlayerId + " and got " + (player ?? tempPlayer).Id);
 
-                        // Log this action
-                        Logger.Verbose("PlayerAction.Get requested: " + searchPlayerId + " and got " + (player ?? tempPlayer).Id);
+                                // Create the message and encode data
+                                NetOutgoingMessage getMsg = OutgoingMessage(PlayerAction.Get);
+                                
+                                getMsg.Write(searchPlayerId.ToByteArray());
+                                PlayerProtocol.Player.Pack(player ?? tempPlayer, getMsg);
 
-                        // Create the message and encode data
-                        NetOutgoingMessage getMsg = OutgoingMessage(PlayerAction.Get);
-                        getMsg.Write(searchPlayerId.ToByteArray());
-                        Player.Pack(player ?? tempPlayer, ref getMsg);
+                                // Send the message
+                                this.Connection.SendMessage(getMsg, NetDeliveryMethod.ReliableUnordered);
 
-                        // Send the message
-                        this.Connection.SendMessage(getMsg, NetDeliveryMethod.ReliableUnordered);
-
-                        // Recycle if needed
-                        if (tempPlayer != null)
-                            tempPlayer.Clear();
+                                // Recycle if needed
+                                if (tempPlayer != null)
+                                    tempPlayer.Clear();
+                            })
+                        );
                     });
+                    break;
+
+                case PlayerAction.GetAvatars:
+
                     break;
 
                 //
                 case PlayerAction.RequestMovement:
-                    if (InteractableData != null)
-                    {
-                        Int32 newX = msg.ReadInt32();
-                        Int32 newY = msg.ReadInt32();
-                        Byte newD = msg.ReadByte();
-
-                        // TODO: check position off course
-
-                        Data.AI.InteractableAppearance component = InteractableData.GetComponent(typeof(Data.AI.InteractableAppearance)) as Data.AI.InteractableAppearance;
-                        InteractableData.MapX = newX;
-                        InteractableData.MapY = newY;
-                        component.MapDir = newD;
-
-                        lock (this.Instances)
-                            this.Instances.ForEach((protocol) => {
-                                if (protocol != this)
-                                {
-                                    Player pProtocol = (Player)protocol;
-                                    NetOutgoingMessage broadcastMoveMsg = pProtocol.OutgoingInteractableMessage(InteractableAction.Movement, 21);
-                                    if (pProtocol.InteractableData != null)
-                                    {
-                                        broadcastMoveMsg.Write(this.InteractableData.Id.ToByteArray());
-                                        broadcastMoveMsg.Write(newX);
-                                        broadcastMoveMsg.Write(newY);
-                                        broadcastMoveMsg.Write(newD);
-
-                                        protocol.Connection.SendMessage(broadcastMoveMsg, NetDeliveryMethod.UnreliableSequenced, 11); // NetDeliveryMethod.ReliableSequenced, 11); // Find a way to use RealiableSequenced
-                                    }
-                                }
-                            });
-                    }
+                   
                     break;
 
                 // Sends a message
                 case PlayerAction.Message:
-                    ObjectId messageReceiver = new ObjectId(msg.ReadBytes(12));
-                    String messageContents = msg.ReadString();
-
-                    /*Data.Dialogue.Get(messageReceiver).ContinueWith(
-                        (task) =>
-                        {*/
-                            //task.Result.AddMessage(message);
-
-                            // Add message to dialogue and save it
-                            Data.DialogueMessage message = Data.DialogueMessage.Generate(this.PlayerData.Id, messageContents);
-                            this.PlayerData.Dialogues[messageReceiver].AddMessage(message);
-
-                            // Broadcast message to online players
-                            List<NetConnection> receipients = new List<NetConnection>();
-                            lock (this.Instances)
-                            {
-                                this.Instances.ForEach((protocol) =>
-                                {
-                                    ObjectId receipientId = (protocol as Player).PlayerData.Id;
-
-                                    if (this.PlayerData.Dialogues[messageReceiver].Participants.Contains(receipientId))
-                                    {
-                                        receipients.Add(protocol.Connection.NetConnection);
-                                    }
-                                });
-                            }
-
-                            if (receipients.Count > 0)
-                            {
-                                Int32 messageCount = Encoding.UTF8.GetByteCount(messageContents);
-                                NetOutgoingMessage messageBroadcast = OutgoingMessage(PlayerAction.Message, 45 + messageCount);
-                                messageBroadcast = message.Pack(ref messageBroadcast);
-                                this.Connection.NetManager.SendMessage(messageBroadcast, receipients, NetDeliveryMethod.ReliableUnordered, 0);
-                            }
-                        //});
-                    break;
-
-                case PlayerAction.MessageAttachment:
-                    // TODO add attachment to message
+                    
                     break;
 
                 case PlayerAction.MessageStatus:
-                    ObjectId dialogueStatusId = new ObjectId(msg.ReadBytes(12));
-                    ObjectId dialogueMessageId = new ObjectId(msg.ReadBytes(12));
-
-                    if (msg.ReadBoolean())
-                    {
-                        this.PlayerData.Dialogues[dialogueStatusId].MarkAsRead(dialogueMessageId, PlayerData.Id);
-                    }
-                    else
-                    {
-                        this.PlayerData.Dialogues[dialogueStatusId].MarkAsUnread(dialogueMessageId, PlayerData.Id);
-                    }
+                   
                     break;
 
                 case PlayerAction.MessageStart:
-                    ObjectId messageStartReceiver = new ObjectId(msg.ReadBytes(12));
-                    String messageStartContents = msg.ReadString();
-                    Data.Dialogue messageStart = Data.Dialogue.Generate(this.PlayerData.Id, messageStartReceiver, messageStartContents);
-                    this.PlayerData.Dialogues.Add(messageStart.Id, messageStart);
-                    messageStart.Put();
-
-                    Protocol messageStartProtocol = null;
-                    lock (this.Instances)
-                    {
-                        messageStartProtocol = this.Instances.Find((a) => (a as Player).PlayerData.Id == messageStartReceiver);
-                    }
-
-                    if (messageStartProtocol != null)
-                    {
-                        Int32 messageStartCount = Encoding.UTF8.GetByteCount(messageStartContents);
-                        NetOutgoingMessage messageStartBroadcast = OutgoingMessage(PlayerAction.MessageStart, 45 + messageStartCount);
-                        messageStartBroadcast = messageStart.Pack(ref messageStartBroadcast);
-                        messageStartProtocol.Connection.SendMessage(messageStartBroadcast, NetDeliveryMethod.ReliableUnordered);
-                    }
+                   
                     break;
 
                 case PlayerAction.MessageParticipant:
-                    ObjectId messageParticipantDialogue  = new ObjectId(msg.ReadBytes(12));
-                    ObjectId messageParticipantId = new ObjectId(msg.ReadBytes(12));
-
-                    this.PlayerData.Dialogues[messageParticipantDialogue].AddParticipant(messageParticipantId);
-
-                    Protocol messageParticipantProtocol = null;
-                    lock (this.Instances)
-                    {
-                        messageParticipantProtocol = this.Instances.Find((a) => (a as Player).PlayerData.Id == messageParticipantDialogue);
-                    }
-
-                    if (messageParticipantProtocol != null)
-                    {
-                        NetOutgoingMessage messageParticipantBroadcast = OutgoingMessage(PlayerAction.MessageParticipant);
-                        messageParticipantBroadcast = this.PlayerData.Dialogues[messageParticipantDialogue].Pack(ref messageParticipantBroadcast);
-                        messageParticipantProtocol.Connection.SendMessage(messageParticipantBroadcast, NetDeliveryMethod.ReliableUnordered);
-                    }
+                    
                     break;
 
                 //
@@ -374,37 +187,18 @@ namespace ERAServer.Protocols.Client
                     ObjectId searchPickId = new ObjectId(msg.ReadBytes(12));
 
                     // Log this action
-                    Logger.Verbose("PlayerAction.PickAvatar requested: " + searchPickId);
+                    //Logger.Verbose("PlayerAction.PickAvatar requested: " + searchPickId);
 
                     // Action
                     QueueAction(() =>
                     {
-                        if (this.PlayerData.AvatarIds.Any(a => a.Equals(searchPickId)))
+                        
+                        if (this.PlayerData.Interactables.Any(a => a.Equals(searchPickId)))
                         {
                             // Set the interactable
-                            this.ActiveId = searchPickId;
-                            
-                            // Start moving to the correct server : Transfer User
-                            if (!TransferUser(this.InteractableData.MapId))
-                            {
-                                // We need to have the map here
-                                Logger.Debug("Pickavatar result: Map local");
-
-                                // HACK: Always run map
-                                MapManager.StartRunningMap(this.InteractableData.MapId);
-
-                                // Issue map enter
-                                EnterMap();
-
-                                // Send the map
-                                this.Connection.SendMessage(PickAvatarResponse(), NetDeliveryMethod.ReliableUnordered);
-                            }
-                            else
-                            {
-                                // The map is somewhere else, transfer was executed?
-                                Logger.Debug("Pickavatar result: Map remote");
-                            }
-                            
+                            _playerDataLock.EnterWriteLock();
+                            this.PlayerData.ActiveInteractable = searchPickId;
+                            _playerDataLock.ExitWriteLock();
                         }
                         else
                         {
@@ -420,22 +214,6 @@ namespace ERAServer.Protocols.Client
                 default:
                     throw new NetException("No such action in protocol.");
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interactableAction"></param>
-        /// <param name="initialCapacity"></param>
-        /// <returns></returns>
-        private NetOutgoingMessage OutgoingInteractableMessage(InteractableAction interactableAction, Int32 initialCapacity)
-        {
-            Protocol protocol;
-            this.Connection.TryGetProtocol(typeof(Interactable), out protocol);
-            NetOutgoingMessage msg = Connection.MakeMessage(protocol.ProtocolIdentifier, initialCapacity + ERAUtils.BitManipulation.BytesToHold((Int32)InteractableAction.Max));
-            msg.WriteRangedInteger(0, (Int32)InteractableAction.Max, (Int32)interactableAction);
-            msg.WritePadBits();
-            return msg;
         }
 
         /// <summary>
@@ -458,7 +236,7 @@ namespace ERAServer.Protocols.Client
         /// <returns></returns>
         private NetOutgoingMessage OutgoingMessage(PlayerAction action, Int32 initialCapacity)
         {
-            NetOutgoingMessage msg = Connection.MakeMessage(ProtocolIdentifier, initialCapacity + ERAUtils.BitManipulation.BytesToHold((Int32)PlayerAction.Max));
+            NetOutgoingMessage msg = Connection.MakeMessage(ProtocolIdentifier, initialCapacity + 1);
             msg.WriteRangedInteger(0, (Int32)PlayerAction.Max, (Int32)action);
             msg.WritePadBits();
             return msg;
@@ -470,13 +248,6 @@ namespace ERAServer.Protocols.Client
         /// <remarks>Before Deregister</remarks>
         internal override void Disconnect()
         {
-            // Save Changes
-            if (InteractableData != null)
-            {
-                InteractableData.Put();
-                LeaveMap();
-            }
-
             base.Disconnect();
         }
 
@@ -488,19 +259,6 @@ namespace ERAServer.Protocols.Client
         {
             base.Dispose();
 
-            Data.GeneralCache<ObjectId, Data.Player>.RemoveCache(this.Id);
-
-            try
-            {
-                if (_playerData != null)
-                    foreach (ObjectId iid in _playerData.AvatarIds)
-                        Data.GeneralCache<ObjectId, Data.Interactable>.RemoveCache(iid);
-            }
-            catch (NullReferenceException)
-            {
-
-            }
-
             // Queue reference clearing, because some action may already got it
             // from cache and is using it. Not sure if that can happen though (DISCUSS)
             QueueAction(() =>
@@ -508,10 +266,6 @@ namespace ERAServer.Protocols.Client
                     _playerDataLock.EnterWriteLock();
                     _playerData = null;
                     _playerDataLock.ExitWriteLock();
-
-                    _interactableDataLock.EnterWriteLock();
-                    _interactableData = null;
-                    _interactableDataLock.ExitWriteLock();
                 });
         }
     }

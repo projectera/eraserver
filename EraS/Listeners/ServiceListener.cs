@@ -90,12 +90,10 @@ namespace EraS.Listeners
         {
             while (IsRunning)
             {
+                Server.MessageReceivedEvent.WaitOne(1000);
                 var m = Server.ReadMessage();
                 if (m == null)
-                {
-                    System.Threading.Thread.Sleep(10);
                     continue;
-                }
 
                 switch (m.MessageType)
                 {

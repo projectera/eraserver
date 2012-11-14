@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
+using System.Text;
 using Lidgren.Network;
-using Lidgren.Network.Authentication;
-using MongoDB.Bson;
-using PlayerService.Protocols;
+using ClientProtocol;
 
-namespace PlayerService.Connections
+namespace HeadlessClient
 {
     /// <summary>
     /// 
     /// </summary>
-    internal class ClientConnection : IDisposable
+    internal class Connection : IDisposable
     {
-        private Protocol[] _protocols = new Protocol[ProtocolConstants.NetworkMaxValue+1];
+        private Protocol[] _protocols = new Protocol[255];
         private Boolean _connected, _disposed;
         private INetEncryption _netEncryption;
         private List<Int32> _unreliableChannels;
 
-        private Timer _keepAliveTimer;
-
         /// <summary>
         /// Lidgren NetConnection (Pipe)
         /// </summary>
-        public NetConnection NetConnection { get; protected set; }
+        public NetConnection NetConnection { get; set; }
 
         /// <summary>
         /// Local Lidgrend NetPeer (Origin)
@@ -34,12 +30,7 @@ namespace PlayerService.Connections
         /// <summary>
         /// Node id
         /// </summary>
-        public ObjectId NodeId { get; set; }
-
-        /// <summary>
-        /// Node username
-        /// </summary>
-        public String Username { get; set; }
+        public Byte[] NodeId { get; set; }
 
         /// <summary>
         /// Connected flag
@@ -58,116 +49,13 @@ namespace PlayerService.Connections
         }
 
         /// <summary>
-        /// Transfer flag
-        /// </summary>
-        public Boolean IsTransfering
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="manager">Local NetPeer</param>
-        /// <param name="con">NetConnection</param>
-        /// <param name="key">Encryption key</param>
-        /// <param name="nodeId">Node Id</param>
-        public ClientConnection(NetPeer manager, NetConnection con, INetEncryption encryption, ObjectId nodeId)
-        {
-            _keepAliveTimer = new System.Timers.Timer(5000);
-            _keepAliveTimer.Elapsed += new ElapsedEventHandler((Object state, ElapsedEventArgs args) => 
-                this.SendMessage(this.NetManager.CreateMessage(0), NetDeliveryMethod.Unreliable));
-
-            this.Username = (con.Tag as Handshake).Username;
-            this.NetManager = manager;
-            this.NetConnection = con;
-            this.NetConnection.Tag = this;
-            this.NodeId = nodeId;
-
-            if (encryption != null)
-            {
-                _netEncryption = encryption;
-            }
-            else
-            {
-                this.IsTransfering = true;
-                _netEncryption = new NetXtea(new Byte[16]);
-            }
-
-            _unreliableChannels = new List<Int32>();
-            for (Int32 i = 0; i < 32; i++)
-                _unreliableChannels.Add(i);
-
-
-            // Not connected until everything is done.
-            System.Threading.Thread.MemoryBarrier();
-
-            _connected = true;
-            _keepAliveTimer.Start();
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="manager">Local NetPeer</param>
-        /// <param name="con">NetConnection</param>
-        /// <param name="key">Node Id</param>
-        public ClientConnection(NetPeer manager, NetConnection con, Byte[] key)
-            : this(manager, con, key != null ? new NetXtea(key) : null, ObjectId.Empty)
-        {
-
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="manager"></param>
-        /// <param name="con"></param>
-        /// <param name="encryption"></param>
-        public ClientConnection(NetPeer manager, NetConnection con, INetEncryption encryption)
-            : this(manager, con, encryption, ObjectId.Empty)
-        {
-
-        }
-
-        /// <summary>
-        /// Transfer constructor
-        /// </summary>
-        /// <param name="manager"></param>
-        /// <param name="con"></param>
-        public ClientConnection(NetPeer manager, NetConnection con, ObjectId id)
-            : this(manager, con, null, id) { }
-
-        /// <summary>
-        /// Register Protocol
-        /// </summary>
-        /// <param name="protocol">Protocol</param>
-        public void RegisterProtocol(Protocol protocol)
-        {
-            if (protocol.ProtocolIdentifier > ProtocolConstants.NetworkMaxValue || protocol.ProtocolIdentifier < 0)
-            {
-                //Logger.Error("Invalid protocolIdentifier during protocol registration");
-                return;
-            }
-
-            if (_protocols[protocol.ProtocolIdentifier] != null)
-            {
-                //Logger.Warning("Trying to register a protocol that is already registered");
-                return;
-            }
-
-            _protocols[protocol.ProtocolIdentifier] = protocol;
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="type"></param>
         /// <param name="protocol"></param>
         public Boolean TryGetProtocol(Type type, out Protocol protocol)
         {
-            lock(_protocols)
+            lock (_protocols)
                 protocol = _protocols.First((p) => p != null && p.GetType().Equals(type));
 
             return protocol != null;
@@ -187,6 +75,72 @@ namespace PlayerService.Connections
         }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="manager">Local NetPeer</param>
+        /// <param name="con">NetConnection</param>
+        /// <param name="key">Encryption key</param>
+        /// <param name="nodeId">Node Id</param>
+        public Connection(NetPeer manager, NetConnection con, INetEncryption encryption, Byte[] nodeId)
+        {
+            NetManager = manager;
+            NetConnection = con;
+            _connected = true;
+            _netEncryption = encryption;
+            NetConnection.Tag = this;
+            NodeId = nodeId;
+
+            _unreliableChannels = new List<Int32>();
+            for (Int32 i = 0; i < 32; i++)
+                _unreliableChannels.Add(i);
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="manager">Local NetPeer</param>
+        /// <param name="con">NetConnection</param>
+        /// <param name="key">Node Id</param>
+        public Connection(NetPeer manager, NetConnection con, Byte[] key)
+            : this(manager, con, new NetXtea(key), new Byte[12])
+        {
+
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="manager">Local NetPeer</param>
+        /// <param name="con">NetConnection</param>
+        /// <param name="key">Node Id</param>
+        public Connection(NetPeer manager, NetConnection con, INetEncryption encryption)
+            : this(manager, con, encryption, new Byte[12])
+        {
+
+        }
+
+        /// <summary>
+        /// Register Protocol
+        /// </summary>
+        /// <param name="protocol">Protocol</param>
+        public void RegisterProtocol(Protocol protocol)
+        {
+            if (protocol.ProtocolIdentifier >= 255 || protocol.ProtocolIdentifier < 0)
+            {
+                //Logger.Error("Invalid protocolIdentifier during protocol registration");
+                return;
+            }
+
+            if (_protocols[protocol.ProtocolIdentifier] != null)
+            {
+                //Logger.Warning("Trying to register a protocol that is already registered");
+                return;
+            }
+
+            _protocols[protocol.ProtocolIdentifier] = protocol;
+        }
+
+        /// <summary>
         /// This handles an incoming message 
         /// </summary>
         /// <param name="msg">The received message</param>
@@ -195,18 +149,20 @@ namespace PlayerService.Connections
             if (!this.IsConnected)
                 return;
 
-            // Is this is a heartbeat message?
-            if (msg.LengthBits == 0)
+            //Heartbeat
+            if (msg.LengthBytes == 0)
                 return;
 
             msg.Decrypt(_netEncryption);
 
+
+            // If heartbeat
             if (msg.LengthBits == 0)
                 return;
 
             Byte p = msg.ReadByte();
 
-            if (p == (Byte)ProtocolConstants.ExtensionByte)
+            if (p == (Byte)ClientProtocols.Extension)
             {
                 ExtendedIncomingMessage(msg);
                 return;
@@ -227,7 +183,6 @@ namespace PlayerService.Connections
         /// <param name="msg">The received message</param>
         private void ExtendedIncomingMessage(NetIncomingMessage msg)
         {
-
         }
 
         /// <summary>
@@ -255,12 +210,31 @@ namespace PlayerService.Connections
         /// <summary>
         /// Creates a new message for a protocol
         /// </summary>
-        /// <param name="protocolIdentifier">The ids of the protocol</param>
+        /// <param name="protocolIdentifier">The id of the protocol</param>
+        /// <param name="extensionByte">The extensionByte</param>
+        /// <param name="extensions">Times the extensionByte should be written</param>
         /// <returns>The created message</returns>
         public NetOutgoingMessage MakeMessage(Byte protocolIdentifier, Byte extensionByte, Int32 extensions)
         {
             NetOutgoingMessage msg = NetManager.CreateMessage();
-            while(extensions-- > 0)
+            while (extensions-- > 0)
+                msg.Write(extensionByte);
+            msg.Write(protocolIdentifier);
+            return msg;
+        }
+
+        /// <summary>
+        /// Creates a new message for a protocol
+        /// </summary>
+        /// <param name="protocolIdentifier">The id of the protocol</param>
+        /// <param name="extensionByte">The extensionByte</param>
+        /// <param name="extensions">Times the extensionByte should be written</param>
+        /// <param name="initialCapacity">Bytes to hold</param>
+        /// <returns>The created message</returns>
+        public NetOutgoingMessage MakeMessage(Byte protocolIdentifier, Byte extensionByte, Int32 extensions, Int32 initialCapacity)
+        {
+            NetOutgoingMessage msg = NetManager.CreateMessage(initialCapacity + 1 + extensions);
+            while (extensions-- > 0)
                 msg.Write(extensionByte);
             msg.Write(protocolIdentifier);
             return msg;
@@ -284,9 +258,7 @@ namespace PlayerService.Connections
         /// <returns>The created message</returns>
         public NetOutgoingMessage MakeMessage(Byte protocolIdentifier, Int32 initialCapacity)
         {
-            NetOutgoingMessage msg = NetManager.CreateMessage(initialCapacity);
-            msg.Write(protocolIdentifier);
-            return msg;
+            return MakeMessage(protocolIdentifier, 0, 0, initialCapacity);
         }
 
         /// <summary>
@@ -323,7 +295,7 @@ namespace PlayerService.Connections
         /// <param name="channel"></param>
         public void ReleaseUnreliableChannel(int channel)
         {
-            lock(_unreliableChannels)
+            lock (_unreliableChannels)
                 _unreliableChannels.Add(channel);
         }
 
@@ -335,7 +307,7 @@ namespace PlayerService.Connections
         {
             lock (_protocols)
             {
-                for (Int32 i = 0; i < ProtocolConstants.NetworkMaxValue; i++)
+                for (Int32 i = 0; i < 255; i++)
                     if (_protocols[i] != null)
                         _protocols[i].ErrorCancelation.Cancel();
 
@@ -346,7 +318,7 @@ namespace PlayerService.Connections
                 //Logger.Debug("Stacktrace: " + e.StackTrace);
                 //Logger.Info("Closing connection");
 
-                for (Int32 i = 0; i < ProtocolConstants.NetworkMaxValue; i++)
+                for (Int32 i = 0; i < 255; i++)
                     if (_protocols[i] != null)
                         _protocols[i].Disconnect();
 
@@ -356,37 +328,56 @@ namespace PlayerService.Connections
                 NetConnection.Disconnect("An error occured");
             }
         }
-  
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or 
         /// resetting unmanaged resources. Will deregister all protocols
         /// </summary>
         public void Dispose()
         {
-            if(this.IsDisposed)
+            if (this.IsDisposed)
                 return;
 
-            _keepAliveTimer.Stop();
             _disposed = true;
 
-            for(Int32 i = 0; i < ProtocolConstants.NetworkMaxValue; i++)
+            for (Int32 i = 0; i < 255; i++)
                 if (_protocols[i] != null)
                 {
                     _protocols[i].Disconnect();
                     _protocols[i].DeRegister();
                     _protocols[i].Dispose();
                 }
-
-            _keepAliveTimer.Dispose();
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
+        internal void SetEncryptionKey(Byte[] key)
+        {
+            _netEncryption = new NetXtea(key);
+        }
+
         internal void SetEncryption(INetEncryption enc)
         {
             _netEncryption = enc;
+        }
+
+        internal void CopyTo(object other)
+        {
+            if (other is Connection)
+            {
+                Connection destination = (Connection)other;
+                destination.NetManager = this.NetManager;
+                destination.NodeId = this.NodeId;
+                //new Handshake(
+                //destination.SetEncryption();//destination.NetConnection.SetSRPKey(this.NetConnection.ConnectingUsername, this.NetConnection.GetSessionBytes()));
+                // TODO rewrite this code
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
