@@ -5,7 +5,14 @@ using System.Text;
 
 namespace InteractableProtocol
 {
-    public class Class1
+    public enum InteractableComponentType : byte
     {
+        None = 0,
+
+        Appearance = 1,
+        Movement = 2,
+
+
+        Max = 7,
     }
 }
