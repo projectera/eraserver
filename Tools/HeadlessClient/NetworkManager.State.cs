@@ -137,8 +137,8 @@ namespace HeadlessClient
         /// <param name="connection"></param>
         public void RegisterProtocols(Connection connection)
         {
-            //Protocol pp = new Protocols.Player(connection, this);
-            //connection.RegisterProtocol(pp);
+            Protocol pp = new Protocols.Player(connection, this);
+            connection.RegisterProtocol(pp);
 
             //Protocol pi = new Protocols.Interactable(connection, this);
             //connection.RegisterProtocol(pi);
@@ -321,7 +321,15 @@ namespace HeadlessClient
 
                 if (!String.IsNullOrWhiteSpace(e.Result))
                 {
-                    IPAddress server = Lidgren.Network.NetUtility.Resolve(e.Result);
+                    IPAddress server = null;
+                    try
+                    {
+                        server = Lidgren.Network.NetUtility.Resolve(e.Result);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
 
 #if DEBUG
                     if (server == null)
