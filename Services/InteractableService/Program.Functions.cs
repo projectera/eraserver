@@ -72,10 +72,10 @@ namespace InteractableService
         {
             var answer = msg.Answer(EraSClient);
             answer.Packet.Write((Int32)0);
-            /*var interactables = Instances.GetKeys();
+            var interactables = InteractableSubscriptions.GetSubscriptionLists();
             answer.Packet.Write(interactables.Count);
-            foreach (var interactale in interactables)
-                answer.Packet.Write(interactale.ToByteArray());*/
+            foreach (var interactable in interactables)
+                answer.Packet.Write(new ObjectId(interactable).ToByteArray());
 
             EraSClient.SendMessage(answer);
         }
