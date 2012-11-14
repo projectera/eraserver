@@ -194,8 +194,8 @@ namespace PlayerService.Protocols.Client
                     // Action
                     QueueAction(() =>
                     {
-                        // TODO
-                        if (true)//if (this.PlayerData.AvatarIds.Any(a => a.Equals(searchPickId)))
+                        
+                        if (this.PlayerData.Interactables.Any(a => a.Equals(searchPickId)))
                         {
                             // Set the interactable
                             _playerDataLock.EnterWriteLock();

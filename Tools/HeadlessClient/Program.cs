@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lidgren.Network.Lobby;
+using ClientProtocol;
 
 namespace HeadlessClient
 {
@@ -19,7 +20,6 @@ namespace HeadlessClient
             _manager.Initialize();
 
             NetLobby.OnError += new NetLobby.HandshakeFinishedEvent(NetLobby_OnError);
-            
 
             QueryDetails();
 
@@ -34,25 +34,25 @@ namespace HeadlessClient
 
         static void NetLobby_OnError(string reason)
         {
-            Console.WriteLine("Error: {0}", reason);
+            Console.WriteLine(">> Error: {0} <<", reason);
             QueryDetails();
         }
 
         static void  _manager_OnAuthenticationDenied(string reason)
         {
- 	        Console.WriteLine("Denied: {0}", reason);
+            Console.WriteLine(">> Denied: {0} <<", reason);
             QueryDetails();
         }
 
         static void _manager_OnAuthenticationTimeout(string reason)
         {
-            Console.WriteLine("Timeout: {0}", reason);
+            Console.WriteLine(">> Timeout: {0} <<", reason);
             QueryDetails();
         }
 
         static void _manager_OnAuthenticationFailed(string reason)
         {
-            Console.WriteLine("Failed: {0}", reason);
+            Console.WriteLine(">> Failed: {0}", reason);
             QueryDetails();
         }
 
@@ -63,13 +63,22 @@ namespace HeadlessClient
             {
                 _manager.Connect(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 15936));
 
-                Console.WriteLine("Sorry! Trying loopback:15936");
+                Console.WriteLine(">> Trying loopback:15936 <<");
             }
         }
 
         static void _manager_OnAuthenticated(Connection connection)
         {
-            Console.WriteLine("YEAH DONE");
+            Console.WriteLine(">> Authenticated <<");
+
+            Protocol protocol;
+            _manager.TryGetProtocol((Byte)ClientProtocols.Player, out protocol);
+
+            var playerTask = ((Protocols.Player)protocol).Get((player) =>
+                {
+                //
+                }
+            );
         }
 
         static void QueryDetails()
