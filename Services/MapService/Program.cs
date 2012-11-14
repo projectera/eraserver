@@ -49,6 +49,10 @@ namespace MapService
         /// </summary>
         public static Subscriptions MapSubscriptions { get; protected set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Dictionary<ObjectId, String> MapMapper { get; protected set; }
     
         /// <summary>
         /// 
@@ -67,6 +71,7 @@ namespace MapService
 
             // Save the network info
             MapSubscriptions = new Subscriptions(EraSClient);
+            MapMapper = new Dictionary<ObjectId, string>();
             NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
             MapInstances = new ThreadsafeDictOfDict<ObjectId, ObjectId, Data.MapInstance>();
 
@@ -103,7 +108,11 @@ namespace MapService
                     var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
                     for (Int32 i = 0; i < count; i++)
-                        maps.Add(new ObjectId(answer.Packet.ReadBytes(12)));
+                    {
+                        var id = new ObjectId(answer.Packet.ReadBytes(12));
+                        MapMapper.Add(id, mapservice);
+                        maps.Add(id);
+                    }
                 }
                 catch (TimeoutException) { continue; }
             }

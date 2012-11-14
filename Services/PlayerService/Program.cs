@@ -8,6 +8,7 @@ using System.Threading;
 using PlayerService.Listeners;
 using SubscriptionProtocol;
 using Lidgren.Network;
+using MongoDB.Bson;
 
 namespace PlayerService
 {
@@ -49,6 +50,11 @@ namespace PlayerService
         /// <summary>
         /// 
         /// </summary>
+        public static Dictionary<ObjectId, String> PlayerMapper { get; protected set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
         {
@@ -61,11 +67,14 @@ namespace PlayerService
 
             // Save the network info
             PlayerSubscriptions = new Subscriptions(EraSClient);
+            PlayerMapper = new Dictionary<ObjectId, string>();
             NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
 
             // Message Handlers
             EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);
             Console.WriteLine("Connected with Id: {0}", EraSClient.ServiceName);
+
+            MapRunningPlayers();
 
             // Start running this
             Lidgren.Network.Lobby.NetLobby.LogonManager = new LogonManager("There is no secret.", Lidgren.Network.Lobby.NetLobby.KeySize);
@@ -79,6 +88,34 @@ namespace PlayerService
 
             StopRunningSemaphore.WaitOne();
             Console.WriteLine("Service terminated.");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void MapRunningPlayers()
+        {
+            var playerservices = NetworkInfo.GetServiceInstances("Player");
+            // TODO make a broadcast type
+            foreach (var playerservice in playerservices)
+            {
+                if (playerservice == NetworkInfo.Client.Identifier)
+                    continue;
+
+                try
+                {
+                    var question = EraSClient.CreateQuestion(MessageType.Internal, playerservice);
+                    question.Packet.Write("GetRunning");
+                    var answer = EraSClient.AskQuestion(question);
+                    var count = answer.Packet.ReadInt32();
+                    for (Int32 i = 0; i < count; i++)
+                    {
+                        var id = new ObjectId(answer.Packet.ReadBytes(12));
+                        PlayerMapper.Add(id, playerservice);
+                    }
+                }
+                catch (TimeoutException) { continue; }
+            }
         }
 
         /// <summary>
