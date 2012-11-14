@@ -127,7 +127,7 @@ namespace PlayerService.Listeners
                                     case Handshake.Contents.Succes:
 
                                         ClientConnection new_connection = new ClientConnection(_server, msg.SenderConnection, (msg.SenderConnection.Tag as Handshake).CreateEncryption());
-                                        RegisterProtocols(new_connection, connection.Username);
+                                        RegisterProtocols(new_connection, new_connection.Username);
 
                                         OnConnected.Invoke(new_connection.NodeId, new_connection.Username);
                                         //Logger.Info("SRP connection established with: " + msg.SenderConnection.RemoteEndpoint);
@@ -369,10 +369,10 @@ namespace PlayerService.Listeners
         /// <param name="connection">The connection to add the protocols to</param>
         public void RegisterProtocols(ClientConnection connection, String username)
         {
-            /*Protocol pp = new Player(connection, username);
+            Protocol pp = new Protocols.Client.Player(connection, username);
             connection.RegisterProtocol(pp);
 
-            Protocol pi = new Interactable(connection);
+            /*Protocol pi = new Interactable(connection);
             connection.RegisterProtocol(pi);
 
             Protocol pm = new Map(connection);

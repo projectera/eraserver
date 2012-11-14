@@ -89,10 +89,8 @@ namespace PlayerService.Protocols.Client
             : base(connection)
         {
             _playerDataLock = new ReaderWriterLockSlim();
-            _playerDataLock.EnterWriteLock();
             this.PlayerData = Data.Player.GetBlocking(username) ?? new PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
-            _playerDataLock.ExitWriteLock();
         }
 
         /// <summary>
