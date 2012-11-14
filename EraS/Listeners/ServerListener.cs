@@ -84,10 +84,10 @@ namespace EraS.Listeners
         {
             while (true)
             {
-                var msg = Peer.WaitMessage(100);
+                Peer.MessageReceivedEvent.WaitOne(1000);
+                var msg = Peer.ReadMessage();
                 if (msg == null)
                     continue;
-
 
                 ServerConnection con = null;
                 if (msg.SenderConnection != null)

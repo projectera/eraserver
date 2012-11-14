@@ -89,10 +89,8 @@ namespace PlayerService.Protocols.Client
             : base(connection)
         {
             _playerDataLock = new ReaderWriterLockSlim();
-            _playerDataLock.EnterWriteLock();
             this.PlayerData = Data.Player.GetBlocking(username) ?? new PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
-            _playerDataLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -194,8 +192,8 @@ namespace PlayerService.Protocols.Client
                     // Action
                     QueueAction(() =>
                     {
-                        // TODO
-                        if (true)//if (this.PlayerData.AvatarIds.Any(a => a.Equals(searchPickId)))
+                        
+                        if (this.PlayerData.Interactables.Any(a => a.Equals(searchPickId)))
                         {
                             // Set the interactable
                             _playerDataLock.EnterWriteLock();

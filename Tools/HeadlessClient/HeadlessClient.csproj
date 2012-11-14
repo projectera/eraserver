@@ -5,14 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{592C8ACA-45DA-4E37-99A9-E371C799F487}</ProjectGuid>
+    <ProjectGuid>{625F96AE-6C33-4967-8B37-BA1E0D426518}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ResourceService</RootNamespace>
-    <AssemblyName>ResourceService</AssemblyName>
+    <RootNamespace>HeadlessClient</RootNamespace>
+    <AssemblyName>HeadlessClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -24,9 +23,9 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ProductName>Resource Service</ProductName>
+    <ProductName>Headless Client</ProductName>
     <PublisherName>Derk-Jan Karrenbeld &amp; Max Maton</PublisherName>
-    <SuiteName>Project ERA Server Services</SuiteName>
+    <SuiteName>Project ERA Server Tools</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -53,16 +52,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Lidgren.Network, Version=2012.1.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Lidgren.Network">
       <HintPath>..\..\Libraries\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson, Version=1.6.2.35072, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Libraries\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver, Version=1.6.2.35074, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\MongoDB.Driver.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,19 +68,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asset.cs" />
-    <Compile Include="Generators\LanguageConfluxer.cs" />
-    <Compile Include="Generators\Werd.cs" />
+    <Compile Include="NetworkManager.cs" />
+    <Compile Include="NetworkManager.State.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Program.Functions.cs" />
-    <Compile Include="Program.Generate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
-      <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
-    </ProjectReference>
+    <Compile Include="Connection.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="Protocols\GeneralCache.cs" />
+    <Compile Include="Protocols\ICachable.cs" />
+    <Compile Include="Protocols\LinkedHashMap.cs" />
+    <Compile Include="Protocols\Player.cs" />
+    <Compile Include="Protocols\Player.Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -110,14 +103,18 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Generators\Celtic-f.txt" />
-    <Content Include="Generators\Celtic-m.txt" />
-    <Content Include="Generators\Copy of Celtic-f.txt" />
-    <Content Include="Generators\Copy of Celtic-m.txt" />
-    <Content Include="Generators\Geordi.txt" />
+    <ProjectReference Include="..\..\ClientProtocol\ClientProtocol.csproj">
+      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Name>ClientProtocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
+      <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
+      <Name>Lidgren.Network.Lobby</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
+      <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
+      <Name>PlayerProtocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
