@@ -26,6 +26,8 @@ namespace PlayerService
             Functions.Add("GetVersion", GetVersion);
             Functions.Add("GetFunctions", GetFunctions);
 
+            Functions.Add("GetRunning", GetRunning);
+
             // Functions needed:
             // Do we need a lobby for connects and picking an interactable and getting
             // the friend list and private messages list?
@@ -76,6 +78,20 @@ namespace PlayerService
             answer.Packet.Write(Functions.Keys.Count);
             foreach (var key in Functions.Keys)
                 answer.Packet.Write(key);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetRunning(Message msg)
+        {
+            var answer = msg.Answer(EraSClient);
+            var players = Program.PlayerSubscriptions.GetSubscriptionLists();
+            answer.Packet.Write(players.Count);
+            foreach (var key in players)
+                answer.Packet.Write(new ObjectId(key).ToByteArray());
             EraSClient.SendMessage(answer);
         }
 
