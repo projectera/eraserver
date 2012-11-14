@@ -8,6 +8,8 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using Lidgren.Network;
 using System.Net.Mail;
+using Lidgren.Network.Authentication;
+using Lidgren.Network.Lobby;
 
 namespace PlayerService.Data
 {
@@ -28,7 +30,7 @@ namespace PlayerService.Data
                 throw new Exception("User already exists");
 
             Byte[] verifier, salt = null;
-            verifier = null; //Handshake.PasswordVerifier(result.Username.ToLower(), password, Settings.Default.SRP6Keysize, out salt).ToByteArray(); //NetPeer.PasswordVerifier(result.Username.ToLower(), password, Settings.Default.SRP6Keysize, out result.Salt).ToByteArray();
+            verifier = Handshake.PasswordVerifier(result.Username.ToLower(), password, NetLobby.KeySize, out salt).ToByteArray(); 
 
             return PlayerProtocol.Player.Generate(
                 ObjectId.GenerateNewId(), 
@@ -271,10 +273,10 @@ namespace PlayerService.Data
         {
             return Task.Factory.StartNew(() => { return GetBlocking(id); }).ContinueWith<PlayerProtocol.Player>((task) =>
             {
-                /*task.Result.Dialogues = new Dictionary<ObjectId, PlayerProtocol.Dialogue>();
-                Dialogue[] retrieved = Dialogue.GetBlockingFor(task.Result.Id);
+                task.Result.Dialogues = new Dictionary<ObjectId, PlayerProtocol.Dialogue>();
+                PlayerProtocol.Dialogue[] retrieved = Dialogue.GetBlockingFor(task.Result.Id);
                 foreach (var dialogue in retrieved)
-                    task.Result.Dialogues.Add(dialogue.Id, dialogue);*/
+                    task.Result.Dialogues.Add(dialogue.Id, dialogue);
 
                 return task.Result;
             });
