@@ -5,6 +5,7 @@ using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using System.Threading.Tasks;
+using Lidgren.Network;
 
 namespace PlayerProtocol
 {
@@ -15,8 +16,7 @@ namespace PlayerProtocol
         /// Player ID (readonly)
         /// </summary>
         [BsonId]
-        public ObjectId 
-            Id
+        public ObjectId Id
         {
             get;
             protected set;
@@ -81,7 +81,16 @@ namespace PlayerProtocol
         public ObjectId ActiveInteractable
         {
             get;
-            protected set;
+            set;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<ObjectId> Interactables
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -120,7 +129,10 @@ namespace PlayerProtocol
         public DateTime RegistrationDate
         {
             get { return this.Id.CreationTime; }
-        }
+        }        
+        
+        [BsonIgnore]
+        public Dictionary<ObjectId, Dialogue> Dialogues { get; set; }
 
         /// <summary>
         /// 
@@ -129,7 +141,9 @@ namespace PlayerProtocol
         {
             this.Id = ObjectId.Empty;
             this.ActiveInteractable = ObjectId.Empty;
+            this.Interactables = new List<ObjectId>();
             this.Friends = new HashSet<Friend>();
+            this.Dialogues = new Dictionary<ObjectId, Dialogue>();
         }
 
         /// <summary>
@@ -171,6 +185,13 @@ namespace PlayerProtocol
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public void Ban(String reason) {
+            this.BannedReason = reason;
+        }
+
+        /// <summary>
         /// Clears for pool
         /// </summary>
         public void Clear()
@@ -182,10 +203,66 @@ namespace PlayerProtocol
 
             this.PermissionGroup = 0;
             this.ActiveInteractable = ObjectId.Empty;
+            this.Interactables.Clear();
+            this.Dialogues.Clear();
 
             this.BannedReason = null;
             this.Verifier = null;
             this.Salt = null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="msg"></param>
+        public static NetBuffer Pack(Player player, NetBuffer msg)
+        {
+            msg.Write(player.Id.ToByteArray());
+            msg.Write(player.ForumId);
+            msg.Write(player.Username);
+            msg.Write(player.EmailAddress);
+
+            if (player.Interactables != null)
+            {
+                msg.Write(player.Interactables.Count);
+                IOrderedEnumerable<ObjectId> result = player.Interactables.OrderBy(a => a.CreationTime);
+                foreach (ObjectId id in result)
+                {
+                    msg.Write(id.ToByteArray());
+                }
+            }
+            else
+            {
+                msg.Write((Int32)0);
+            }
+
+            return msg;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static Player Unpack(NetBuffer msg)
+        {
+            var result = new Player();
+            result.Id = new ObjectId(msg.ReadBytes(12));
+            result.ForumId = msg.ReadUInt16();
+            result.Username = msg.ReadString();
+            result.EmailAddress = msg.ReadString();
+
+            var ic = msg.ReadInt32();
+            for (; ic > 0; ic--)
+            {
+                var i = new ObjectId(msg.ReadBytes(12));
+                result.Interactables.Add(i);
+            }
+
+            return result;
+        }
+
+
     }
 }

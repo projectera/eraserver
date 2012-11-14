@@ -3,39 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PlayerService.Protocols.Server
+namespace PlayerService.Protocols
 {
-
-    public enum ServerProtocols : byte
-    {
-        Extension = 0,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        PeerExchange = 1,
-
-        /// <summary>
-        /// Does Network management like exchanging peers and possibly routing
-        /// </summary>
-        NetworkManagement = 3,
-
-        /// <summary>
-        /// Miscellaneous actions that don't need a full network protocol
-        /// </summary>
-        Misc = 255,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Max = ProtocolConstants.NetworkMaxValue
-    }
-
     /// <summary>
     /// 
     /// </summary>
     public static class ProtocolConstants
     {
+        public const Byte ExtensionByte = 0;
+
         public const Int32 NetworkMaxValue = 255;       // byte
 
         public const Int32 UpdateMaxValue = 7;          // 3 bit

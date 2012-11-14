@@ -15,7 +15,7 @@ namespace PlayerService
         private Int32 _keySize;
 
         /// <summary>
-        /// 
+        /// Creates a new logon manager
         /// </summary>
         /// <param name="secret"></param>
         /// <param name="keySize"></param>

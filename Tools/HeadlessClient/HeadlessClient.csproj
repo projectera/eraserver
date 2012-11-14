@@ -5,15 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{39F63915-0E92-4301-AEAD-7CC3817C9A29}</ProjectGuid>
+    <ProjectGuid>{625F96AE-6C33-4967-8B37-BA1E0D426518}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlayerService</RootNamespace>
-    <AssemblyName>PlayerService</AssemblyName>
+    <RootNamespace>HeadlessClient</RootNamespace>
+    <AssemblyName>HeadlessClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,11 +23,12 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ProductName>Player Service</ProductName>
+    <ProductName>Headless Client</ProductName>
     <PublisherName>Derk-Jan Karrenbeld &amp; Max Maton</PublisherName>
-    <SuiteName>Project ERA Server Services</SuiteName>
+    <SuiteName>Project ERA Server Tools</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -59,10 +59,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Libraries\MongoDB.Bson.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Driver, Version=1.6.2.35074, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\MongoDB.Driver.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -72,39 +68,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Dialogue.cs" />
-    <Compile Include="Listeners\ClientListener.cs" />
-    <Compile Include="Connections\Connection.cs" />
-    <Compile Include="Data\Player.cs" />
-    <Compile Include="LogonManager.cs" />
+    <Compile Include="NetworkManager.cs" />
+    <Compile Include="NetworkManager.State.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocols\Client\Player.cs" />
-    <Compile Include="Protocols\Protocol.cs" />
-    <Compile Include="Protocols\ProtocolConstants.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\ClientProtocol\ClientProtocol.csproj">
-      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
-      <Name>ClientProtocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
-      <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
-      <Name>Lidgren.Network.Lobby</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
-      <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
-      <Name>PlayerProtocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
-      <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SubscriptionProtocol\SubscriptionProtocol.csproj">
-      <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>
-      <Name>SubscriptionProtocol</Name>
-    </ProjectReference>
+    <Compile Include="Connection.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="Protocols\GeneralCache.cs" />
+    <Compile Include="Protocols\ICachable.cs" />
+    <Compile Include="Protocols\LinkedHashMap.cs" />
+    <Compile Include="Protocols\Player.cs" />
+    <Compile Include="Protocols\Player.Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -127,6 +101,20 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ClientProtocol\ClientProtocol.csproj">
+      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Name>ClientProtocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
+      <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
+      <Name>Lidgren.Network.Lobby</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
+      <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
+      <Name>PlayerProtocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
