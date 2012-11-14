@@ -71,7 +71,10 @@ namespace SubscriptionProtocol
         {
             _subscriptionsLock.EnterWriteLock();
             if (!_subscriptions.ContainsKey(list))
+            {
+                _subscriptionsLock.ExitWriteLock();
                 return false;
+            }
             _subscriptions[list].Add(subscriber);
             _subscriptionsLock.ExitWriteLock();
             return true;
@@ -99,7 +102,10 @@ namespace SubscriptionProtocol
         {
             _subscriptionsLock.EnterWriteLock();
             if (!_subscriptions.ContainsKey(list))
+            {
+                _subscriptionsLock.ExitWriteLock();
                 return;
+            }
             _subscriptions[list].Remove(subscriber);
             _subscriptionsLock.ExitWriteLock();
         }
@@ -115,7 +121,10 @@ namespace SubscriptionProtocol
 
             _subscriptionsLock.EnterReadLock();
             if (!_subscriptions.ContainsKey(list))
+            {
+                _subscriptionsLock.ExitReadLock();
                 return;
+            }
 
             array = new String[_subscriptions[list].Count];
             _subscriptions[list].CopyTo(array);
