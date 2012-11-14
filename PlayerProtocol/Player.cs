@@ -85,6 +85,15 @@ namespace PlayerProtocol
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public List<ObjectId> Interactables
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Banned Reason (not banned if empty)
         /// </summary>
         [BsonIgnoreIfNull]
@@ -120,7 +129,10 @@ namespace PlayerProtocol
         public DateTime RegistrationDate
         {
             get { return this.Id.CreationTime; }
-        }
+        }        
+        
+        [BsonIgnore]
+        public Dictionary<ObjectId, Dialogue> Dialogues { get; set; }
 
         /// <summary>
         /// 
@@ -129,7 +141,9 @@ namespace PlayerProtocol
         {
             this.Id = ObjectId.Empty;
             this.ActiveInteractable = ObjectId.Empty;
+            this.Interactables = new List<ObjectId>();
             this.Friends = new HashSet<Friend>();
+            this.Dialogues = new Dictionary<ObjectId, Dialogue>();
         }
 
         /// <summary>
@@ -189,6 +203,8 @@ namespace PlayerProtocol
 
             this.PermissionGroup = 0;
             this.ActiveInteractable = ObjectId.Empty;
+            this.Interactables.Clear();
+            this.Dialogues.Clear();
 
             this.BannedReason = null;
             this.Verifier = null;
@@ -207,12 +223,10 @@ namespace PlayerProtocol
             msg.Write(player.Username);
             msg.Write(player.EmailAddress);
 
-            // TODO GET INTERACTABLE ID's
-
-            /*if (player.AvatarIds != null)
+            if (player.Interactables != null)
             {
-                msg.Write(player.AvatarIds.Count);
-                IOrderedEnumerable<ObjectId> result = player.AvatarIds.OrderBy(a => a.CreationTime);
+                msg.Write(player.Interactables.Count);
+                IOrderedEnumerable<ObjectId> result = player.Interactables.OrderBy(a => a.CreationTime);
                 foreach (ObjectId id in result)
                 {
                     msg.Write(id.ToByteArray());
@@ -221,9 +235,34 @@ namespace PlayerProtocol
             else
             {
                 msg.Write((Int32)0);
-            }*/
+            }
 
             return msg;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static Player Unpack(NetBuffer msg)
+        {
+            var result = new Player();
+            result.Id = new ObjectId(msg.ReadBytes(12));
+            result.ForumId = msg.ReadUInt16();
+            result.Username = msg.ReadString();
+            result.EmailAddress = msg.ReadString();
+
+            var ic = msg.ReadInt32();
+            for (; ic > 0; ic--)
+            {
+                var i = new ObjectId(msg.ReadBytes(12));
+                result.Interactables.Add(i);
+            }
+
+            return result;
+        }
+
+
     }
 }
