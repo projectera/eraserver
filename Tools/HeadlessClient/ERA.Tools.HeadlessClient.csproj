@@ -103,9 +103,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ClientProtocol\ClientProtocol.csproj">
+    <ProjectReference Include="..\..\ClientProtocol\ERA.Protocols.ClientProtocol.csproj">
       <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
-      <Name>ClientProtocol</Name>
+      <Name>ERA.Protocols.ClientProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
       <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>

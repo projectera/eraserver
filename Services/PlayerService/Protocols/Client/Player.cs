@@ -6,7 +6,7 @@ using Lidgren.Network;
 using MongoDB.Bson;
 using System.Threading;
 using ERA.Services.Player.Connections;
-using ClientProtocol;
+using ERA.Protocols.ClientProtocol;
 
 namespace ERA.Services.Player.Protocols.Client
 {

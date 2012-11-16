@@ -8,8 +8,8 @@
     <ProjectGuid>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClientProtocol</RootNamespace>
-    <AssemblyName>ClientProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.ClientProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.ClientProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
