@@ -3,14 +3,13 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using PlayerService.Protocols;
 using Lidgren.Network;
 using MongoDB.Bson;
 using Lidgren.Network.Authentication;
-using PlayerService;
-using PlayerService.Connections;
+using ERA.Services.Player.Connections;
+using ERA.Services.Player.Protocols;
 
-namespace PlayerService.Listeners
+namespace ERA.Services.Player.Listeners
 {
     /// <summary>
     /// interfaces client <-> gameserver connections

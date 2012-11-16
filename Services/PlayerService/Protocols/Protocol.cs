@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
 using Lidgren.Network;
-using PlayerService.Connections;
+using ERA.Services.Player.Connections;
 
-namespace PlayerService.Protocols
+namespace ERA.Services.Player.Protocols
 {
     abstract class Protocol : IDisposable
     {

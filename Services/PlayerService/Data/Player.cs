@@ -11,7 +11,7 @@ using System.Net.Mail;
 using Lidgren.Network.Authentication;
 using Lidgren.Network.Lobby;
 
-namespace PlayerService.Data
+namespace ERA.Services.Player.Data
 {
     internal static class Player
     {

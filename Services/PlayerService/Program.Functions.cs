@@ -6,7 +6,7 @@ using ServiceProtocol;
 using MongoDB.Bson;
 using System.Threading;
 
-namespace PlayerService
+namespace ERA.Services.Player
 {
     partial class Program
     {

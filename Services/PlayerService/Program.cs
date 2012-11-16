@@ -5,11 +5,11 @@ using System.Text;
 using ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
-using PlayerService.Listeners;
 using SubscriptionProtocol;
 using Lidgren.Network;
+using ERA.Services.Player.Listeners;
 
-namespace PlayerService
+namespace ERA.Services.Player
 {
     partial class Program
     {

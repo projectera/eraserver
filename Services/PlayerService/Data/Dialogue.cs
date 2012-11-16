@@ -7,7 +7,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 
-namespace PlayerService.Data
+namespace ERA.Services.Player.Data
 {
     class Dialogue
     {

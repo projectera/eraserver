@@ -5,10 +5,10 @@ using System.Text;
 using Lidgren.Network;
 using MongoDB.Bson;
 using System.Threading;
-using PlayerService.Connections;
+using ERA.Services.Player.Connections;
 using ClientProtocol;
 
-namespace PlayerService.Protocols.Client
+namespace ERA.Services.Player.Protocols.Client
 {
     internal partial class Player : Protocol
     {

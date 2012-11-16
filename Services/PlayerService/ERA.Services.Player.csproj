@@ -8,8 +8,8 @@
     <ProjectGuid>{39F63915-0E92-4301-AEAD-7CC3817C9A29}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlayerService</RootNamespace>
-    <AssemblyName>PlayerService</AssemblyName>
+    <RootNamespace>ERA.Services.Player</RootNamespace>
+    <AssemblyName>ERA.Services.Player</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
