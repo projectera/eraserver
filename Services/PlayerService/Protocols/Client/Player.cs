@@ -198,6 +198,18 @@ namespace ERA.Services.PlayerService.Client
                             // Set the interactable
                             _playerDataLock.EnterWriteLock();
                             this.PlayerData.ActiveInteractable = searchPickId;
+
+                            var question = Program.EraSClient.CreateQuestion(Protocols.ServiceProtocol.MessageType.Internal, "Interactable");
+                            question.Packet.Write("Subscribe");
+                            question.Packet.Write(searchPickId.ToString());
+                            Program.EraSClient.SendQuestion(question);
+
+                            /*var question2 = Program.EraSClient.CreateQuestion(Protocols.ServiceProtocol.MessageType.Internal, "Map");
+                            question2.Packet.Write("Subscribe");
+                            question2.Packet.Write(//mapid);
+                            Program.EraSClient.SendQuestion(question2);*/
+
+
                             _playerDataLock.ExitWriteLock();
                         }
                         else
