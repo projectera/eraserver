@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ERA.Services.Player.Protocols
+namespace ERA.Services.PlayerService
 {
     /// <summary>
     /// 

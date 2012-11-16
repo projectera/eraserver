@@ -8,7 +8,7 @@ using MongoDB.Driver;
 using System.Threading.Tasks;
 using ERA.Protocols.ServiceProtocol;
 
-namespace ERA.Services.Player.Data
+namespace ERA.Services.PlayerService.Data
 {
     class Dialogue
     {

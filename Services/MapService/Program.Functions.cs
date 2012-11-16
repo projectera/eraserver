@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using ERA.Protocols.ServiceProtocol;
 using MongoDB.Bson;
-using ERA.Protocols.MapProtocol;
-using System.Threading;
+using System.Linq;
 
-namespace ERA.Services.Map
+namespace ERA.Services.MapService
 {
     partial class Program
     {

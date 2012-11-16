@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ERA.Services.Resource.Generators
+namespace ERA.Services.ResourceService.Generators
 {
     /// <summary>
     /// Originated from lc: language confluxer (http://www.ruf.rice.edu/~pound/revised-lc)

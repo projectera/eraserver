@@ -7,9 +7,9 @@ using MongoDB.Driver;
 using System.Threading;
 using ERA.Protocols.SubscriptionProtocol;
 using Lidgren.Network;
-using ERA.Services.Player.Listeners;
+using ERA.Services.PlayerService.Listeners;
 
-namespace ERA.Services.Player
+namespace ERA.Services.PlayerService
 {
     partial class Program
     {

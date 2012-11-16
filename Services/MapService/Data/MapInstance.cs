@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using System.Threading.Tasks;
 using Lidgren.Network;
 
-namespace ERA.Services.Map.Data
+namespace ERA.Services.MapService.Data
 {
     public class MapInstance
     {

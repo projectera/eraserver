@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ServiceProtoc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA3EDA0B-02A5-4D89-ABBB-682D4ADF8573}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Resource", "Services\ResourceService\ERA.Services.Resource.csproj", "{592C8ACA-45DA-4E37-99A9-E371C799F487}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.ResourceService", "Services\ResourceService\ERA.Services.ResourceService.csproj", "{592C8ACA-45DA-4E37-99A9-E371C799F487}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkMapper", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkStatistics", "Tools\NetworkStatistics\ERA.Tools.NetworkStatistics.csproj", "{C61F779A-5064-415C-9C89-0EA394A63329}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Map", "Services\MapService\ERA.Services.Map.csproj", "{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.MapService", "Services\MapService\ERA.Services.MapService.csproj", "{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkFuzzer", "Tools\NetworkFuzzer\ERA.Tools.NetworkFuzzer.csproj", "{C71C6DA0-56F2-4563-BA33-BBE110E69C21}"
 EndProject
@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.KillServer", "Too
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.MapProtocol", "MapProtocol\ERA.Protocols.MapProtocol.csproj", "{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Player", "Services\PlayerService\ERA.Services.Player.csproj", "{39F63915-0E92-4301-AEAD-7CC3817C9A29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.PlayerService", "Services\PlayerService\ERA.Services.PlayerService.csproj", "{39F63915-0E92-4301-AEAD-7CC3817C9A29}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.PlayerProtocol", "PlayerProtocol\ERA.Protocols.PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
 EndProject

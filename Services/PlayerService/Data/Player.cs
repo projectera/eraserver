@@ -12,7 +12,7 @@ using Lidgren.Network.Authentication;
 using Lidgren.Network.Lobby;
 using ERA.Protocols.ServiceProtocol;
 
-namespace ERA.Services.Player.Data
+namespace ERA.Services.PlayerService.Data
 {
     internal static class Player
     {

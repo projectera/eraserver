@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 using MongoDB.Bson;
 using Lidgren.Network.Authentication;
-using ERA.Services.Player.Connections;
-using ERA.Services.Player.Protocols;
+using ERA.Services.PlayerService.Connections;
+using ERA.Services.PlayerService;
 
-namespace ERA.Services.Player.Listeners
+namespace ERA.Services.PlayerService.Listeners
 {
     /// <summary>
     /// interfaces client <-> gameserver connections
@@ -368,7 +368,7 @@ namespace ERA.Services.Player.Listeners
         /// <param name="connection">The connection to add the protocols to</param>
         public void RegisterProtocols(ClientConnection connection, String username)
         {
-            Protocol pp = new Protocols.Client.Player(connection, username);
+            Protocol pp = new Client.Player(connection, username);
             connection.RegisterProtocol(pp);
 
             /*Protocol pi = new Interactable(connection);

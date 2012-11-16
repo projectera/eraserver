@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ERA.Protocols.ServiceProtocol;
-using ERA.Services.Resource.Generators;
+using ERA.Services.ResourceService.Generators;
 
-namespace ERA.Services.Resource
+namespace ERA.Services.ResourceService
 {
     partial class Program
     {

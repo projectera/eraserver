@@ -6,7 +6,7 @@ using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
 
-namespace ERA.Services.Resource
+namespace ERA.Services.ResourceService
 {
     partial class Program
     {

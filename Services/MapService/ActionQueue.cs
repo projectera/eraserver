@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace ERA.Services.Map
+namespace ERA.Services.MapService
 {
     public class ActionQueue
     {

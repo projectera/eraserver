@@ -8,7 +8,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 using ERA.Protocols.ServiceProtocol;
 
-namespace ERA.Services.Map.Data
+namespace ERA.Services.MapService.Data
 {
     internal static class Tileset
     {
