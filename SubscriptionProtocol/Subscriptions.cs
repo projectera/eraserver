@@ -6,7 +6,7 @@ using Lidgren.Network;
 using System.Threading;
 using ServiceProtocol;
 
-namespace SubscriptionProtocol
+namespace ERA.Protocols.SubscriptionProtocol
 {
     public class Subscriptions
     {

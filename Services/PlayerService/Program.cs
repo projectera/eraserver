@@ -5,7 +5,7 @@ using System.Text;
 using ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
-using SubscriptionProtocol;
+using ERA.Protocols.SubscriptionProtocol;
 using Lidgren.Network;
 using ERA.Services.Player.Listeners;
 

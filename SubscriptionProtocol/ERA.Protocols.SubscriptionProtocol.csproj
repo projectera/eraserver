@@ -8,8 +8,8 @@
     <ProjectGuid>{4466984A-46B0-418F-90A2-2CD80CA305CA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SubscriptionProtocol</RootNamespace>
-    <AssemblyName>SubscriptionProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.SubscriptionProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.SubscriptionProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

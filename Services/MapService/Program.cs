@@ -6,7 +6,7 @@ using ServiceProtocol;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using System.Threading;
-using SubscriptionProtocol;
+using ERA.Protocols.SubscriptionProtocol;
 
 namespace ERA.Services.Map
 {
