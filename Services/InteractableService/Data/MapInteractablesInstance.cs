@@ -10,7 +10,7 @@ using ERA.Services.InteractableService;
 using ERA.Services.InteractableService.Data;
 using ERA.Protocols.ServiceProtocol;
 
-namespace ERA.Services.MapService.Data
+namespace ERA.Services.InteractableService.Data
 {
     public class MapInteractablesInstance
     {
