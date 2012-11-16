@@ -184,8 +184,13 @@ namespace ERA.Services.InteractableService
                     if (runningmapinstances.ContainsKey(mapid) && runningmapinstances[mapid].Contains(instance))
                         continue;
 
-                    Protocols.MapProtocol.MapInstance mapinstancedata = null; // get instance TODO
-                    Protocols.MapProtocol.Map mapdata = null;
+                    var question = EraSClient.CreateQuestion(MessageType.Service, "Map");
+                    question.Packet.Write("Get");
+                    question.Packet.Write(mapid.ToByteArray());
+                    var answer = EraSClient.AskQuestion(question);
+                    var mapdata = Protocols.MapProtocol.Map.Read(answer.Packet);
+                    Protocols.MapProtocol.MapInstance mapinstancedata = Protocols.MapProtocol.MapInstance.Generate(mapid, instance);
+
                     Data.MapInteractablesInstance.StartInstance(mapdata, mapinstancedata);
                 }
             }
