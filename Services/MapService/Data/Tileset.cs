@@ -12,16 +12,14 @@ namespace ERA.Services.MapService.Data
 {
     internal static class Tileset
     {
-        private static Dictionary<ObjectId, ERA.Protocols.MapProtocol.Tileset> Cache = new Dictionary<ObjectId, ERA.Protocols.MapProtocol.Tileset>();
-
         /// <summary>
         /// Gets a tileset from the db
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static Task<ERA.Protocols.MapProtocol.Tileset> Get(ObjectId id, Boolean tryCache = true)
+        internal static Task<ERA.Protocols.MapProtocol.Tileset> Get(ObjectId id)
         {
-            return Task.Factory.StartNew(() => { return GetBlocking(id, tryCache); });
+            return Task.Factory.StartNew(() => { return GetBlocking(id); });
         }
 
         /// <summary>
@@ -39,26 +37,9 @@ namespace ERA.Services.MapService.Data
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static ERA.Protocols.MapProtocol.Tileset GetBlocking(ObjectId id, Boolean tryCache = true)
+        internal static ERA.Protocols.MapProtocol.Tileset GetBlocking(ObjectId id)
         {
-            ERA.Protocols.MapProtocol.Tileset result = null;
-            if (tryCache)
-            {
-                lock (Cache)
-                {
-                    if (Cache.TryGetValue(id, out result))
-                        return result;
-                }
-            }
-
-            result = GetCollection().FindOneById(id) as ERA.Protocols.MapProtocol.Tileset;
-
-            lock (Cache) 
-            {
-                Cache.Remove(id);
-                Cache.Add(id, result);
-            }
-            return result;
+            return GetCollection().FindOneById(id) as ERA.Protocols.MapProtocol.Tileset;;
         }
 
         /// <summary>

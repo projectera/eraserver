@@ -187,7 +187,7 @@ namespace ERA.Services.MapService
                     mapData = instance.MapData;
             }
 
-            return mapData ?? Data.Map.GetBlocking(mapId, true);
+            return mapData ?? Data.Map.GetBlocking(mapId);
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace ERA.Services.MapService
         public static void GetTileset(Message msg)
         {
             var tilesetId = new ObjectId(msg.Packet.ReadBytes(12));
-            var tileset = Data.Tileset.GetBlocking(tilesetId, true);
+            var tileset = Data.Tileset.GetBlocking(tilesetId);
             if (tileset == null)
                 return;
             var answer = msg.Answer(EraSClient);
@@ -215,7 +215,7 @@ namespace ERA.Services.MapService
             var mapData = __GetMapData(mapId);
             if (mapData == null)
                 return;
-            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId, true);
+            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId);
             if (tileset == null)
                 return;
             var answer = msg.Answer(EraSClient);
@@ -246,7 +246,7 @@ namespace ERA.Services.MapService
         public static void GetTilesetHash(Message msg)
         {
             var tilesetId = new ObjectId(msg.Packet.ReadBytes(12));
-            var tileset = Data.Tileset.GetBlocking(tilesetId, true);
+            var tileset = Data.Tileset.GetBlocking(tilesetId);
             var answer = msg.Answer(EraSClient);
             answer.Packet.Write(tileset.GetHashCode());
             answer.Packet.Write(tileset.Version);
@@ -263,7 +263,7 @@ namespace ERA.Services.MapService
             var mapData = __GetMapData(mapId);
             if (mapData == null)
                 return;
-            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId, true);
+            var tileset = Data.Tileset.GetBlocking(mapData.TilesetId);
             if (tileset == null)
                 return;
             var answer = msg.Answer(EraSClient);
