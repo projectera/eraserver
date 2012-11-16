@@ -285,15 +285,15 @@ namespace ERA.Services.Player.Listeners
                                                     Player playerProtocol;
                                                     conn.TryGetProtocol((Byte)ClientProtocols.Player, out pprotocol);
                                                     playerProtocol = (Player)pprotocol;
-                                                    playerProtocol.ActiveId = data.ActiveId;
+                                                    ERA.Protocols.PlayerProtocol.ActiveId = data.ActiveId;
 
                                                     Logger.Info("Transfer connection established.");// with: " + msg.SenderConnection.RemoteEndpoint);
 
                                                     // Issue map join
-                                                    playerProtocol.EnterMap();
+                                                    ERA.Protocols.PlayerProtocol.EnterMap();
 
                                                     // Send transfer ack
-                                                    conn.SendMessage(playerProtocol.PickAvatarResponse(), NetDeliveryMethod.ReliableUnordered);
+                                                    conn.SendMessage(ERA.Protocols.PlayerProtocol.PickAvatarResponse(), NetDeliveryMethod.ReliableUnordered);
 
                                                 }
                                                 else

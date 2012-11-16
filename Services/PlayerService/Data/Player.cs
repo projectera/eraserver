@@ -23,23 +23,23 @@ namespace ERA.Services.Player.Data
         /// <param name="password">password</param>
         /// <param name="mailAdress">mailadress</param>
         /// <returns>Player object</returns>
-        internal static PlayerProtocol.Player Generate(String username, String password, String mailAdress)
+        internal static ERA.Protocols.PlayerProtocol.Player Generate(String username, String password, String mailAdress)
         {
-            PlayerProtocol.Player result = Player.GetBlocking(username) ?? new PlayerProtocol.Player();
+            ERA.Protocols.PlayerProtocol.Player result = Player.GetBlocking(username) ?? new ERA.Protocols.PlayerProtocol.Player();
             if (result.Id.Equals(ObjectId.Empty) == false)
                 throw new Exception("User already exists");
 
             Byte[] verifier, salt = null;
             verifier = Handshake.PasswordVerifier(result.Username.ToLower(), password, NetLobby.KeySize, out salt).ToByteArray(); 
 
-            return PlayerProtocol.Player.Generate(
+            return ERA.Protocols.PlayerProtocol.Player.Generate(
                 ObjectId.GenerateNewId(), 
                 0, 
                 username, 
                 verifier, 
                 salt, 
                 mailAdress, 
-                PlayerProtocol.PermissionGroup.Registered);
+                ERA.Protocols.PlayerProtocol.PermissionGroup.Registered);
 
             // Generate Salt and Verifier TODO
         }
@@ -51,18 +51,18 @@ namespace ERA.Services.Player.Data
         /// <param name="verifier"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        internal static PlayerProtocol.Player Generate(String username, Byte[] verifier, Byte[] salt)
+        internal static ERA.Protocols.PlayerProtocol.Player Generate(String username, Byte[] verifier, Byte[] salt)
         {
-            PlayerProtocol.Player result = Player.GetBlocking(username) ?? new PlayerProtocol.Player();
+            ERA.Protocols.PlayerProtocol.Player result = Player.GetBlocking(username) ?? new ERA.Protocols.PlayerProtocol.Player();
             if (result.Id.Equals(ObjectId.Empty) == false)
                 throw new Exception("User already exists");
 
-            return PlayerProtocol.Player.Generate(
+            return ERA.Protocols.PlayerProtocol.Player.Generate(
                 ObjectId.GenerateNewId(),
                 username,
                 verifier,
                 salt,
-                PlayerProtocol.PermissionGroup.None
+                ERA.Protocols.PlayerProtocol.PermissionGroup.None
                 );
         }
 
@@ -71,7 +71,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="reason"></param>
         /// <returns>Update task</returns>
-        internal static Task<Boolean> Ban(ref PlayerProtocol.Player player, String reason)
+        internal static Task<Boolean> Ban(ref ERA.Protocols.PlayerProtocol.Player player, String reason)
         {
             // Update locally
             if (String.IsNullOrEmpty(reason))
@@ -99,13 +99,13 @@ namespace ERA.Services.Player.Data
         /// <remarks>Even though locally changes always succeeded, you should inspect the Task.Result value to see if the update succeeded remotely</remarks>
         /// <param name="username">new username</param>
         /// <returns>Update Task</returns>
-        internal static Task<Boolean> ChangeUsername(ref PlayerProtocol.Player player, String username)
+        internal static Task<Boolean> ChangeUsername(ref ERA.Protocols.PlayerProtocol.Player player, String username)
         {
             // Copy old value and update (local) value
             String oldname = player.Username;
 
             // New player
-            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
+            player = ERA.Protocols.PlayerProtocol.Player.Generate(player.Id, player.ForumId, username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
 
             // Start updating
             return Task.Factory.StartNew(() =>
@@ -127,7 +127,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="email">new Email</param>
         /// <returns></returns>
-        internal static Task<Boolean> ChangeEmail(ref PlayerProtocol.Player player, String email)
+        internal static Task<Boolean> ChangeEmail(ref ERA.Protocols.PlayerProtocol.Player player, String email)
         {
             // Copy old value and update (local) value
             String oldmail = player.EmailAddress;
@@ -135,7 +135,7 @@ namespace ERA.Services.Player.Data
             ObjectId updateId = player.Id;
 
             // New player
-            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, email, player.PermissionGroup);
+            player = ERA.Protocols.PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, email, player.PermissionGroup);
             String mail = player.EmailAddress;
             String username = player.Username;
 
@@ -184,14 +184,14 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="?"></param>
         /// <returns></returns>
-        internal static Task<Boolean> LinkAccount(ref PlayerProtocol.Player player, UInt16 forumId)
+        internal static Task<Boolean> LinkAccount(ref ERA.Protocols.PlayerProtocol.Player player, UInt16 forumId)
         {
             // Copy old value and update (local) value
             ObjectId updateId = player.Id;
             Int32 validationCode = NetRandom.Instance.NextInt();
 
             // new player
-            player = PlayerProtocol.Player.Generate(player.Id, forumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
+            player = ERA.Protocols.PlayerProtocol.Player.Generate(player.Id, forumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, player.PermissionGroup);
             String mail = player.EmailAddress;
             String username = player.Username;
 
@@ -235,10 +235,10 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="permissionGroup">new permissiongroup</param>
         /// <returns>Update task</returns>
-        internal static Task<Boolean> Elevate(ref PlayerProtocol.Player player, PlayerProtocol.PermissionGroup permissionGroup)
+        internal static Task<Boolean> Elevate(ref ERA.Protocols.PlayerProtocol.Player player, ERA.Protocols.PlayerProtocol.PermissionGroup permissionGroup)
         {
             // New player
-            player = PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, permissionGroup);
+            player = ERA.Protocols.PlayerProtocol.Player.Generate(player.Id, player.ForumId, player.Username, player.Verifier, player.Salt, player.EmailAddress, permissionGroup);
             
             // Update remotely
             ObjectId updateId = player.Id;
@@ -259,7 +259,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id">id of player to get</param>
         /// <returns></returns>
-        internal static Task<PlayerProtocol.Player> Get(ObjectId id)
+        internal static Task<ERA.Protocols.PlayerProtocol.Player> Get(ObjectId id)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(id); });
         }
@@ -269,12 +269,12 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id">id of player to get</param>
         /// <returns></returns>
-        internal static Task<PlayerProtocol.Player> GetRecursive(ObjectId id)
+        internal static Task<ERA.Protocols.PlayerProtocol.Player> GetRecursive(ObjectId id)
         {
-            return Task.Factory.StartNew(() => { return GetBlocking(id); }).ContinueWith<PlayerProtocol.Player>((task) =>
+            return Task.Factory.StartNew(() => { return GetBlocking(id); }).ContinueWith<ERA.Protocols.PlayerProtocol.Player>((task) =>
             {
-                task.Result.Dialogues = new Dictionary<ObjectId, PlayerProtocol.Dialogue>();
-                PlayerProtocol.Dialogue[] retrieved = Dialogue.GetBlockingFor(task.Result.Id);
+                task.Result.Dialogues = new Dictionary<ObjectId, ERA.Protocols.PlayerProtocol.Dialogue>();
+                ERA.Protocols.PlayerProtocol.Dialogue[] retrieved = Dialogue.GetBlockingFor(task.Result.Id);
                 foreach (var dialogue in retrieved)
                     task.Result.Dialogues.Add(dialogue.Id, dialogue);
 
@@ -287,7 +287,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="username">username of player to get</param>
         /// <returns></returns>
-        internal static Task<PlayerProtocol.Player> Get(String username)
+        internal static Task<ERA.Protocols.PlayerProtocol.Player> Get(String username)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(username); });
         }
@@ -297,9 +297,9 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id">id of player to get</param>
         /// <returns></returns>
-        internal static PlayerProtocol.Player GetBlocking(ObjectId id)
+        internal static ERA.Protocols.PlayerProtocol.Player GetBlocking(ObjectId id)
         {
-            return GetCollection().FindOneById(id) as PlayerProtocol.Player;
+            return GetCollection().FindOneById(id) as ERA.Protocols.PlayerProtocol.Player;
         }
 
         /// <summary>
@@ -307,25 +307,25 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="username">username of player to get</param>
         /// <returns></returns>
-        internal static PlayerProtocol.Player GetBlocking(String username)
+        internal static ERA.Protocols.PlayerProtocol.Player GetBlocking(String username)
         {
-            return GetCollection().FindOneAs<PlayerProtocol.Player>(
-                Query.Matches("Username", new BsonRegularExpression("^(?i)" + username + "$"))) as PlayerProtocol.Player;
+            return GetCollection().FindOneAs<ERA.Protocols.PlayerProtocol.Player>(
+                Query.Matches("Username", new BsonRegularExpression("^(?i)" + username + "$"))) as ERA.Protocols.PlayerProtocol.Player;
         }
 
         /// <summary>
         /// Gets the players collection
         /// </summary>
         /// <returns></returns>
-        internal static MongoCollection<PlayerProtocol.Player> GetCollection()
+        internal static MongoCollection<ERA.Protocols.PlayerProtocol.Player> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<PlayerProtocol.Player>("Players");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Player>("Players");
         }
 
         /// <summary>
         /// Puts a player to the db
         /// </summary>
-        internal static void Put(PlayerProtocol.Player player)
+        internal static void Put(ERA.Protocols.PlayerProtocol.Player player)
         {
             Put(player, SafeMode.False);
         }
@@ -334,9 +334,9 @@ namespace ERA.Services.Player.Data
         /// Puts a player to the db
         /// <param name="safemode">Sets the safemode on this query</param>
         /// </summary>
-        internal static SafeModeResult Put(PlayerProtocol.Player player, SafeMode safemode)
+        internal static SafeModeResult Put(ERA.Protocols.PlayerProtocol.Player player, SafeMode safemode)
         {
-            return GetCollection().Save<PlayerProtocol.Player>(player, safemode);
+            return GetCollection().Save<ERA.Protocols.PlayerProtocol.Player>(player, safemode);
         }
     }
 }

@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.MapProtocol",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Player", "Services\PlayerService\ERA.Services.Player.csproj", "{39F63915-0E92-4301-AEAD-7CC3817C9A29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerProtocol", "PlayerProtocol\PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.PlayerProtocol", "PlayerProtocol\ERA.Protocols.PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{BE35170A-4F2F-4B74-BA77-E28102F8793C}"
 EndProject

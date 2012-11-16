@@ -13,12 +13,12 @@ namespace ERA.Services.Player.Protocols.Client
     internal partial class Player : Protocol
     {
         private ReaderWriterLockSlim _playerDataLock;
-        private PlayerProtocol.Player _playerData;
+        private ERA.Protocols.PlayerProtocol.Player _playerData;
 
         /// <summary>
         /// Player
         /// </summary>
-        internal PlayerProtocol.Player PlayerData 
+        internal ERA.Protocols.PlayerProtocol.Player PlayerData 
         {
             get
             {
@@ -89,7 +89,7 @@ namespace ERA.Services.Player.Protocols.Client
             : base(connection)
         {
             _playerDataLock = new ReaderWriterLockSlim();
-            this.PlayerData = Data.Player.GetBlocking(username) ?? new PlayerProtocol.Player();
+            this.PlayerData = Data.Player.GetBlocking(username) ?? new ERA.Protocols.PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
         }
 
@@ -102,7 +102,7 @@ namespace ERA.Services.Player.Protocols.Client
         {
             _playerDataLock = new ReaderWriterLockSlim();
             _playerDataLock.EnterWriteLock();
-            this.PlayerData = Data.Player.GetBlocking(id) ?? new PlayerProtocol.Player();
+            this.PlayerData = Data.Player.GetBlocking(id) ?? new ERA.Protocols.PlayerProtocol.Player();
             connection.NodeId = this.PlayerData.Id;
             _playerDataLock.ExitWriteLock();
         }
@@ -130,10 +130,10 @@ namespace ERA.Services.Player.Protocols.Client
                         Data.Player.Get(searchPlayerId == ObjectId.Empty ? this.PlayerData.Id : searchPlayerId).ContinueWith(
                             (pt) => QueueAction(() =>
                             {
-                                PlayerProtocol.Player player = pt.Result;
-                                PlayerProtocol.Player tempPlayer = null;
+                                ERA.Protocols.PlayerProtocol.Player player = pt.Result;
+                                ERA.Protocols.PlayerProtocol.Player tempPlayer = null;
                                 if (player == null)
-                                    tempPlayer = new PlayerProtocol.Player();
+                                    tempPlayer = new ERA.Protocols.PlayerProtocol.Player();
 
                                 // Log this action
                                 //Logger.Verbose("PlayerAction.Get requested: " + searchPlayerId + " and got " + (player ?? tempPlayer).Id);
@@ -142,7 +142,7 @@ namespace ERA.Services.Player.Protocols.Client
                                 NetOutgoingMessage getMsg = OutgoingMessage(PlayerAction.Get);
                                 
                                 getMsg.Write(searchPlayerId.ToByteArray());
-                                PlayerProtocol.Player.Pack(player ?? tempPlayer, getMsg);
+                                ERA.Protocols.PlayerProtocol.Player.Pack(player ?? tempPlayer, getMsg);
 
                                 // Send the message
                                 this.Connection.SendMessage(getMsg, NetDeliveryMethod.ReliableUnordered);

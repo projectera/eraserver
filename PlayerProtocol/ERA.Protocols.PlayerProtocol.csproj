@@ -8,8 +8,8 @@
     <ProjectGuid>{700B2309-3E14-4876-A556-2B641B5B8084}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlayerProtocol</RootNamespace>
-    <AssemblyName>PlayerProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.PlayerProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.PlayerProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

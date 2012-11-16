@@ -111,9 +111,9 @@
       <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
       <Name>Lidgren.Network.Lobby</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\PlayerProtocol\PlayerProtocol.csproj">
+    <ProjectReference Include="..\..\PlayerProtocol\ERA.Protocols.PlayerProtocol.csproj">
       <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
-      <Name>PlayerProtocol</Name>
+      <Name>ERA.Protocols.PlayerProtocol</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

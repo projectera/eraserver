@@ -18,9 +18,9 @@ namespace ERA.Services.Player.Data
         /// <param name="receiver"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        internal static PlayerProtocol.Dialogue Generate(ObjectId sender, ObjectId receiver, String message)
+        internal static ERA.Protocols.PlayerProtocol.Dialogue Generate(ObjectId sender, ObjectId receiver, String message)
         {
-            return PlayerProtocol.Dialogue.Generate(sender, receiver, message);
+            return ERA.Protocols.PlayerProtocol.Dialogue.Generate(sender, receiver, message);
         }
 
         /// <summary>
@@ -29,20 +29,20 @@ namespace ERA.Services.Player.Data
         /// <param name="message"></param>
         /// <param name="participants"></param>
         /// <returns></returns>
-        internal static PlayerProtocol.Dialogue Generate(PlayerProtocol.DialogueMessage message, HashSet<ObjectId> participants)
+        internal static ERA.Protocols.PlayerProtocol.Dialogue Generate(ERA.Protocols.PlayerProtocol.DialogueMessage message, HashSet<ObjectId> participants)
         {
-            return PlayerProtocol.Dialogue.Generate(message, participants);
+            return ERA.Protocols.PlayerProtocol.Dialogue.Generate(message, participants);
         }
 
         /// <summary>
         /// Adds a message to the conversation
         /// </summary>
         /// <param name="message"></param>
-        internal static void AddMessage(PlayerProtocol.Dialogue dialogue, PlayerProtocol.DialogueMessage message)
+        internal static void AddMessage(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ERA.Protocols.PlayerProtocol.DialogueMessage message)
         {
             var result = dialogue.GetMessages();
             // Page limit reached? Page count can only increase so no need to lock
-            if (result.Count >= PlayerProtocol.Dialogue.DialogueSize)
+            if (result.Count >= ERA.Protocols.PlayerProtocol.Dialogue.DialogueSize)
             {
                 if (dialogue.FollowUp == null)
                 {
@@ -64,7 +64,7 @@ namespace ERA.Services.Player.Data
 
             // Adds message
             GetCollection().Update(Query.EQ("_id", dialogue.Id), 
-                Update.AddToSet("Messages", message.ToBsonDocument<PlayerProtocol.DialogueMessage>()));
+                Update.AddToSet("Messages", message.ToBsonDocument<ERA.Protocols.PlayerProtocol.DialogueMessage>()));
 
         }
 
@@ -73,23 +73,23 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="message"></param>
-        internal static void AddMessage(PlayerProtocol.Dialogue dialogue, ObjectId sender, String message)
+        internal static void AddMessage(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ObjectId sender, String message)
         {
-            AddMessage(dialogue, PlayerProtocol.DialogueMessage.Generate(sender, message));
+            AddMessage(dialogue, ERA.Protocols.PlayerProtocol.DialogueMessage.Generate(sender, message));
         }
 
         /// <summary>
         /// Adds a participant to the conversation
         /// </summary>
         /// <param name="id"></param>
-        internal static void AddParticipant(PlayerProtocol.Dialogue dialogue, ObjectId id)
+        internal static void AddParticipant(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ObjectId id)
         {
             var participants = dialogue.GetParticipants();
             var got = (GetCollection().
                 FindAndModify(
                     Query.EQ("_id", dialogue.Id),
                     SortBy.Null, Update.AddToSet("Participants", id), true).
-                    GetModifiedDocumentAs<PlayerProtocol.Dialogue>()
+                    GetModifiedDocumentAs<ERA.Protocols.PlayerProtocol.Dialogue>()
                 ).GetParticipants();
 
             var diff = got.Except(participants);
@@ -101,9 +101,9 @@ namespace ERA.Services.Player.Data
         /// 
         /// </summary>
         /// <param name="message"></param>
-        internal static void ArchiveDialogue(PlayerProtocol.Dialogue dialogue, PlayerProtocol.DialogueMessage message)
+        internal static void ArchiveDialogue(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ERA.Protocols.PlayerProtocol.DialogueMessage message)
         {
-            var replacement = PlayerProtocol.Dialogue.Generate(message, dialogue.GetParticipants());
+            var replacement = ERA.Protocols.PlayerProtocol.Dialogue.Generate(message, dialogue.GetParticipants());
             Dialogue.Put(replacement);
 
             FindAndModifyResult atomicResult = Dialogue.GetCollection().FindAndModify(
@@ -132,9 +132,9 @@ namespace ERA.Services.Player.Data
         /// <param name="dialogueMessageId"></param>
         /// <param name="readerId"></param>
         /// <returns></returns>
-        internal static void MarkAsRead(PlayerProtocol.Dialogue dialogue, ObjectId dialogueMessageId, ObjectId readerId, Boolean asRead = true)
+        internal static void MarkAsRead(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ObjectId dialogueMessageId, ObjectId readerId, Boolean asRead = true)
         {
-            foreach (PlayerProtocol.DialogueMessage msg in dialogue.GetMessages())
+            foreach (ERA.Protocols.PlayerProtocol.DialogueMessage msg in dialogue.GetMessages())
             {
 
                 if (asRead)
@@ -156,7 +156,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="dialogueMessageId"></param>
         /// <param name="readerId"></param>
-        internal static void MarkAsUnread(PlayerProtocol.Dialogue dialogue, ObjectId dialogueMessageId, ObjectId readerId)
+        internal static void MarkAsUnread(ERA.Protocols.PlayerProtocol.Dialogue dialogue, ObjectId dialogueMessageId, ObjectId readerId)
         {
             MarkAsRead(dialogue, dialogueMessageId, readerId, false);
         }
@@ -164,7 +164,7 @@ namespace ERA.Services.Player.Data
         /// <summary>
         /// 
         /// </summary>
-        public static void Put(PlayerProtocol.Dialogue dialogue)
+        public static void Put(ERA.Protocols.PlayerProtocol.Dialogue dialogue)
         {
             Put(dialogue, SafeMode.False);
         }
@@ -174,7 +174,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="sm"></param>
         /// <returns></returns>
-        public static SafeModeResult Put(PlayerProtocol.Dialogue dialogue, SafeMode sm)
+        public static SafeModeResult Put(ERA.Protocols.PlayerProtocol.Dialogue dialogue, SafeMode sm)
         {
             return GetCollection().Save(dialogue, sm);
         }
@@ -184,9 +184,9 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static Task<PlayerProtocol.Dialogue> Get(ObjectId id)
+        public static Task<ERA.Protocols.PlayerProtocol.Dialogue> Get(ObjectId id)
         {
-            return Task<PlayerProtocol.Dialogue>.Factory.StartNew(() => { return GetBlocking(id); });
+            return Task<ERA.Protocols.PlayerProtocol.Dialogue>.Factory.StartNew(() => { return GetBlocking(id); });
         }
 
         /// <summary>
@@ -194,9 +194,9 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static Task<PlayerProtocol.Dialogue[]> GetFor(ObjectId id)
+        public static Task<ERA.Protocols.PlayerProtocol.Dialogue[]> GetFor(ObjectId id)
         {
-            return Task<PlayerProtocol.Dialogue[]>.Factory.StartNew(() => { return GetBlockingFor(id); });
+            return Task<ERA.Protocols.PlayerProtocol.Dialogue[]>.Factory.StartNew(() => { return GetBlockingFor(id); });
         }
 
         /// <summary>
@@ -204,11 +204,11 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static PlayerProtocol.Dialogue GetBlocking(ObjectId id)
+        public static ERA.Protocols.PlayerProtocol.Dialogue GetBlocking(ObjectId id)
         {
-            PlayerProtocol.Dialogue result = GetCollection().FindOneById(id);
+            ERA.Protocols.PlayerProtocol.Dialogue result = GetCollection().FindOneById(id);
 
-            foreach (PlayerProtocol.DialogueMessage message in result.GetMessages())
+            foreach (ERA.Protocols.PlayerProtocol.DialogueMessage message in result.GetMessages())
                 message.Parent = result;
 
             return result;
@@ -219,7 +219,7 @@ namespace ERA.Services.Player.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static PlayerProtocol.Dialogue[] GetBlockingFor(ObjectId id, Boolean archived = false, Boolean unread = true)
+        public static ERA.Protocols.PlayerProtocol.Dialogue[] GetBlockingFor(ObjectId id, Boolean archived = false, Boolean unread = true)
         {
             IMongoQuery query = Query.EQ("Participants", id);
 
@@ -237,10 +237,10 @@ namespace ERA.Services.Player.Data
                 query = Query.And(query, innerQuery);
             }
 
-            PlayerProtocol.Dialogue[] result = GetCollection().Find(query).ToArray();
+            ERA.Protocols.PlayerProtocol.Dialogue[] result = GetCollection().Find(query).ToArray();
 
-            foreach (PlayerProtocol.Dialogue dialogue in result)
-                foreach (PlayerProtocol.DialogueMessage message in dialogue.GetMessages())
+            foreach (ERA.Protocols.PlayerProtocol.Dialogue dialogue in result)
+                foreach (ERA.Protocols.PlayerProtocol.DialogueMessage message in dialogue.GetMessages())
                     message.Parent = dialogue;
 
             return result;
@@ -250,9 +250,9 @@ namespace ERA.Services.Player.Data
         /// 
         /// </summary>
         /// <returns></returns>
-        internal static MongoCollection<PlayerProtocol.Dialogue> GetCollection()
+        internal static MongoCollection<ERA.Protocols.PlayerProtocol.Dialogue> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<PlayerProtocol.Dialogue>("Players.Dialogues");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Dialogue>("Players.Dialogues");
         }
     }
 }
