@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.Map.Data
 {
@@ -58,7 +59,7 @@ namespace ERA.Services.Map.Data
         /// <returns></returns>
         public static MongoCollection<ERA.Protocols.MapProtocol.Region> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.MapProtocol.Region>("Regions");
+            return ServiceClient.Database.GetCollection<ERA.Protocols.MapProtocol.Region>("Regions");
         }
 
         /// <summary>

@@ -8,8 +8,8 @@
     <ProjectGuid>{D180FD09-A65C-46A5-9ED0-186E46319C95}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceProtocol</RootNamespace>
-    <AssemblyName>ServiceProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.ServiceProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.ServiceProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

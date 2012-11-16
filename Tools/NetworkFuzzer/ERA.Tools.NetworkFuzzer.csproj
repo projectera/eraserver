@@ -67,9 +67,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
+    <ProjectReference Include="..\..\ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
+      <Name>ERA.Protocols.ServiceProtocol</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

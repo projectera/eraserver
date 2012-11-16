@@ -88,9 +88,9 @@
       <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
       <Name>ERA.Protocols.MapProtocol</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
+    <ProjectReference Include="..\..\ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
+      <Name>ERA.Protocols.ServiceProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SubscriptionProtocol\ERA.Protocols.SubscriptionProtocol.csproj">
       <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>

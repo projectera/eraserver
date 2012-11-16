@@ -6,6 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 using System.Threading.Tasks;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.Player.Data
 {
@@ -252,7 +253,7 @@ namespace ERA.Services.Player.Data
         /// <returns></returns>
         internal static MongoCollection<ERA.Protocols.PlayerProtocol.Dialogue> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Dialogue>("Players.Dialogues");
+            return ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Dialogue>("Players.Dialogues");
         }
     }
 }

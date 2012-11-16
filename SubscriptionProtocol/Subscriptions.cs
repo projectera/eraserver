@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Lidgren.Network;
 using System.Threading;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Protocols.SubscriptionProtocol
 {

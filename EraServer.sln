@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EraS", "EraS\EraS.csproj", "{79DB74B5-3AD7-43AA-B607-D1D894C6DDE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceProtocol", "ServiceProtocol\ServiceProtocol.csproj", "{D180FD09-A65C-46A5-9ED0-186E46319C95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ServiceProtocol", "ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj", "{D180FD09-A65C-46A5-9ED0-186E46319C95}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA3EDA0B-02A5-4D89-ABBB-682D4ADF8573}"
 EndProject

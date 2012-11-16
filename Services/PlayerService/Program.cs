@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
 using ERA.Protocols.SubscriptionProtocol;
@@ -61,7 +61,7 @@ namespace ERA.Services.Player
 
             // Save the network info
             PlayerSubscriptions = new Subscriptions(EraSClient);
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
 
             // Message Handlers
             EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);

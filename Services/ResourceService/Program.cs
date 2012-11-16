@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
 
@@ -55,7 +55,7 @@ namespace ERA.Services.Resource
             IsRunning = true;
 
             // Save the network info
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
 
             StopRunningSemaphore.WaitOne();
             Console.WriteLine("Service terminated.");

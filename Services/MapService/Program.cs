@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using System.Threading;
@@ -67,7 +67,7 @@ namespace ERA.Services.Map
 
             // Save the network info
             MapSubscriptions = new Subscriptions(EraSClient);
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
             MapInstances = new ThreadsafeDictOfDict<ObjectId, ObjectId, Data.MapInstance>();
 
             // Start this

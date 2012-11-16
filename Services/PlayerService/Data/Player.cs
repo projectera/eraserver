@@ -10,6 +10,7 @@ using Lidgren.Network;
 using System.Net.Mail;
 using Lidgren.Network.Authentication;
 using Lidgren.Network.Lobby;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.Player.Data
 {
@@ -319,7 +320,7 @@ namespace ERA.Services.Player.Data
         /// <returns></returns>
         internal static MongoCollection<ERA.Protocols.PlayerProtocol.Player> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Player>("Players");
+            return ServiceClient.Database.GetCollection<ERA.Protocols.PlayerProtocol.Player>("Players");
         }
 
         /// <summary>
