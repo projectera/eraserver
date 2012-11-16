@@ -8,6 +8,7 @@ using Lidgren.Network;
 using ERA.Utils;
 using ERA.Services.InteractableService;
 using ERA.Services.InteractableService.Data;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.MapService.Data
 {
@@ -61,11 +62,78 @@ namespace ERA.Services.MapService.Data
         {
             var result = new MapInteractablesInstance(map, data);
             Program.MapInteractablesInstances.AddInside(result.InstanceData.MapId, result.InstanceData.Id, result);
-            foreach (var interactable in result.Interactables.Keys)
-                Program.InteractableSubscriptions.AddSubscriptionList(interactable.ToString());
+
+            var question = Program.EraSClient.CreateQuestion(Protocols.ServiceProtocol.MessageType.Service, "Map");
+            question.Packet.Write("Subscribe");
+            question.Packet.Write(result.InstanceData.Id.ToString());
+            var answer = Program.EraSClient.AskQuestion(question);
+            if (answer == null)
+            {
+                Console.WriteLine("Could not subscribe on map service to {0}:{1}", result.InstanceData.MapId, result.InstanceData.Id);
+            }
+
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destination"></param>
+        public void TransferInstance(String destination)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Stops running this instance
+        /// </summary>
+        public void StopInstance()
+        {
+            var question = Program.EraSClient.CreateQuestion(Protocols.ServiceProtocol.MessageType.Service, "Map");
+            question.Packet.Write("Unsubscribe");
+            question.Packet.Write(InstanceData.Id.ToString());
+            var answer = Program.EraSClient.AskQuestion(question);
+            if (answer == null)
+            {
+                Console.WriteLine("Could not usubscribe on map service from {0}:{1}", InstanceData.MapId, InstanceData.Id);
+            }
+
+        }
+
+        /// <summary>
+        /// Adds an interactable to this map
+        /// </summary>
+        /// <param name="interactable"></param>
+        public void AddInteractable(ServerInteractable interactable) 
+        {
+            lock (Interactables)
+            {
+                Interactables.Add(interactable.PublicData.Id, interactable);
+                Program.InteractableSubscriptions.AddSubscriptionList(interactable.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Removes an interactable from this map
+        /// </summary>
+        /// <param name="interactable"></param>
+        public void RemoveInteractable(ServerInteractable interactable)
+        {
+            lock (Interactables)
+            {
+                Interactables.Remove(interactable.PublicData.Id);
+                Program.InteractableSubscriptions.RemoveSubscriptionList(interactable.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        public void HandleSubscriptionPush(Message msg)
+        {
+            Console.WriteLine("Got subscription push");
+        }
         //public StartInteractable(Data.Interactable interactable)
     }
 }
