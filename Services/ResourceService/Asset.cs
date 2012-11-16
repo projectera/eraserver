@@ -10,7 +10,7 @@ using System.IO;
 using System.Security.Cryptography;
 using Lidgren.Network;
 
-namespace ResourceService
+namespace ERA.Services.Resource
 {
     /// <summary>
     /// Assets are stored files in the GridFs section of the Database. They can be retrieved by quering for
