@@ -9,7 +9,7 @@ using Lidgren.Network;
 using System.Net;
 using MongoDB.Bson;
 
-namespace HeadlessClient.Protocols
+namespace ERA.Tools.HeadlessClient.Protocols
 {
     internal partial class Player : Protocol
     {

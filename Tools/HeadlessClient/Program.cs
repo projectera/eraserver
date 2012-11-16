@@ -5,7 +5,7 @@ using System.Text;
 using Lidgren.Network.Lobby;
 using ClientProtocol;
 
-namespace HeadlessClient
+namespace ERA.Tools.HeadlessClient
 {
     class Program
     {
