@@ -8,7 +8,7 @@ using MongoDB.Bson;
 using System.Threading;
 using SubscriptionProtocol;
 
-namespace MapService
+namespace ERA.Services.Map
 {
     partial class Program
     {

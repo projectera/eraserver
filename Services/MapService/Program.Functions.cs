@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using MapProtocol;
 using System.Threading;
 
-namespace MapService
+namespace ERA.Services.Map
 {
     partial class Program
     {
@@ -161,11 +161,11 @@ namespace MapService
         /// </summary>
         /// <param name="mapid"></param>
         /// <returns></returns>
-        protected static Map __GetMapData(ObjectId mapId)
+        protected static MapProtocol.Map __GetMapData(ObjectId mapId)
         {
             var instances = MapInstances.GetKeysOf(mapId);
 
-            Map mapData = null;
+            MapProtocol.Map mapData = null;
             if (instances != null && instances.Count > 0)
             {
                 var instance = MapInstances.GetValueOf(mapId, instances.First());

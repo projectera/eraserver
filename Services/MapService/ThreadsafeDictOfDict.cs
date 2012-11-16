@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MapService
+namespace ERA.Services.Map
 {
     class ThreadsafeDictOfDict<K, I, T>
     {

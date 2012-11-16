@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 
-namespace MapService.Data
+namespace ERA.Services.Map.Data
 {
     internal static class Map
     {

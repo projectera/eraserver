@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 
-namespace MapService.Data
+namespace ERA.Services.Map.Data
 {
     public static class Region
     {
