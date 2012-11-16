@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using Lidgren.Network;
 
-namespace MapProtocol
+namespace ERA.Protocols.MapProtocol
 {
     public class Tileset
     {

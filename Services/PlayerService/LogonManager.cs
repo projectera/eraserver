@@ -5,9 +5,9 @@ using System.Text;
 using Lidgren.Network;
 using System.Threading.Tasks;
 using Lidgren.Network.Authentication;
-using PlayerProtocol;
+using ERA.Protocols.PlayerProtocol;
 
-namespace PlayerService
+namespace ERA.Services.PlayerService
 {
     internal class LogonManager : ILogonManager
     {
@@ -52,7 +52,7 @@ namespace PlayerService
 #endif
                 salt = new Byte[0];
 
-                Task<Player> playerTask = PlayerService.Data.Player.Get(username);
+                Task<ERA.Protocols.PlayerProtocol.Player> playerTask = ERA.Services.PlayerService.Data.Player.Get(username);
                 if (playerTask == null || playerTask.Result == null || String.IsNullOrEmpty(playerTask.Result.Username))
                     return null;
                 if (playerTask.Result.IsBanned)

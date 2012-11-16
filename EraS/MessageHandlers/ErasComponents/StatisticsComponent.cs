@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EraS.Services;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using Lidgren.Network;
 
 namespace EraS.MessageHandlers.ErasComponents

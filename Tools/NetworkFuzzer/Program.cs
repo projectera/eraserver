@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using Lidgren.Network;
 
-namespace NetworkFuzzer
+namespace ERA.Tools.NetworkFuzzer
 {
     class Program
     {

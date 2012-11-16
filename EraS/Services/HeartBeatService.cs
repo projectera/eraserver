@@ -8,7 +8,7 @@ using MongoDB.Driver.Builders;
 using System.Net;
 using System.IO;
 using EraS.Connections;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 
 namespace EraS.Services
 {

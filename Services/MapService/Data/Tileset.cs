@@ -6,19 +6,20 @@ using MongoDB.Bson;
 using System.Threading.Tasks;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
+using ERA.Protocols.ServiceProtocol;
 
-namespace MapService.Data
+namespace ERA.Services.MapService.Data
 {
     internal static class Tileset
     {
-        private static Dictionary<ObjectId, MapProtocol.Tileset> Cache = new Dictionary<ObjectId, MapProtocol.Tileset>();
+        private static Dictionary<ObjectId, ERA.Protocols.MapProtocol.Tileset> Cache = new Dictionary<ObjectId, ERA.Protocols.MapProtocol.Tileset>();
 
         /// <summary>
         /// Gets a tileset from the db
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Tileset> Get(ObjectId id, Boolean tryCache = true)
+        internal static Task<ERA.Protocols.MapProtocol.Tileset> Get(ObjectId id, Boolean tryCache = true)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(id, tryCache); });
         }
@@ -28,7 +29,7 @@ namespace MapService.Data
         /// </summary>
         /// <param name="name">name of tileset to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Tileset> Get(String name)
+        internal static Task<ERA.Protocols.MapProtocol.Tileset> Get(String name)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(name); });
         }
@@ -38,9 +39,9 @@ namespace MapService.Data
         /// </summary>
         /// <param name="id">id of tileset to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Tileset GetBlocking(ObjectId id, Boolean tryCache = true)
+        internal static ERA.Protocols.MapProtocol.Tileset GetBlocking(ObjectId id, Boolean tryCache = true)
         {
-            MapProtocol.Tileset result = null;
+            ERA.Protocols.MapProtocol.Tileset result = null;
             if (tryCache)
             {
                 lock (Cache)
@@ -50,7 +51,7 @@ namespace MapService.Data
                 }
             }
 
-            result = GetCollection().FindOneById(id) as MapProtocol.Tileset;
+            result = GetCollection().FindOneById(id) as ERA.Protocols.MapProtocol.Tileset;
 
             lock (Cache) 
             {
@@ -65,25 +66,25 @@ namespace MapService.Data
         /// </summary>
         /// <param name="name">name of tileset to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Tileset GetBlocking(String name)
+        internal static ERA.Protocols.MapProtocol.Tileset GetBlocking(String name)
         {
-            return GetCollection().FindOneAs<MapProtocol.Tileset>(
-                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as MapProtocol.Tileset;
+            return GetCollection().FindOneAs<ERA.Protocols.MapProtocol.Tileset>(
+                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as ERA.Protocols.MapProtocol.Tileset;
         }
 
         /// <summary>
         /// Gets the tilesets collection
         /// </summary>
         /// <returns></returns>
-        internal static MongoCollection<MapProtocol.Tileset> GetCollection()
+        internal static MongoCollection<ERA.Protocols.MapProtocol.Tileset> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<MapProtocol.Tileset>("Tilesets");
+            return ServiceClient.Database.GetCollection<ERA.Protocols.MapProtocol.Tileset>("Tilesets");
         }
 
         /// <summary>
         /// Puts a tileset to the db
         /// </summary>
-        internal static void Put(MapProtocol.Tileset tileset)
+        internal static void Put(ERA.Protocols.MapProtocol.Tileset tileset)
         {
             Put(tileset, SafeMode.False);
         }
@@ -92,9 +93,9 @@ namespace MapService.Data
         /// Puts a tileset to the db
         /// <param name="safemode">Sets the safemode on this query</param>
         /// </summary>
-        internal static SafeModeResult Put(MapProtocol.Tileset tileset, SafeMode safemode)
+        internal static SafeModeResult Put(ERA.Protocols.MapProtocol.Tileset tileset, SafeMode safemode)
         {
-            return GetCollection().Save<MapProtocol.Tileset>(tileset, safemode);
+            return GetCollection().Save<ERA.Protocols.MapProtocol.Tileset>(tileset, safemode);
         }
 
     }

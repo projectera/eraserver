@@ -9,7 +9,7 @@ using System.Threading;
 using Lidgren.Network.Lobby;
 using System.Threading.Tasks;
 
-namespace HeadlessClient
+namespace ERA.Tools.HeadlessClient
 {
     internal partial class NetworkManager 
     {

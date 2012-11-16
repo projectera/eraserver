@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lidgren.Network;
 
-namespace HeadlessClient
+namespace ERA.Tools.HeadlessClient
 {
     internal abstract partial class Protocol : IDisposable
     {

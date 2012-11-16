@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace HeadlessClient.Protocols
+namespace ERA.Tools.HeadlessClient.Protocols
 {
     public class LinkedHashMap<K, T>
     {
