@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
 
-namespace ResourceService
+namespace ERA.Services.ResourceService
 {
     partial class Program
     {
@@ -55,7 +55,7 @@ namespace ResourceService
             IsRunning = true;
 
             // Save the network info
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
 
             StopRunningSemaphore.WaitOne();
             Console.WriteLine("Service terminated.");

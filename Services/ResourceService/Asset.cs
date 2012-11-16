@@ -9,8 +9,9 @@ using MongoDB.Driver.Builders;
 using System.IO;
 using System.Security.Cryptography;
 using Lidgren.Network;
+using ERA.Protocols.ServiceProtocol;
 
-namespace ResourceService
+namespace ERA.Services.ResourceService
 {
     /// <summary>
     /// Assets are stored files in the GridFs section of the Database. They can be retrieved by quering for
@@ -57,7 +58,7 @@ namespace ResourceService
             Asset result = new Asset();
 
             // Access Grid FS and find the file
-            MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database, 
+            MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             MongoGridFSFileInfo file = gridFs.FindOneById(assetId);
 
@@ -85,7 +86,7 @@ namespace ResourceService
             length = 0;
 
             // Access Grid FS and get the file
-            MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database, 
+            MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             MongoGridFSFileInfo file = gridFs.FindOneById(assetId);
 
@@ -126,7 +127,7 @@ namespace ResourceService
         /// <returns></returns>
         internal static BsonBinaryData GetChunkById(ObjectId chunkId)
         {
-            MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database, 
+            MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             var chunk = gridFs.Chunks.FindOne(Query.EQ("_id", chunkId));
 
@@ -145,7 +146,7 @@ namespace ResourceService
         {
             var result = new Asset();
 
-            MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database, 
+            MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database, 
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
             MongoGridFSFileInfo file = gridFs.FindOne(fileName) ?? gridFs.FindOne(Query.EQ("aliases", fileName));
 
@@ -166,7 +167,7 @@ namespace ResourceService
         /// <param name="previousName">previous generated name</param>
         internal void SaveFile(String fileName, String previousName = null)
         {
-            MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database,
+            MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database,
                 new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
 
             String md5Local = String.Empty, sha1 = String.Empty;
@@ -299,7 +300,7 @@ namespace ResourceService
                         return;
                 }
 
-                MongoGridFS gridFs = new MongoGridFS(ServiceProtocol.ServiceClient.Database, 
+                MongoGridFS gridFs = new MongoGridFS(ServiceClient.Database, 
                     new MongoGridFSSettings(MongoGridFSSettings.Defaults.ChunkSize, "Assets", SafeMode.True));
                 gridFs.Download(fileName, Query.EQ("_id", this.Id));
             }

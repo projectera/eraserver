@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using System.Threading.Tasks;
 using Lidgren.Network;
 
-namespace PlayerProtocol
+namespace ERA.Protocols.PlayerProtocol
 {
     [Serializable, BsonIgnoreExtraElements(true)]
     public class Player

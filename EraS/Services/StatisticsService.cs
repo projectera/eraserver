@@ -10,7 +10,7 @@ using EraS.Connections;
 using Lidgren.Network;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 
 namespace EraS.Services
 {

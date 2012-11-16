@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ServiceProtocol;
-using MongoDB.Bson;
-using MapProtocol;
 using System.Threading;
+using ERA.Protocols.ServiceProtocol;
+using MongoDB.Bson;
+using System.Linq;
 
-namespace MapService
+namespace ERA.Services.MapService
 {
     partial class Program
     {
@@ -161,11 +159,11 @@ namespace MapService
         /// </summary>
         /// <param name="mapid"></param>
         /// <returns></returns>
-        protected static Map __GetMapData(ObjectId mapId)
+        protected static ERA.Protocols.MapProtocol.Map __GetMapData(ObjectId mapId)
         {
             var instances = MapInstances.GetKeysOf(mapId);
 
-            Map mapData = null;
+            ERA.Protocols.MapProtocol.Map mapData = null;
             if (instances != null && instances.Count > 0)
             {
                 var instance = MapInstances.GetValueOf(mapId, instances.First());

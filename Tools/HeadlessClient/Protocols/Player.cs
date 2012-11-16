@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ClientProtocol;
+using ERA.Protocols.ClientProtocol;
 using System.Threading.Tasks;
 using System.Threading;
 using Lidgren.Network;
 using System.Net;
 using MongoDB.Bson;
 
-namespace HeadlessClient.Protocols
+namespace ERA.Tools.HeadlessClient.Protocols
 {
     internal partial class Player : Protocol
     {
@@ -98,7 +98,7 @@ namespace HeadlessClient.Protocols
         /// Gets the player data
         /// </summary>
         /// <returns></returns>
-        internal Task<PlayerProtocol.Player> Get(Action<PlayerProtocol.Player> ResultAction)
+        internal Task<ERA.Protocols.PlayerProtocol.Player> Get(Action<ERA.Protocols.PlayerProtocol.Player> ResultAction)
         {
             return Get(ObjectId.Empty, ResultAction); // 0 indicates me
         }
@@ -108,7 +108,7 @@ namespace HeadlessClient.Protocols
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal Task<PlayerProtocol.Player> Get(ObjectId id, Action<PlayerProtocol.Player> ResultAction)
+        internal Task<ERA.Protocols.PlayerProtocol.Player> Get(ObjectId id, Action<ERA.Protocols.PlayerProtocol.Player> ResultAction)
         {
             PlayerRequest req = new PlayerRequest(id, ResultAction);
             
@@ -160,7 +160,7 @@ namespace HeadlessClient.Protocols
         /// <summary>
         /// Local copy of PlayerData
         /// </summary>
-        internal static PlayerProtocol.Player PlayerData
+        internal static ERA.Protocols.PlayerProtocol.Player PlayerData
         {
             get;
             set;
@@ -182,7 +182,7 @@ namespace HeadlessClient.Protocols
                     if (!_outstandingPlayerRequests.ContainsKey(gid))
                         break;
                     PlayerRequest gr = _outstandingPlayerRequests[gid];
-                    gr.Result = PlayerProtocol.Player.Unpack(msg);
+                    gr.Result = ERA.Protocols.PlayerProtocol.Player.Unpack(msg);
                     GeneralCache<ObjectId, PlayerRequest>.UpdateCache(gr); // NOTE: we do not need to queueaction this. UpdateCache is ThreadSafe
                     _outstandingPlayerRequests.Remove(gid);
 

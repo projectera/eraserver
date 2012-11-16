@@ -7,7 +7,7 @@ using EraS.Topography;
 using System.Threading;
 using EraS.Connections;
 using EraS.Services;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using System.Threading.Tasks;
 using EraS.MessageHandlers;
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lidgren.Network.Lobby;
-using ClientProtocol;
+using ERA.Protocols.ClientProtocol;
 
-namespace HeadlessClient
+namespace ERA.Tools.HeadlessClient
 {
     class Program
     {
@@ -74,7 +74,7 @@ namespace HeadlessClient
             Protocol protocol;
             _manager.TryGetProtocol((Byte)ClientProtocols.Player, out protocol);
 
-            var playerTask = ((Protocols.Player)protocol).Get((player) =>
+            var playerTask = ((ERA.Tools.HeadlessClient.Protocols.Player)protocol).Get((player) =>
                 {
                     Console.WriteLine("Hello {0}! You registered on {1}.", player.Username, player.RegistrationDate.ToShortDateString());
                 }

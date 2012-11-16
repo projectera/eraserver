@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ResourceService.Generators
+namespace ERA.Services.ResourceService.Generators
 {
     /// <summary>
     /// Random words from simple rules (see datafiles); recursive info on datafile 

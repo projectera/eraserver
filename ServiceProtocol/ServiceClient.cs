@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     /// <summary>
     /// Handles the connection to the EraServer

@@ -5,14 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}</ProjectGuid>
+    <ProjectGuid>{7434E8F2-9034-4BA0-B22A-0366C7CDD604}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapService</RootNamespace>
-    <AssemblyName>MapService</AssemblyName>
+    <RootNamespace>ERA.Tools.KillServer</RootNamespace>
+    <AssemblyName>ERA.Tools.KillServer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -24,9 +23,6 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ProductName>Map Service</ProductName>
-    <PublisherName>Derk-Jan Karrenbeld &amp; Max Maton</PublisherName>
-    <SuiteName>Project ERA Server Services</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -56,14 +52,6 @@
     <Reference Include="Lidgren.Network">
       <HintPath>..\..\Libraries\Lidgren.Network.dll</HintPath>
     </Reference>
-    <Reference Include="MongoDB.Bson, Version=1.6.2.35072, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver, Version=1.6.2.35074, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\MongoDB.Driver.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -73,28 +61,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionQueue.cs" />
-    <Compile Include="Data\MapInstance.cs" />
-    <Compile Include="Data\Map.cs" />
-    <Compile Include="Data\Region.cs" />
-    <Compile Include="Data\Tileset.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThreadsafeDictOfDict.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MapProtocol\MapProtocol.csproj">
-      <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
-      <Name>MapProtocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
+    <ProjectReference Include="..\..\ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SubscriptionProtocol\SubscriptionProtocol.csproj">
-      <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>
-      <Name>SubscriptionProtocol</Name>
+      <Name>ERA.Protocols.ServiceProtocol</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -118,9 +91,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
