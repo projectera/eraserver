@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ServiceProtocol;
-using MongoDB.Driver;
-using MongoDB.Bson;
 using System.Threading;
-using SubscriptionProtocol;
+using ERA.Protocols.ServiceProtocol;
+using ERA.Protocols.SubscriptionProtocol;
+using MongoDB.Bson;
+using ERA.Utils;
 
-namespace MapService
+namespace ERA.Services.MapService
 {
     partial class Program
     {
@@ -72,7 +70,7 @@ namespace MapService
             // Save the network info
             MapSubscriptions = new Subscriptions(EraSClient);
             MapMapper = new Dictionary<ObjectId, string>();
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
             MapInstances = new ThreadsafeDictOfDict<ObjectId, ObjectId, Data.MapInstance>();
 
             // Start this

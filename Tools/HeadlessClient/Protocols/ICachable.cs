@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HeadlessClient.Protocols
+namespace ERA.Tools.HeadlessClient.Protocols
 {
     interface ICacheable<T>
     {

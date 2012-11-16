@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using Lidgren.Network;
-using ClientProtocol;
+using ERA.Protocols.ClientProtocol;
 using MongoDB.Bson;
 
-namespace HeadlessClient.Protocols
+namespace ERA.Tools.HeadlessClient.Protocols
 {
     internal partial class Player : Protocol
     {
@@ -33,7 +33,7 @@ namespace HeadlessClient.Protocols
         /// <param name="y"></param>
         internal static void RequestMovement(Int32 x, Int32 y, Byte d)
         {
-            NetOutgoingMessage msg = OutgoingMessage(PlayerAction.RequestMovement, 9);
+            NetOutgoingMessage msg = OutgoingMessage(ERA.Protocols.ClientProtocol.PlayerAction.RequestMovement, 9);
             msg.Write(x);
             msg.Write(y);
             msg.Write(d);
@@ -53,12 +53,12 @@ namespace HeadlessClient.Protocols
             /// <summary>
             /// Task that will yield Player object
             /// </summary>
-            internal TaskCompletionSource<PlayerProtocol.Player> Task { get; private set; }
+            internal TaskCompletionSource<ERA.Protocols.PlayerProtocol.Player> Task { get; private set; }
 
             /// <summary>
             /// Action that will run upon completion
             /// </summary>
-            internal Action<PlayerProtocol.Player> Action { get; private set; }
+            internal Action<ERA.Protocols.PlayerProtocol.Player> Action { get; private set; }
 
             /// <summary>
             /// Retrieval Timer
@@ -77,7 +77,7 @@ namespace HeadlessClient.Protocols
             public PlayerRequest(ObjectId key)
             {
                 this.Key = key;
-                this.Task = new TaskCompletionSource<PlayerProtocol.Player>();
+                this.Task = new TaskCompletionSource<ERA.Protocols.PlayerProtocol.Player>();
                 this.Creation = DateTime.Now;
             }
 
@@ -86,7 +86,7 @@ namespace HeadlessClient.Protocols
             /// </summary>
             /// <param name="key"></param>
             /// <param name="action"></param>
-            public PlayerRequest(ObjectId key, Action<PlayerProtocol.Player> action)
+            public PlayerRequest(ObjectId key, Action<ERA.Protocols.PlayerProtocol.Player> action)
                 : this(key)
             {
                 this.Action = action;
@@ -96,7 +96,7 @@ namespace HeadlessClient.Protocols
             /// 
             /// </summary>
             /// <param name="player"></param>
-            internal PlayerProtocol.Player Result
+            internal ERA.Protocols.PlayerProtocol.Player Result
             {
                 set
                 {

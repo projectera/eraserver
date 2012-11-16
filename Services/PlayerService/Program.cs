@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using MongoDB.Driver;
 using System.Threading;
-using PlayerService.Listeners;
-using SubscriptionProtocol;
+using ERA.Protocols.SubscriptionProtocol;
 using Lidgren.Network;
 using MongoDB.Bson;
+using ERA.Services.PlayerService.Listeners;
 
-namespace PlayerService
+namespace ERA.Services.PlayerService
 {
     partial class Program
     {
@@ -68,7 +68,7 @@ namespace PlayerService
             // Save the network info
             PlayerSubscriptions = new Subscriptions(EraSClient);
             PlayerMapper = new Dictionary<ObjectId, string>();
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
 
             // Message Handlers
             EraSClient.MessageHandlers.Add(MessageType.Service, HandleMessages);

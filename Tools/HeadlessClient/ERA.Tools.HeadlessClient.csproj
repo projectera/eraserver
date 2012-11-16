@@ -5,14 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C61F779A-5064-415C-9C89-0EA394A63329}</ProjectGuid>
+    <ProjectGuid>{625F96AE-6C33-4967-8B37-BA1E0D426518}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NetworkStatistics</RootNamespace>
-    <AssemblyName>NetworkStatistics</AssemblyName>
+    <RootNamespace>ERA.Tools.HeadlessClient</RootNamespace>
+    <AssemblyName>ERA.Tools.HeadlessClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -25,9 +24,9 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ProductName>Network Statistics</ProductName>
+    <ProductName>Headless Client</ProductName>
     <PublisherName>Derk-Jan Karrenbeld &amp; Max Maton</PublisherName>
-    <SuiteName>Project ERA Server Toolss</SuiteName>
+    <SuiteName>Project ERA Server Tools</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
@@ -57,6 +56,7 @@
       <HintPath>..\..\Libraries\Lidgren.Network.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson, Version=1.6.2.35072, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Libraries\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -68,14 +68,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkManager.cs" />
+    <Compile Include="NetworkManager.State.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
-      <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
-    </ProjectReference>
+    <Compile Include="Connection.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="Protocols\GeneralCache.cs" />
+    <Compile Include="Protocols\ICachable.cs" />
+    <Compile Include="Protocols\LinkedHashMap.cs" />
+    <Compile Include="Protocols\Player.cs" />
+    <Compile Include="Protocols\Player.Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -100,7 +103,18 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\..\ClientProtocol\ERA.Protocols.ClientProtocol.csproj">
+      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Name>ERA.Protocols.ClientProtocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
+      <Project>{46A4AE63-B570-41BF-8B56-5C0711260CBF}</Project>
+      <Name>Lidgren.Network.Lobby</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PlayerProtocol\ERA.Protocols.PlayerProtocol.csproj">
+      <Project>{700B2309-3E14-4876-A556-2B641B5B8084}</Project>
+      <Name>ERA.Protocols.PlayerProtocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

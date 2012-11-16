@@ -3,38 +3,41 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EraS", "EraS\EraS.csproj", "{79DB74B5-3AD7-43AA-B607-D1D894C6DDE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceProtocol", "ServiceProtocol\ServiceProtocol.csproj", "{D180FD09-A65C-46A5-9ED0-186E46319C95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ServiceProtocol", "ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj", "{D180FD09-A65C-46A5-9ED0-186E46319C95}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{AA3EDA0B-02A5-4D89-ABBB-682D4ADF8573}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceService", "Services\ResourceService\ResourceService.csproj", "{592C8ACA-45DA-4E37-99A9-E371C799F487}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.ResourceService", "Services\ResourceService\ERA.Services.ResourceService.csproj", "{592C8ACA-45DA-4E37-99A9-E371C799F487}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkMapper", "Tools\NetworkMapper\NetworkMapper.csproj", "{30695B69-314E-4DF3-A093-2F7420E187F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkMapper", "Tools\NetworkMapper\ERA.Tools.NetworkMapper.csproj", "{30695B69-314E-4DF3-A093-2F7420E187F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkStatistics", "Tools\NetworkStatistics\NetworkStatistics.csproj", "{C61F779A-5064-415C-9C89-0EA394A63329}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkStatistics", "Tools\NetworkStatistics\ERA.Tools.NetworkStatistics.csproj", "{C61F779A-5064-415C-9C89-0EA394A63329}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapService", "Services\MapService\MapService.csproj", "{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.MapService", "Services\MapService\ERA.Services.MapService.csproj", "{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkFuzzer", "Tools\NetworkFuzzer\NetworkFuzzer.csproj", "{C71C6DA0-56F2-4563-BA33-BBE110E69C21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkFuzzer", "Tools\NetworkFuzzer\ERA.Tools.NetworkFuzzer.csproj", "{C71C6DA0-56F2-4563-BA33-BBE110E69C21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KillServer", "Tools\KillServer\KillServer.csproj", "{7434E8F2-9034-4BA0-B22A-0366C7CDD604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.KillServer", "Tools\KillServer\ERA.Tools.KillServer.csproj", "{7434E8F2-9034-4BA0-B22A-0366C7CDD604}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProtocol", "MapProtocol\MapProtocol.csproj", "{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.MapProtocol", "MapProtocol\ERA.Protocols.MapProtocol.csproj", "{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerService", "Services\PlayerService\PlayerService.csproj", "{39F63915-0E92-4301-AEAD-7CC3817C9A29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.PlayerService", "Services\PlayerService\ERA.Services.PlayerService.csproj", "{39F63915-0E92-4301-AEAD-7CC3817C9A29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerProtocol", "PlayerProtocol\PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.PlayerProtocol", "PlayerProtocol\ERA.Protocols.PlayerProtocol.csproj", "{700B2309-3E14-4876-A556-2B641B5B8084}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{BE35170A-4F2F-4B74-BA77-E28102F8793C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Lobby", "Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj", "{46A4AE63-B570-41BF-8B56-5C0711260CBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionProtocol", "SubscriptionProtocol\SubscriptionProtocol.csproj", "{4466984A-46B0-418F-90A2-2CD80CA305CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.SubscriptionProtocol", "SubscriptionProtocol\ERA.Protocols.SubscriptionProtocol.csproj", "{4466984A-46B0-418F-90A2-2CD80CA305CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessClient", "Tools\HeadlessClient\HeadlessClient.csproj", "{625F96AE-6C33-4967-8B37-BA1E0D426518}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientProtocol", "ClientProtocol\ClientProtocol.csproj", "{DE4A1299-5253-45E3-809D-CE9AF4C6475F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.HeadlessClient", "Tools\HeadlessClient\ERA.Tools.HeadlessClient.csproj", "{625F96AE-6C33-4967-8B37-BA1E0D426518}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ClientProtocol", "ClientProtocol\ERA.Protocols.ClientProtocol.csproj", "{DE4A1299-5253-45E3-809D-CE9AF4C6475F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Utils", "Libraries\Utils\ERA.Utils.csproj", "{1319705F-CBA7-4E8B-800D-FC5665403154}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -196,6 +199,16 @@ Global
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|x86.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,5 +223,6 @@ Global
 		{7434E8F2-9034-4BA0-B22A-0366C7CDD604} = {8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}
 		{625F96AE-6C33-4967-8B37-BA1E0D426518} = {8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}
 		{46A4AE63-B570-41BF-8B56-5C0711260CBF} = {BE35170A-4F2F-4B74-BA77-E28102F8793C}
+		{1319705F-CBA7-4E8B-800D-FC5665403154} = {BE35170A-4F2F-4B74-BA77-E28102F8793C}
 	EndGlobalSection
 EndGlobal

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using Lidgren.Network;
 using System.Threading;
 using MongoDB.Bson;
 
-namespace NetworkStatistics
+namespace ERA.Tools.NetworkStatistics
 {
     class Program
     {

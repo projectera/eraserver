@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Lidgren.Network;
 
-namespace HeadlessClient
+namespace ERA.Tools.HeadlessClient
 {
     /// <summary>
     /// This is a game component that implements IUpdateable.

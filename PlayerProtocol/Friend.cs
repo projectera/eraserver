@@ -5,7 +5,7 @@ using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace PlayerProtocol
+namespace ERA.Protocols.PlayerProtocol
 {
     public class Friend
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EraS.Connections;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 
 namespace EraS.MessageHandlers
 {

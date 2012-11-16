@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Lidgren.Network;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     /// <summary>
     /// Represents a message packet

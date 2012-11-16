@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MapService
+namespace ERA.Utils
 {
-    class ThreadsafeDictOfDict<K, I, T>
+    public class ThreadsafeDictOfDict<K, I, T>
     {
         Dictionary<K, Dictionary<I, T>> _instances;
         ReaderWriterLockSlim _readerWriterLock;

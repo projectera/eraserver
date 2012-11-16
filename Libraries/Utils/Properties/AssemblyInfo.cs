@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ERA.Services.ResourceService")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Utility libary for ERA")]
+[assembly: AssemblyDescription("Utility libary for ERA components and services")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ERA.Services.ResourceService")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCompany("Derk-Jan Karrenbeld & Max Maton")]
+[assembly: AssemblyProduct("Utility libary for ERA")]
+[assembly: AssemblyCopyright("Copyright © Derk-Jan Karrenbeld & Max Maton 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2b8c0d22-4e22-474a-be67-8e7df0d7435b")]
+[assembly: Guid("92c6c521-56d5-4fcd-b6d5-85da180aa844")]
 
 // Version information for an assembly consists of the following four values:
 //

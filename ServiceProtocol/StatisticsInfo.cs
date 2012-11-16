@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Lidgren.Network;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     public class StatisticsInfo : AbstractInfo
     {

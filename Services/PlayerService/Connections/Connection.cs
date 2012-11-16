@@ -5,9 +5,9 @@ using System.Timers;
 using Lidgren.Network;
 using Lidgren.Network.Authentication;
 using MongoDB.Bson;
-using PlayerService.Protocols;
+using ERA.Services.PlayerService;
 
-namespace PlayerService.Connections
+namespace ERA.Services.PlayerService.Connections
 {
     /// <summary>
     /// 

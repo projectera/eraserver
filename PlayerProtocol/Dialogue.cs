@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using Lidgren.Network;
 
-namespace PlayerProtocol
+namespace ERA.Protocols.PlayerProtocol
 {
     /// <summary>
     /// Dialogue
