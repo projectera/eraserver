@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</ProjectGuid>
+    <ProjectGuid>{6B2BB941-BB2D-4B39-85E4-284CE174C3A3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ERA.Protocols.ClientProtocol</RootNamespace>

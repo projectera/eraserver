@@ -81,11 +81,11 @@
       <Project>{0713663A-B9F7-43E0-A931-F0392B6BC7EA}</Project>
       <Name>InteractableProtocol</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
+    <ProjectReference Include="..\..\ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
       <Name>ServiceProtocol</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SubscriptionProtocol\SubscriptionProtocol.csproj">
+    <ProjectReference Include="..\..\SubscriptionProtocol\ERA.Protocols.SubscriptionProtocol.csproj">
       <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>
       <Name>SubscriptionProtocol</Name>
     </ProjectReference>

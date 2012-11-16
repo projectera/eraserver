@@ -86,7 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ClientProtocol\ERA.Protocols.ClientProtocol.csproj">
-      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Project>{6B2BB941-BB2D-4B39-85E4-284CE174C3A3}</Project>
       <Name>ERA.Protocols.ClientProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
