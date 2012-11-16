@@ -132,9 +132,14 @@ namespace ERA.Services.InteractableService
             var iId = new ObjectId(msg.Packet.ReadBytes(12));
             var answer = msg.Answer(EraSClient);
 
-            //TODO get it
-
-            EraSClient.SendMessage(answer);
+            Data.Interactable.Get(iId).ContinueWith((t) =>
+            {
+                if (t.IsCompleted)
+                {
+                    t.Result.Pack(answer.Packet);
+                    EraSClient.SendMessage(answer);
+                }
+            });
         }
 
         /// <summary>
