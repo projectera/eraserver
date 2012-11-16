@@ -52,7 +52,7 @@ namespace ERA.Services.MapService.Data
         {
             var result = new MapInstance(map);
             Program.MapInstances.AddInside(result.InstanceData.MapId, result.InstanceData.Id, result);
-            Program.MapSubscriptions.AddSubscriptionList(map.Id.ToString());
+            Program.MapSubscriptions.AddSubscriptionList(result.InstanceData.Id.ToString());
             return result;
         }
     }
