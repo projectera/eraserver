@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
 
-namespace InteractableService.Data
+namespace ERA.Services.InteractableService.Data
 {
     internal static class Interactable
     {

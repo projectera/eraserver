@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using System.Threading;
-using SubscriptionProtocol;
+using ERA.Protocols.SubscriptionProtocol;
 using MongoDB.Bson;
 
-namespace InteractableService
+namespace ERA.Services.InteractableService
 {
     partial class Program
     {
@@ -67,7 +67,7 @@ namespace InteractableService
             // Save the network info
             InteractableSubscriptions = new Subscriptions(EraSClient);
             InteractableMapper = new Dictionary<ObjectId, string>();
-            NetworkInfo = new ServiceProtocol.NetworkInfo(EraSClient);
+            NetworkInfo = new NetworkInfo(EraSClient);
 
             // Start this
             StartRunningMaps();

@@ -8,8 +8,8 @@
     <ProjectGuid>{C19D97FA-839F-4C73-AFCF-38DEBD6C7189}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InteractableService</RootNamespace>
-    <AssemblyName>InteractableService</AssemblyName>
+    <RootNamespace>ERA.Services.InteractableService</RootNamespace>
+    <AssemblyName>ERA.Services.InteractableService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>

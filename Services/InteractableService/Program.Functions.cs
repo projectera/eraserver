@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using System.Threading;
 using MongoDB.Bson;
 
-namespace InteractableService
+namespace ERA.Services.InteractableService
 {
     partial class Program
     {
