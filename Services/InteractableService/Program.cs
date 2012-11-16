@@ -6,6 +6,8 @@ using ERA.Protocols.ServiceProtocol;
 using System.Threading;
 using ERA.Protocols.SubscriptionProtocol;
 using MongoDB.Bson;
+using ERA.Services.MapService.Data;
+using ERA.Utils;
 
 namespace ERA.Services.InteractableService
 {
@@ -46,7 +48,13 @@ namespace ERA.Services.InteractableService
         /// <summary>
         /// 
         /// </summary>
+        public static ThreadsafeDictOfDict<ObjectId, ObjectId, MapInteractablesInstance> MapInteractablesInstances;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static Dictionary<ObjectId, String> InteractableMapper { get; protected set; }
+
 
     
         /// <summary>
@@ -67,6 +75,7 @@ namespace ERA.Services.InteractableService
             // Save the network info
             InteractableSubscriptions = new Subscriptions(EraSClient);
             InteractableMapper = new Dictionary<ObjectId, string>();
+            MapInteractablesInstances = new ThreadsafeDictOfDict<ObjectId, ObjectId, MapInteractablesInstance>();
             NetworkInfo = new NetworkInfo(EraSClient);
 
             // Start this
