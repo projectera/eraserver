@@ -18,8 +18,6 @@ namespace HeadlessClient.Protocols
         /// <param name="selectedId">avatar to select</param>
         internal static void RequestPickAvatar(ObjectId selectedId, Action<ObjectId> resultAction)
         {
-            // Mark map not loaded
-            //Map.Id = ObjectId.Empty;
             _pickAvatarAction = resultAction;
 
             // Send message
