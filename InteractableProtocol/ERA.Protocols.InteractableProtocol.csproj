@@ -8,8 +8,8 @@
     <ProjectGuid>{0713663A-B9F7-43E0-A931-F0392B6BC7EA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InteractableProtocol</RootNamespace>
-    <AssemblyName>InteractableProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.InteractableProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.InteractableProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

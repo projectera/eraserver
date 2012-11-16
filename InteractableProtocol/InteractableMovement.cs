@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Lidgren.Network;
 
-namespace InteractableProtocol
+namespace ERA.Protocols.InteractableProtocol
 {
     [Serializable]
     public class InteractableMovement : InteractableComponent

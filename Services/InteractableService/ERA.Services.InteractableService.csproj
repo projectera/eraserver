@@ -72,22 +72,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Interactable.cs" />
+    <Compile Include="Data\MapInteractablesInstance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\InteractableProtocol\InteractableProtocol.csproj">
+    <ProjectReference Include="..\..\InteractableProtocol\ERA.Protocols.InteractableProtocol.csproj">
       <Project>{0713663A-B9F7-43E0-A931-F0392B6BC7EA}</Project>
-      <Name>InteractableProtocol</Name>
+      <Name>ERA.Protocols.InteractableProtocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Libraries\Utils\ERA.Utils.csproj">
+      <Project>{1319705F-CBA7-4E8B-800D-FC5665403154}</Project>
+      <Name>ERA.Utils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MapProtocol\ERA.Protocols.MapProtocol.csproj">
+      <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
+      <Name>ERA.Protocols.MapProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ServiceProtocol\ERA.Protocols.ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>
-      <Name>ServiceProtocol</Name>
+      <Name>ERA.Protocols.ServiceProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SubscriptionProtocol\ERA.Protocols.SubscriptionProtocol.csproj">
       <Project>{4466984A-46B0-418F-90A2-2CD80CA305CA}</Project>
-      <Name>SubscriptionProtocol</Name>
+      <Name>ERA.Protocols.SubscriptionProtocol</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

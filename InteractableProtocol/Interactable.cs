@@ -6,7 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Lidgren.Network;
 
-namespace InteractableProtocol
+namespace ERA.Protocols.InteractableProtocol
 {
     [Serializable]
     public partial class Interactable

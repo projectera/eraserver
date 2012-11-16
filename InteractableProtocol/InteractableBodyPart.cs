@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace InteractableProtocol
+namespace ERA.Protocols.InteractableProtocol
 {
     [Serializable]
     public class InteractableBodyPart // Struct wouldn't properties deserialize...

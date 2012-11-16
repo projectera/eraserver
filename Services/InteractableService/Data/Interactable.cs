@@ -17,7 +17,7 @@ namespace ERA.Services.InteractableService.Data
         /// </summary>
         /// <param name="id">id of interactable to get</param>
         /// <returns></returns>
-        internal static Task<InteractableProtocol.Interactable> Get(ObjectId id)
+        internal static Task<ERA.Protocols.InteractableProtocol.Interactable> Get(ObjectId id)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(id); });
         }
@@ -37,9 +37,9 @@ namespace ERA.Services.InteractableService.Data
         /// </summary>
         /// <param name="id">id of Interactable to get</param>
         /// <returns></returns>
-        internal static InteractableProtocol.Interactable GetBlocking(ObjectId id)
+        internal static ERA.Protocols.InteractableProtocol.Interactable GetBlocking(ObjectId id)
         {
-            InteractableProtocol.Interactable result = GetCollection().FindOneById(id) as InteractableProtocol.Interactable;
+            ERA.Protocols.InteractableProtocol.Interactable result = GetCollection().FindOneById(id) as ERA.Protocols.InteractableProtocol.Interactable;
             foreach (var component in result.Components.Values)
                 component.Root = result;
             return result;
@@ -50,25 +50,25 @@ namespace ERA.Services.InteractableService.Data
         /// </summary>
         /// <param name="name">name of Interactable to get</param>
         /// <returns></returns>
-        internal static InteractableProtocol.Interactable GetBlocking(String name)
+        internal static ERA.Protocols.InteractableProtocol.Interactable GetBlocking(String name)
         {
-            return GetCollection().FindOneAs<InteractableProtocol.Interactable>(
-                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as InteractableProtocol.Interactable;
+            return GetCollection().FindOneAs<ERA.Protocols.InteractableProtocol.Interactable>(
+                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as ERA.Protocols.InteractableProtocol.Interactable;
         }
 
         /// <summary>
         /// Gets the players collection
         /// </summary>
         /// <returns></returns>
-        internal static MongoCollection<InteractableProtocol.Interactable> GetCollection()
+        internal static MongoCollection<ERA.Protocols.InteractableProtocol.Interactable> GetCollection()
         {
-            return ServiceClient.Database.GetCollection<InteractableProtocol.Interactable>("Interactables");
+            return ServiceClient.Database.GetCollection<ERA.Protocols.InteractableProtocol.Interactable>("Interactables");
         }
 
         /// <summary>
         /// Puts a Interactable to the db
         /// </summary>
-        internal static void Put(InteractableProtocol.Interactable interactable)
+        internal static void Put(ERA.Protocols.InteractableProtocol.Interactable interactable)
         {
             Put(interactable, SafeMode.False);
         }
@@ -77,9 +77,9 @@ namespace ERA.Services.InteractableService.Data
         /// Puts a Interactable to the db
         /// <param name="safemode">Sets the safemode on this query</param>
         /// </summary>
-        internal static SafeModeResult Put(InteractableProtocol.Interactable interactable, SafeMode safemode)
+        internal static SafeModeResult Put(ERA.Protocols.InteractableProtocol.Interactable interactable, SafeMode safemode)
         {
-            return GetCollection().Save<InteractableProtocol.Interactable>(interactable, safemode);
+            return GetCollection().Save<ERA.Protocols.InteractableProtocol.Interactable>(interactable, safemode);
         }
     }
 }

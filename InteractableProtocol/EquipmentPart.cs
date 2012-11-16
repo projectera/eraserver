@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace InteractableProtocol
+namespace ERA.Protocols.InteractableProtocol
 {
     public enum EquipmentPart : byte
     {

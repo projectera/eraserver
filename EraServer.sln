@@ -43,7 +43,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ClientProtoco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Utils", "Libraries\Utils\ERA.Utils.csproj", "{1319705F-CBA7-4E8B-800D-FC5665403154}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractableProtocol", "InteractableProtocol\InteractableProtocol.csproj", "{0713663A-B9F7-43E0-A931-F0392B6BC7EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.InteractableProtocol", "InteractableProtocol\ERA.Protocols.InteractableProtocol.csproj", "{0713663A-B9F7-43E0-A931-F0392B6BC7EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.InteractableService", "Services\InteractableService\ERA.Services.InteractableService.csproj", "{C19D97FA-839F-4C73-AFCF-38DEBD6C7189}"
 EndProject
