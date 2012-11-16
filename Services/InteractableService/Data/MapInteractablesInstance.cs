@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 using ERA.Utils;
 using ERA.Services.InteractableService;
+using ERA.Services.InteractableService.Data;
 
 namespace ERA.Services.MapService.Data
 {
@@ -35,7 +36,7 @@ namespace ERA.Services.MapService.Data
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<ObjectId, Protocols.InteractableProtocol.Interactable> Interactables { get; protected set; }
+        protected  Dictionary<ObjectId, ServerInteractable> Interactables { get; set; }
 
         /// <summary>
         /// Creates a new map Instance
@@ -45,7 +46,7 @@ namespace ERA.Services.MapService.Data
         {
             this.MapData = map;
             this.InstanceData = data;
-            this.Interactables = new Dictionary<ObjectId, Protocols.InteractableProtocol.Interactable>();
+            this.Interactables = new Dictionary<ObjectId, ServerInteractable>();
 
             this.Queue = new ActionQueue();
         }

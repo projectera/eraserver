@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Data\Interactable.cs" />
     <Compile Include="Data\MapInteractablesInstance.cs" />
+    <Compile Include="Data\ServerInteractable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
