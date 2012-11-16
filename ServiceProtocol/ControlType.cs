@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     public enum ControlType : byte
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MapProtocol
+namespace ERA.Protocols.MapProtocol
 {
     /// <summary>
     /// The MapType Enumeration can be used: monsters respond and defend against

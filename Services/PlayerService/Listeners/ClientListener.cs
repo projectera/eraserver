@@ -3,14 +3,13 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using PlayerService.Protocols;
 using Lidgren.Network;
 using MongoDB.Bson;
 using Lidgren.Network.Authentication;
-using PlayerService;
-using PlayerService.Connections;
+using ERA.Services.PlayerService.Connections;
+using ERA.Services.PlayerService;
 
-namespace PlayerService.Listeners
+namespace ERA.Services.PlayerService.Listeners
 {
     /// <summary>
     /// interfaces client <-> gameserver connections
@@ -286,15 +285,15 @@ namespace PlayerService.Listeners
                                                     Player playerProtocol;
                                                     conn.TryGetProtocol((Byte)ClientProtocols.Player, out pprotocol);
                                                     playerProtocol = (Player)pprotocol;
-                                                    playerProtocol.ActiveId = data.ActiveId;
+                                                    ERA.Protocols.PlayerProtocol.ActiveId = data.ActiveId;
 
                                                     Logger.Info("Transfer connection established.");// with: " + msg.SenderConnection.RemoteEndpoint);
 
                                                     // Issue map join
-                                                    playerProtocol.EnterMap();
+                                                    ERA.Protocols.PlayerProtocol.EnterMap();
 
                                                     // Send transfer ack
-                                                    conn.SendMessage(playerProtocol.PickAvatarResponse(), NetDeliveryMethod.ReliableUnordered);
+                                                    conn.SendMessage(ERA.Protocols.PlayerProtocol.PickAvatarResponse(), NetDeliveryMethod.ReliableUnordered);
 
                                                 }
                                                 else
@@ -369,7 +368,7 @@ namespace PlayerService.Listeners
         /// <param name="connection">The connection to add the protocols to</param>
         public void RegisterProtocols(ClientConnection connection, String username)
         {
-            Protocol pp = new Protocols.Client.Player(connection, username);
+            Protocol pp = new Client.Player(connection, username);
             connection.RegisterProtocol(pp);
 
             /*Protocol pi = new Interactable(connection);

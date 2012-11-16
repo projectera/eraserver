@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 
-namespace NetworkMapper
+namespace ERA.Tools.NetworkMapper
 {
     class Program
     {

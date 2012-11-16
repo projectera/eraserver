@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson;
 
-namespace MapProtocol
+namespace ERA.Protocols.MapProtocol
 {
     public class MapInstance
     {

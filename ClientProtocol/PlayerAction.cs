@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ClientProtocol
+namespace ERA.Protocols.ClientProtocol
 {
     public enum PlayerAction : byte
     {

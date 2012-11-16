@@ -5,7 +5,7 @@ using System.Text;
 using Lidgren.Network;
 using System.Threading.Tasks;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     public class MessageClient
     {

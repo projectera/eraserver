@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Driver;
 
-namespace ServiceProtocol
+namespace ERA.Protocols.ServiceProtocol
 {
     public class SettingsInfo : AbstractInfo
     {

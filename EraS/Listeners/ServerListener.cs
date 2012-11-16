@@ -7,7 +7,7 @@ using EraS.Topography;
 using System.Threading;
 using EraS.Connections;
 using EraS.Services;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using System.Threading.Tasks;
 using EraS.MessageHandlers;
 
@@ -84,10 +84,10 @@ namespace EraS.Listeners
         {
             while (true)
             {
-                var msg = Peer.WaitMessage(100);
+                Peer.MessageReceivedEvent.WaitOne(1000);
+                var msg = Peer.ReadMessage();
                 if (msg == null)
                     continue;
-
 
                 ServerConnection con = null;
                 if (msg.SenderConnection != null)

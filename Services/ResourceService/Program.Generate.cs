@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
-using ResourceService.Generators;
+using ERA.Protocols.ServiceProtocol;
+using ERA.Services.ResourceService.Generators;
 
-namespace ResourceService
+namespace ERA.Services.ResourceService
 {
     partial class Program
     {

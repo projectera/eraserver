@@ -8,8 +8,8 @@
     <ProjectGuid>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapProtocol</RootNamespace>
-    <AssemblyName>MapProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.MapProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.MapProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

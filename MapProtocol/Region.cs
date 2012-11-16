@@ -5,7 +5,7 @@ using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace MapProtocol
+namespace ERA.Protocols.MapProtocol
 {
     /// <summary>
     /// 

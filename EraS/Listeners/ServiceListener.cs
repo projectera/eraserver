@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ServiceProtocol;
+using ERA.Protocols.ServiceProtocol;
 using Lidgren.Network;
 using System.Threading.Tasks;
 using EraS.Connections;
@@ -90,12 +90,10 @@ namespace EraS.Listeners
         {
             while (IsRunning)
             {
+                Server.MessageReceivedEvent.WaitOne(1000);
                 var m = Server.ReadMessage();
                 if (m == null)
-                {
-                    System.Threading.Thread.Sleep(10);
                     continue;
-                }
 
                 switch (m.MessageType)
                 {
