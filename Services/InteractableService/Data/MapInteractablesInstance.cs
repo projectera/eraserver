@@ -12,7 +12,7 @@ using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.InteractableService.Data
 {
-    public class MapInteractablesInstance
+    internal class MapInteractablesInstance
     {
         /// <summary>
         /// Map Data

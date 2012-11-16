@@ -27,7 +27,7 @@ namespace ERA.Services.InteractableService.Data
         /// </summary>
         /// <param name="name">name of interactable to get</param>
         /// <returns></returns>
-        internal static Task<InteractableProtocol.Interactable> Get(String name)
+        internal static Task<ERA.Protocols.InteractableProtocol.Interactable> Get(String name)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(name); });
         }
