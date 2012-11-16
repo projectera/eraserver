@@ -8,8 +8,8 @@
     <ProjectGuid>{C61F779A-5064-415C-9C89-0EA394A63329}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NetworkStatistics</RootNamespace>
-    <AssemblyName>NetworkStatistics</AssemblyName>
+    <RootNamespace>ERA.Tools.NetworkStatistics</RootNamespace>
+    <AssemblyName>ERA.Tools.NetworkStatistics</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

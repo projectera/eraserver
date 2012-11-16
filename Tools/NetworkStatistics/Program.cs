@@ -7,7 +7,7 @@ using Lidgren.Network;
 using System.Threading;
 using MongoDB.Bson;
 
-namespace NetworkStatistics
+namespace ERA.Tools.NetworkStatistics
 {
     class Program
     {

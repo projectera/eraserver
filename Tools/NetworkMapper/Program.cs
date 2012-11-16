@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ServiceProtocol;
 
-namespace NetworkMapper
+namespace ERA.Tools.NetworkMapper
 {
     class Program
     {

@@ -5,7 +5,7 @@ using System.Text;
 using ServiceProtocol;
 using Lidgren.Network;
 
-namespace NetworkFuzzer
+namespace ERA.Tools.NetworkFuzzer
 {
     class Program
     {

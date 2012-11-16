@@ -8,8 +8,8 @@
     <ProjectGuid>{30695B69-314E-4DF3-A093-2F7420E187F4}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NetworkMapper</RootNamespace>
-    <AssemblyName>NetworkMapper</AssemblyName>
+    <RootNamespace>ERA.Tools.NetworkMapper</RootNamespace>
+    <AssemblyName>ERA.Tools.NetworkMapper</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ServiceProtocol;
 
-namespace KillServer
+namespace ERA.Tools.KillServer
 {
     class Program
     {

@@ -11,15 +11,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Resource", "Se
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkMapper", "Tools\NetworkMapper\NetworkMapper.csproj", "{30695B69-314E-4DF3-A093-2F7420E187F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkMapper", "Tools\NetworkMapper\ERA.Tools.NetworkMapper.csproj", "{30695B69-314E-4DF3-A093-2F7420E187F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkStatistics", "Tools\NetworkStatistics\NetworkStatistics.csproj", "{C61F779A-5064-415C-9C89-0EA394A63329}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkStatistics", "Tools\NetworkStatistics\ERA.Tools.NetworkStatistics.csproj", "{C61F779A-5064-415C-9C89-0EA394A63329}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Services.Map", "Services\MapService\ERA.Services.Map.csproj", "{256FF57D-91F3-47A5-9AE5-11DD115E5A4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkFuzzer", "Tools\NetworkFuzzer\NetworkFuzzer.csproj", "{C71C6DA0-56F2-4563-BA33-BBE110E69C21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.NetworkFuzzer", "Tools\NetworkFuzzer\ERA.Tools.NetworkFuzzer.csproj", "{C71C6DA0-56F2-4563-BA33-BBE110E69C21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KillServer", "Tools\KillServer\KillServer.csproj", "{7434E8F2-9034-4BA0-B22A-0366C7CDD604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.KillServer", "Tools\KillServer\ERA.Tools.KillServer.csproj", "{7434E8F2-9034-4BA0-B22A-0366C7CDD604}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProtocol", "MapProtocol\MapProtocol.csproj", "{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}"
 EndProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Lobby", "Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionProtocol", "SubscriptionProtocol\SubscriptionProtocol.csproj", "{4466984A-46B0-418F-90A2-2CD80CA305CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessClient", "Tools\HeadlessClient\HeadlessClient.csproj", "{625F96AE-6C33-4967-8B37-BA1E0D426518}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.HeadlessClient", "Tools\HeadlessClient\ERA.Tools.HeadlessClient.csproj", "{625F96AE-6C33-4967-8B37-BA1E0D426518}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientProtocol", "ClientProtocol\ClientProtocol.csproj", "{DE4A1299-5253-45E3-809D-CE9AF4C6475F}"
 EndProject
