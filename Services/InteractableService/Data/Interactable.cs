@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver;
+using ERA.Protocols.ServiceProtocol;
 
 namespace ERA.Services.InteractableService.Data
 {
@@ -61,7 +62,7 @@ namespace ERA.Services.InteractableService.Data
         /// <returns></returns>
         internal static MongoCollection<InteractableProtocol.Interactable> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<InteractableProtocol.Interactable>("Interactables");
+            return ServiceClient.Database.GetCollection<InteractableProtocol.Interactable>("Interactables");
         }
 
         /// <summary>
