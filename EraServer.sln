@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Tools.HeadlessClient", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Protocols.ClientProtocol", "ClientProtocol\ERA.Protocols.ClientProtocol.csproj", "{DE4A1299-5253-45E3-809D-CE9AF4C6475F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERA.Utils", "Libraries\Utils\ERA.Utils.csproj", "{1319705F-CBA7-4E8B-800D-FC5665403154}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +199,16 @@ Global
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DE4A1299-5253-45E3-809D-CE9AF4C6475F}.Release|x86.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1319705F-CBA7-4E8B-800D-FC5665403154}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -211,5 +223,6 @@ Global
 		{7434E8F2-9034-4BA0-B22A-0366C7CDD604} = {8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}
 		{625F96AE-6C33-4967-8B37-BA1E0D426518} = {8ABDD45A-CEE4-43E3-813E-D030F0FCF4D6}
 		{46A4AE63-B570-41BF-8B56-5C0711260CBF} = {BE35170A-4F2F-4B74-BA77-E28102F8793C}
+		{1319705F-CBA7-4E8B-800D-FC5665403154} = {BE35170A-4F2F-4B74-BA77-E28102F8793C}
 	EndGlobalSection
 EndGlobal

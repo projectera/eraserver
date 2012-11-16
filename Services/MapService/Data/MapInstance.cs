@@ -5,6 +5,7 @@ using System.Text;
 using MongoDB.Bson;
 using System.Threading.Tasks;
 using Lidgren.Network;
+using ERA.Utils;
 
 namespace ERA.Services.MapService.Data
 {

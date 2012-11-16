@@ -73,7 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionQueue.cs" />
     <Compile Include="Data\MapInstance.cs" />
     <Compile Include="Data\Map.cs" />
     <Compile Include="Data\Region.cs" />
@@ -81,9 +80,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Program.Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThreadsafeDictOfDict.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\Utils\ERA.Utils.csproj">
+      <Project>{1319705F-CBA7-4E8B-800D-FC5665403154}</Project>
+      <Name>ERA.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MapProtocol\ERA.Protocols.MapProtocol.csproj">
       <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
       <Name>ERA.Protocols.MapProtocol</Name>
