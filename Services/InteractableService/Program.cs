@@ -97,7 +97,7 @@ namespace ERA.Services.InteractableService
         {
             var interactableservices = NetworkInfo.GetServiceInstances("Interactable");
             var interactables = new List<ObjectId>();
-            var runningmapinstances = new List<ObjectId>();
+            var runningmapinstances = new Dictionary<Object, List<ObjectId>>();
 
             // TODO make a broadcast type
             foreach (var iservice in interactableservices)
@@ -105,9 +105,10 @@ namespace ERA.Services.InteractableService
                 if (iservice == NetworkInfo.Client.Identifier)
                     continue;
 
+                // Gets all the running interactables
                 try
-                {   
-                    var question = EraSClient.CreateQuestion(MessageType.Service, iservice);
+                {
+                    var question = EraSClient.CreateQuestion(MessageType.Internal, iservice);
                     question.Packet.Write("GetRunning");
                     var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
@@ -119,21 +120,26 @@ namespace ERA.Services.InteractableService
                 }
                 catch (TimeoutException) { continue; }
 
+                // Gets all the running map instances
                 try
                 {
-                    var question = EraSClient.CreateQuestion(MessageType.Service, iservice);
-                    question.Packet.Write("GetRunningInstances");
+                    var question = EraSClient.CreateQuestion(MessageType.Internal, iservice);
+                    question.Packet.Write("GetRunningMapInstances");
                     var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
                     for (Int32 i = 0; i < count; i++)
                     {
                         var id = new ObjectId(answer.Packet.ReadBytes(12));
-                        runningmapinstances.Add(id);
+                        runningmapinstances.Add(id, new List<ObjectId>());
+                        var mcount = answer.Packet.ReadInt32();
+                        for (; mcount > 0; mcount--)
+                            runningmapinstances[id].Add(new ObjectId(answer.Packet.ReadBytes(12)));
                     }
                 }
                 catch (TimeoutException) { continue; }
             }
 
+            // Gets all the running map instances
             var mapservices = NetworkInfo.GetServiceInstances("Map");
             var maps = new Dictionary<ObjectId, List<ObjectId>>();
 
@@ -141,7 +147,7 @@ namespace ERA.Services.InteractableService
             {
                 try
                 {
-                    var question = EraSClient.CreateQuestion(MessageType.Service, mservice);
+                    var question = EraSClient.CreateQuestion(MessageType.Internal, mservice);
                     question.Packet.Write("GetRunning");
                     var answer = EraSClient.AskQuestion(question);
                     var count = answer.Packet.ReadInt32();
@@ -151,7 +157,7 @@ namespace ERA.Services.InteractableService
 
                         try
                         {
-                            var innerquestion = EraSClient.CreateQuestion(MessageType.Service, mservice);
+                            var innerquestion = EraSClient.CreateQuestion(MessageType.Internal, mservice);
                             innerquestion.Packet.Write("GetRunningInstances");
                             var inneranswer = EraSClient.AskQuestion(question);
                             var innercount = answer.Packet.ReadInt32();
@@ -168,12 +174,16 @@ namespace ERA.Services.InteractableService
                 catch (TimeoutException) { continue; }
             }
 
-            // For each mapinstance start a mapinteractablesinstance. But don't start the instances already existant
+            // For each mapinstance start a mapinteractablesinstance. 
+            // But don't start the instances already existant
             foreach (var map in maps)
             {
                 var mapid = map.Key;
                 foreach (var instance in map.Value)
                 {
+                    if (runningmapinstances.ContainsKey(mapid) && runningmapinstances[mapid].Contains(instance))
+                        continue;
+
                     Protocols.MapProtocol.MapInstance mapinstancedata = null; // get instance TODO
                     Protocols.MapProtocol.Map mapdata = null;
                     Data.MapInteractablesInstance.StartInstance(mapdata, mapinstancedata);

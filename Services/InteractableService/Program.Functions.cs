@@ -28,6 +28,7 @@ namespace ERA.Services.InteractableService
 
             // Broadcast Response
             Functions.Add("GetRunning", GetRunning);
+            Functions.Add("GetRunningMapInstances", GetRunningMapInstances);
 
             // Public Response
             Functions.Add("Subscribe", Subscribe);
@@ -76,6 +77,28 @@ namespace ERA.Services.InteractableService
             answer.Packet.Write(interactables.Count);
             foreach (var interactable in interactables)
                 answer.Packet.Write(new ObjectId(interactable).ToByteArray());
+
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetRunningMapInstances(Message msg)
+        {
+            var answer = msg.Answer(EraSClient);
+            answer.Packet.Write((Int32)0);
+            var maps = MapInteractablesInstances.GetKeys();
+            answer.Packet.Write(maps.Count);
+            foreach (var map in maps)
+            {
+                answer.Packet.Write(map.ToByteArray());
+                var instances = MapInteractablesInstances.GetKeysOf(map);
+                answer.Packet.Write(instances.Count);
+                foreach (var instance in instances)
+                    answer.Packet.Write(instance.ToByteArray());
+            }
 
             EraSClient.SendMessage(answer);
         }
