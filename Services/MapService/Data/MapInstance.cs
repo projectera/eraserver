@@ -55,5 +55,15 @@ namespace ERA.Services.MapService.Data
             Program.MapSubscriptions.AddSubscriptionList(result.InstanceData.Id.ToString());
             return result;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="netBuffer"></param>
+        internal void Write(NetBuffer netBuffer)
+        {
+            netBuffer.Write(InstanceData.Id.ToByteArray());
+            netBuffer.Write(InstanceData.MapId.ToByteArray());
+        }
     }
 }
