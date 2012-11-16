@@ -11,14 +11,14 @@ namespace ERA.Services.Map.Data
 {
     internal static class Map
     {
-        private static Dictionary<ObjectId, MapProtocol.Map> Cache = new Dictionary<ObjectId, MapProtocol.Map>();
+        private static Dictionary<ObjectId, ERA.Protocols.MapProtocol.Map> Cache = new Dictionary<ObjectId, ERA.Protocols.MapProtocol.Map>();
 
         /// <summary>
         /// Gets a map from the db
         /// </summary>
         /// <param name="id">id of map to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Map> Get(ObjectId id, Boolean tryCache = true)
+        internal static Task<ERA.Protocols.MapProtocol.Map> Get(ObjectId id, Boolean tryCache = true)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(id, tryCache); });
         }
@@ -28,7 +28,7 @@ namespace ERA.Services.Map.Data
         /// </summary>
         /// <param name="name">name of map to get</param>
         /// <returns></returns>
-        internal static Task<MapProtocol.Map> Get(String name)
+        internal static Task<ERA.Protocols.MapProtocol.Map> Get(String name)
         {
             return Task.Factory.StartNew(() => { return GetBlocking(name); });
         }
@@ -38,9 +38,9 @@ namespace ERA.Services.Map.Data
         /// </summary>
         /// <param name="id">id of map to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Map GetBlocking(ObjectId id, Boolean tryCache = true)
+        internal static ERA.Protocols.MapProtocol.Map GetBlocking(ObjectId id, Boolean tryCache = true)
         {
-            MapProtocol.Map result = null;
+            ERA.Protocols.MapProtocol.Map result = null;
             if (tryCache)
             {
                 lock (Cache)
@@ -50,7 +50,7 @@ namespace ERA.Services.Map.Data
                 }
             }
 
-            result = GetCollection().FindOneById(id) as MapProtocol.Map;
+            result = GetCollection().FindOneById(id) as ERA.Protocols.MapProtocol.Map;
 
             lock (Cache)
             {
@@ -65,25 +65,25 @@ namespace ERA.Services.Map.Data
         /// </summary>
         /// <param name="name">name of map to get</param>
         /// <returns></returns>
-        internal static MapProtocol.Map GetBlocking(String name)
+        internal static ERA.Protocols.MapProtocol.Map GetBlocking(String name)
         {
-            return GetCollection().FindOneAs<MapProtocol.Map>(
-                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as MapProtocol.Map;
+            return GetCollection().FindOneAs<ERA.Protocols.MapProtocol.Map>(
+                Query.Matches("Name", new BsonRegularExpression("^(?i)" + name + "$"))) as ERA.Protocols.MapProtocol.Map;
         }
 
         /// <summary>
         /// Gets the maps collection
         /// </summary>
         /// <returns></returns>
-        internal static MongoCollection<MapProtocol.Map> GetCollection()
+        internal static MongoCollection<ERA.Protocols.MapProtocol.Map> GetCollection()
         {
-            return ServiceProtocol.ServiceClient.Database.GetCollection<MapProtocol.Map>("Maps");
+            return ServiceProtocol.ServiceClient.Database.GetCollection<ERA.Protocols.MapProtocol.Map>("Maps");
         }
 
         /// <summary>
         /// Puts a map to the db
         /// </summary>
-        internal static void Put(MapProtocol.Map map)
+        internal static void Put(ERA.Protocols.MapProtocol.Map map)
         {
             Put(map, SafeMode.False);
         }
@@ -92,9 +92,9 @@ namespace ERA.Services.Map.Data
         /// Puts a map to the db
         /// <param name="safemode">Sets the safemode on this query</param>
         /// </summary>
-        internal static SafeModeResult Put(MapProtocol.Map map, SafeMode safemode)
+        internal static SafeModeResult Put(ERA.Protocols.MapProtocol.Map map, SafeMode safemode)
         {
-            return GetCollection().Save<MapProtocol.Map>(map, safemode);
+            return GetCollection().Save<ERA.Protocols.MapProtocol.Map>(map, safemode);
         }
     }
 }

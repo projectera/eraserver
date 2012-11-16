@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ServiceProtocol;
 using MongoDB.Bson;
-using MapProtocol;
+using ERA.Protocols.MapProtocol;
 using System.Threading;
 
 namespace ERA.Services.Map
@@ -161,11 +161,11 @@ namespace ERA.Services.Map
         /// </summary>
         /// <param name="mapid"></param>
         /// <returns></returns>
-        protected static MapProtocol.Map __GetMapData(ObjectId mapId)
+        protected static ERA.Protocols.MapProtocol.Map __GetMapData(ObjectId mapId)
         {
             var instances = MapInstances.GetKeysOf(mapId);
 
-            MapProtocol.Map mapData = null;
+            ERA.Protocols.MapProtocol.Map mapData = null;
             if (instances != null && instances.Count > 0)
             {
                 var instance = MapInstances.GetValueOf(mapId, instances.First());

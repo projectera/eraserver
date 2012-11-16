@@ -84,9 +84,9 @@
     <Compile Include="ThreadsafeDictOfDict.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MapProtocol\MapProtocol.csproj">
+    <ProjectReference Include="..\..\MapProtocol\ERA.Protocols.MapProtocol.csproj">
       <Project>{1D26E59F-14DB-44F2-94CA-2CDB46D9F9AF}</Project>
-      <Name>MapProtocol</Name>
+      <Name>ERA.Protocols.MapProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ServiceProtocol\ServiceProtocol.csproj">
       <Project>{D180FD09-A65C-46A5-9ED0-186E46319C95}</Project>

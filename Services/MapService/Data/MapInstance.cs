@@ -13,12 +13,12 @@ namespace ERA.Services.Map.Data
         /// <summary>
         /// Instance Data
         /// </summary>
-        public MapProtocol.MapInstance InstanceData { get; protected set; }
+        public ERA.Protocols.MapProtocol.MapInstance InstanceData { get; protected set; }
 
         /// <summary>
         /// Map Data
         /// </summary>
-        public MapProtocol.Map MapData { get; protected set; }
+        public ERA.Protocols.MapProtocol.Map MapData { get; protected set; }
 
         /// <summary>
         /// When was the instance created
@@ -34,10 +34,10 @@ namespace ERA.Services.Map.Data
         /// Creates a new map Instance
         /// </summary>
         /// <param name="data"></param>
-        protected MapInstance(MapProtocol.Map data)
+        protected MapInstance(ERA.Protocols.MapProtocol.Map data)
         {
             this.MapData = data;
-            this.InstanceData = MapProtocol.MapInstance.Generate(data.Id);
+            this.InstanceData = ERA.Protocols.MapProtocol.MapInstance.Generate(data.Id);
 
             this.Queue = new ActionQueue();
         }
@@ -47,7 +47,7 @@ namespace ERA.Services.Map.Data
         /// </summary>
         /// <param name="map">On what map</param>
         /// <returns>The new instance</returns>
-        public static MapInstance StartInstance(MapProtocol.Map map)
+        public static MapInstance StartInstance(ERA.Protocols.MapProtocol.Map map)
         {
             var result = new MapInstance(map);
             Program.MapInstances.AddInside(result.InstanceData.MapId, result.InstanceData.Id, result);
