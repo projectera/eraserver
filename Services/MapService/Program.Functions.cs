@@ -155,6 +155,22 @@ namespace ERA.Services.MapService
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg"></param>
+        public static void GetInstance(Message msg)
+        {
+            var mapId = new ObjectId(msg.Packet.ReadBytes(12));
+            var mapInstanceId = new ObjectId(msg.Packet.ReadBytes(12));
+            var instance = MapInstances.GetValueOf(mapId, mapInstanceId);
+            if (instance == null)
+                return;
+            var answer = msg.Answer(EraSClient);
+            instance.Write(answer.Packet);
+            EraSClient.SendMessage(answer);
+        }
+
+        /// <summary>
         /// Gets map data from active, cache or database
         /// </summary>
         /// <param name="mapid"></param>
