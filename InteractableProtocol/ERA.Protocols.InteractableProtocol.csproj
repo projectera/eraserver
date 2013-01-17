@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6B2BB941-BB2D-4B39-85E4-284CE174C3A3}</ProjectGuid>
+    <ProjectGuid>{0713663A-B9F7-43E0-A931-F0392B6BC7EA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ERA.Protocols.ClientProtocol</RootNamespace>
-    <AssemblyName>ERA.Protocols.ClientProtocol</AssemblyName>
+    <RootNamespace>ERA.Protocols.InteractableProtocol</RootNamespace>
+    <AssemblyName>ERA.Protocols.InteractableProtocol</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Lidgren.Network">
+      <HintPath>..\Libraries\Lidgren.Network.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson, Version=1.6.2.35072, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\MongoDB.Bson.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,8 +47,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientProtocols.cs" />
-    <Compile Include="PlayerAction.cs" />
+    <Compile Include="BodyPart.cs" />
+    <Compile Include="EquipmentPart.cs" />
+    <Compile Include="InteractableAppearance.cs" />
+    <Compile Include="InteractableBodyPart.cs" />
+    <Compile Include="InteractableComponent.cs" />
+    <Compile Include="Interactable.cs" />
+    <Compile Include="InteractableComponentType.cs" />
+    <Compile Include="InteractableMovement.cs" />
+    <Compile Include="InteractableStateFlags.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

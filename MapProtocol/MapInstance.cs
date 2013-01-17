@@ -29,5 +29,19 @@ namespace ERA.Protocols.MapProtocol
             result.MapId = map;
             return result;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public static MapInstance Generate(ObjectId map, ObjectId instance)
+        {
+            var result = new MapInstance();
+            result.Id = instance;
+            result.MapId = map;
+            return result;
+        }
     }
 }
