@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{625F96AE-6C33-4967-8B37-BA1E0D426518}</ProjectGuid>
+    <ProjectGuid>{46D6709E-2A1D-4C96-BEF6-44139CA4AAA7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ERA.Tools.HeadlessClient</RootNamespace>
@@ -104,7 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ClientProtocol\ERA.Protocols.ClientProtocol.csproj">
-      <Project>{DE4A1299-5253-45E3-809D-CE9AF4C6475F}</Project>
+      <Project>{6B2BB941-BB2D-4B39-85E4-284CE174C3A3}</Project>
       <Name>ERA.Protocols.ClientProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Libraries\NetworkLobby\Lidgren.Network.Lobby.csproj">
